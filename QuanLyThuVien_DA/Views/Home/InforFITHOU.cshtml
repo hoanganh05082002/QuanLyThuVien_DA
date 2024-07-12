@@ -1,0 +1,96 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+
+@{
+    // Lấy thông tin từ Session
+    var userID = Session["UserID"];
+    var userName = Session["UserName"];
+    var userRole = Session["UserRole"];
+}
+<!-- Button Profile -->
+@if (userID != null)
+{
+    <div style="position: fixed; top: 10px; right: 10px;">
+        <a class="nav-link edit-btn text-dark" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="mr-2 d-none d-lg-inline text-gray-600 small font-weight-bold">Xin chào, @userName</span>
+        </a>
+
+        <!-- Dropdown - User Information -->
+        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
+            <a class="dropdown-item edit-btn" href="~/Home/UserProfile">
+                <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                Trang cá nhân
+            </a>
+            @if (!userRole.Equals("Sinh viên") && !userRole.Equals("Giảng viên"))
+            {
+                <a class="dropdown-item" href="~/Admin/Default">
+                    <i class="fas fa-toolbox fa-sm fa-fw mr-2 text-gray-400 mt-2"></i>
+                    Trang quản trị
+                </a>
+            }
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="~/Home/Logout">
+                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                Đăng xuất
+            </a>
+
+        </div>
+    </div>
+}
+else
+{
+    <div style="position: fixed; top: 10px; right: 10px;">
+        <a class="nav-link" href="@Url.Action("Login", "Home")">
+            <span class="mr-2 d-none d-lg-inline text-gray-600 small text-dark font-weight-bold">Đăng nhập</span>
+        </a>
+    </div>
+}
+
+
+<div class="infor-fithoulib">
+    <h1 class="font-weight-bold mb-4 text-primary">Phần mềm quản lý thư viện số tại Khoa Công nghệ thông tin – Trường Đại học Mở Hà Nội (FITHOU LIB)</h1>
+    <p>
+        Trong thời đại công nghệ thông tin phát triển mạnh mẽ, việc ứng dụng các giải pháp tin học hóa vào quản lý và vận hành các hoạt động học thuật đã trở nên phổ biến trên toàn thế giới. Việt Nam cũng không nằm ngoài xu hướng này, đặc biệt là trong lĩnh vực giáo dục. Một trong những lĩnh vực cần được chú trọng hiện nay là việc nâng cao hiệu quả quản lý thư viện thông qua việc áp dụng công nghệ thông tin. Thư viện không chỉ là kho tàng tri thức mà còn là nơi hỗ trợ đắc lực cho quá trình học tập và nghiên cứu của sinh viên, đặc biệt là sinh viên khoa Công nghệ thông tin, Trường Đại học Mở Hà Nội.
+    </p>
+    <p>
+        Hiện nay, Khoa đã tiến hành biên soạn và xuất bản hơn 100 tập sách chuyên khảo, sách giáo trình và tài liệu hướng dẫn học tập phục vụ cho toàn thể sinh viên trong việc học tập và nghiên cứu. Tập thể cán bộ giảng viên trong Khoa đã và đang thực hiện nhiều nghiên cứu, công bố các công trình trong các diễn đàn hội nghị, tạp chí chuyên ngành. Cùng với đó, Khoa đã thiết kế, xây dựng và đưa vào sử dụng nhiều hệ thống phần mềm phục vụ cho công tác giảng dạy và quản lý trong nhà trường cũng như các phần mềm cho các tổ chức, đơn vị khác.
+    </p>
+    <p>
+        Thư viện khoa Công nghệ thông tin là một địa điểm không thể thiếu đối với mỗi sinh viên. Đây là nơi cung cấp nguồn tài liệu phong phú và đa dạng, giúp sinh viên bổ sung và củng cố kiến thức một cách có hệ thống và chính xác. Đặc biệt, với nhu cầu ngày càng cao về việc tìm kiếm và truy cập tài liệu trực tuyến, việc số hóa và quản lý thư viện bằng máy tính đã trở thành một yêu cầu cấp thiết.
+    </p>
+    <p>
+        Sự phát triển và mở rộng không ngừng của thư viện đồng nghĩa với việc khối lượng công việc của người thủ thư cũng tăng lên. Điều này đặt ra thách thức lớn trong việc duy trì hiệu quả và chất lượng phục vụ cho sinh viên và giảng viên.
+    </p>
+    <p>
+        Phần mềm này không chỉ giúp giảm tải công việc cho người thủ thư mà còn mang lại nhiều tiện ích cho sinh viên trong việc tìm kiếm và truy cập tài liệu một cách nhanh chóng và chính xác. Hy vọng rằng, dự án này sẽ góp phần nâng cao chất lượng học tập và nghiên cứu của sinh viên khoa Công nghệ thông tin, đồng thời đóng góp vào sự phát triển chung của Trường Đại học Mở Hà Nội.
+    </p>
+</div>
+
+<style>
+    .infor-fithoulib {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        margin-top: 10px;
+        margin-right: 40px;
+        margin-left: 40px;
+    }
+
+    h1, h2 {
+        color: #2c3e50;
+    }
+
+    p {
+        text-align: justify;
+    }
+
+    .icon-title {
+        display: flex;
+        align-items: center;
+    }
+
+        .icon-title i {
+            margin-right: 10px;
+            color: #2980b9;
+        }
+</style>

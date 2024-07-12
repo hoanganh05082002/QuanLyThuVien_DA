@@ -1,0 +1,281 @@
+﻿
+@{
+    // Lấy thông tin từ Session
+    var userID = Session["UserID"];
+    var userName = Session["UserName"];
+    var userRole = Session["UserRole"];
+    // Kiểm tra xem người dùng đã đăng nhập chưa
+    if (userID == null)
+    {
+        // Nếu chưa đăng nhập, chuyển hướng sang trang đăng nhập
+        Response.Redirect("~/Home/Login");
+    }
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Admin Panel</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+  
+    <!-- Custom fonts for this template-->
+    <link href="~/Interface/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+
+    <!-- Custom styles for this template-->
+    <link href="~/Interface/css/sb-admin-2.min.css" rel="stylesheet">
+</head>
+<body id="page-top">
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+            <!-- Sidebar - Brand -->
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="~/Home/Index">
+                <div class="sidebar-brand-icon rotate-n-15">
+                    <i class="fas fa-book"></i>
+                </div>
+                <div class="sidebar-brand-text mx-3">FITHOU<sup>LIB</sup></div>
+            </a>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider my-0">
+
+            <!-- Nav Item - Dashboard -->
+            <li class="nav-item active">
+                <a class="nav-link" href="~/Admin/Default/Index">
+                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <span>Tổng quan</span>
+                </a>
+            </li>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+
+            <!-- Heading -->
+            <div class="sidebar-heading">
+                Giao diện quản lý
+            </div>
+
+            @if (@userRole.Equals("Admin") && userRole != null)
+            {
+                <!-- Nav Item - Người dùng -->
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseUser" aria-expanded="true" aria-controls="collapseUser">
+                        <i class="fas fa-users"></i>
+                        <span>Người dùng</span>
+                    </a>
+                    <div id="collapseUser" class="collapse" aria-labelledby="headingUser" data-parent="#accordionSidebar" style="">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <h6 class="collapse-header">Người dùng</h6>
+
+                            <a class="collapse-item" href="~/Admin/Users/IndexAdmin">Quản trị hệ thống</a>
+                            <a class="collapse-item" href="~/Admin/Users/Index">Người dùng thường</a>
+
+                        </div>
+                    </div>
+                </li>
+                <!-- Nav Item - Diễn đàn -->
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseForum" aria-expanded="true" aria-controls="collapseForum">
+                        <i class="fas fa-comment"></i>
+                        <span>Diễn đàn trao đổi</span>
+                    </a>
+                    <div id="collapseForum" class="collapse" aria-labelledby="headingForum" data-parent="#accordionSidebar" style="">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <h6 class="collapse-header">Diễn đàn trao đổi</h6>
+                            <a class="collapse-item" href="~/Admin/ForumPheDuyet/Index">Bài đăng</a>
+                            @*<a class="collapse-item" href="~/Admin/Forum/Comments">Bình luận</a>*@
+                        </div>
+                    </div>
+                </li>
+
+                //Tin tức và sự kiện
+
+                <li class="nav-item">
+                    <a class="nav-link" href="~/Admin/TinTucSuKien/Index">
+                        <i class="fas fa-newspaper fa-chart-area"></i>
+                        <span>Tin tức và sự kiện</span>
+                    </a>
+                </li>
+            }
+            else if (@userRole.Equals("Thủ thư") && userRole != null)
+            {
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseDocuments" aria-expanded="true" aria-controls="collapseDocuments">
+                        <i class="fas fa-book fa-book-open"></i>
+                        <span>Tài liệu</span>
+                    </a>
+                    <div id="collapseDocuments" class="collapse" aria-labelledby="headingDocuments" data-parent="#accordionSidebar" style="">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <h6 class="collapse-header">Tài liệu</h6>
+                            <a class="collapse-item" href="~/Admin/Categories/Index">Thể loại</a>
+                            <a class="collapse-item" href="~/Admin/Documents/Index">Tài liệu mới</a>
+                            <a class="collapse-item" href="~/Admin/CategoriesDX/IndexPheDuyet">Thể loại tài liệu đề xuất</a>
+                        </div>
+                    </div>
+                </li>
+                @* Báo cáo thống kê *@
+                <li class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fas fa-fw fa-chart-area"></i>
+                        <span>Thống kê</span>
+                    </a>
+                </li>
+            }
+            else
+            {
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseDocuments" aria-expanded="true" aria-controls="collapseDocuments">
+                        <i class="fas fa-book fa-book-open"></i>
+                        <span>Tài liệu</span>
+                    </a>
+                    <div id="collapseDocuments" class="collapse" aria-labelledby="headingDocuments" data-parent="#accordionSidebar" style="">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <h6 class="collapse-header">Tài liệu</h6>
+                            <a class="collapse-item" href="~/Admin/DeXuatPheDuyet/IndexPheDuyet">Thể loại tài liệu đề xuất</a>
+                        </div>
+                    </div>
+                </li>
+
+                @* Báo cáo thống kê *@
+                <li class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fas fa-fw fa-chart-area"></i>
+                        <span>Thống kê</span>
+                    </a>
+                </li>
+
+            }
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+        </ul>
+
+        <!-- End of Sidebar -->
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <!-- Main Content -->
+            <div id="content">
+                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+
+                    <!-- Sidebar Toggle (Topbar) -->
+                    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                        <i class="fa fa-bars"></i>
+                    </button>
+
+                    <!-- Topbar Search -->
+                    <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+                        <div class="input-group">
+                            <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" type="button">
+                                    <i class="fas fa-search fa-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Topbar Navbar -->
+                    <ul class="navbar-nav ml-auto">
+
+                        <!-- Nav Item - Search Dropdown (Visible Only XS) -->
+                        <li class="nav-item dropdown no-arrow d-sm-none">
+                            <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-search fa-fw"></i>
+                            </a>
+                            <!-- Dropdown - Messages -->
+                            <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in" aria-labelledby="searchDropdown">
+                                <form class="form-inline mr-auto w-100 navbar-search">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
+                                        <div class="input-group-append">
+                                            <button class="btn btn-primary" type="button">
+                                                <i class="fas fa-search fa-sm"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </li>
+
+
+                        <div class="topbar-divider d-none d-sm-block"></div>
+
+                        <!-- Nav Item - User Information -->
+                        <li class="nav-item dropdown no-arrow">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <img class="img-profile rounded-circle mr-2" src="~/Image/FITHOU.png" alt="Profile Image">
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">Xin chào, @userName</span>
+                            </a>
+                            <!-- Dropdown - User Information -->
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                                <a class="dropdown-item" href="~/Home/Logout">
+                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Logout
+                                </a>
+                            </div>
+                        </li>
+
+                    </ul>
+
+                </nav>
+                <!-- End of Topbar -->
+
+                <main role="main" class="ms-sm-auto px-md-4">
+                    <div class="pt-3 pb-2 mb-3 border-bottom">
+                        <h1 class="h2">@ViewData["Title"]</h1>
+                    </div>
+                    @RenderBody()
+                </main>
+
+
+            </div>
+            <!-- End of Main Content -->
+            <!-- Footer -->
+            <footer class="sticky-footer bg-white">
+                <div class="container my-auto">
+                    <div class="copyright text-center my-auto">
+                        <span>&copy; FITHOU-LIB 2024</span>
+                    </div>
+                </div>
+            </footer>
+            <!-- End of Footer -->
+
+        </div>
+        <!-- End of Content Wrapper -->
+
+    </div>
+
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+    <script src="~/Interface/ckeditor/ckeditor.js"></script>
+
+    <!-- Bootstrap core JavaScript-->
+    <script src="~/Interface/vendor/jquery/jquery.min.js"></script>
+    <script src="~/Interface/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="~/Interface/vendor/jquery-easing/jquery.easing.min.js"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="~/Interface/js/sb-admin-2.min.js"></script>
+
+    <!-- Page level plugins -->
+    <script src="~/Interface/vendor/chart.js/Chart.min.js"></script>
+
+    <!-- Page level custom scripts -->
+    <script src="~/Interface/js/demo/chart-area-demo.js"></script>
+    <script src="~/Interface/js/demo/chart-pie-demo.js"></script>
+
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("Scripts", false)
+
+</body>
+
+</html>

@@ -1,0 +1,166 @@
+﻿@model QuanLyThuVien_DA.Models.FITHOU_LIB_DeXuatTheLoaiView
+@{
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+    var userID = Session["UserID"];
+    var userName = Session["UserName"];
+    var userEmail = Session["UserEmail"];
+    var userRole = Session["UserRole"];
+}
+
+<!-- Button Profile -->
+@if (userID != null)
+{
+    <div style="position: fixed; top: 10px; right: 10px;">
+        <a class="nav-link edit-btn text-dark" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="mr-2 d-none d-lg-inline text-gray-600 small text-dark">Xin chào, @userName</span>
+        </a>
+
+        <!-- Dropdown - User Information -->
+        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
+            <a class="dropdown-item edit-btn" href="~/Home/UserProfile">
+                <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                Trang cá nhân
+            </a>
+            @if (!userRole.Equals("Sinh viên") && !userRole.Equals("Giảng viên"))
+            {
+                <a class="dropdown-item" href="~/Admin/Default">
+                    <i class="fas fa-toolbox fa-sm fa-fw mr-2 text-gray-400 mt-2"></i>
+                    Trang quản trị
+                </a>
+            }
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="~/Home/Logout">
+                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                Đăng xuất
+            </a>
+        </div>
+    </div>
+}
+else
+{
+    <div style="position: fixed; top: 10px; right: 10px;">
+        <a class="nav-link" href="@Url.Action("Login", "Home")">
+            <span class="mr-2 d-none d-lg-inline text-gray-600 small text-dark">Đăng nhập</span>
+        </a>
+    </div>
+}
+
+<h2 class="text-center text-primary font-weight-bold mr-auto">Đề xuất thể loại mới</h2>
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            <form id="dexuatForm" class="needs-validation" novalidate>
+                <input type="hidden" id="TheLoaiId" name="TheLoaiId">
+                <input type="hidden" id="UserID" name="UserID" value="@userID">
+                <div class="row mb-3">
+                    <div class="row mb-3">
+                        <label for="HoTen" class="col-sm-3 col-form-label text-end">Người thêm</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="HoTen" name="HoTen" readonly value="@userName">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="Email" class="col-sm-3 col-form-label text-end">Email</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="Email" name="Email" readonly value="@userEmail" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="TenTheLoai" class="col-sm-3 col-form-label text-end">Tên thể loại</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="TenTheLoai" name="TenTheLoai" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="LyDoDeXuat" class="col-sm-3 col-form-label text-end">Lý do đề xuất</label>
+                        <div class="col-sm-9">
+                            <textarea class="form-control" id="LyDoDeXuat" name="LyDoDeXuat" rows="3" required></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    @if (userID != null)
+                    {
+                        <div class="col-sm-12 text-center">
+                            <button type="button" id="submitDexuat" class="btn btn-primary">Gửi đề xuất</button>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-sm-12 text-center">
+                            <a href="@Url.Action("Login", "Home")" class="btn btn-primary">Vui lòng đăng nhập</a>
+                        </div>
+                    }
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div aria-live="polite" aria-atomic="true" style="position: relative; z-index: 9999;">
+    <div id="toastContainer" style="position: fixed; top: 20px; right: 20px;">
+        <div class="toast" id="actionToast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="1000">
+            <div class="toast-header">
+                <strong class="mr-auto" id="toastTitle">Thông báo</strong>
+                <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="toast-body" id="toastMessage"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $("#submitDexuat").click(function () {
+                var form = $("#dexuatForm")[0];
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    form.classList.add('was-validated');
+                } else {
+                    $.ajax({
+                        url: '@Url.Action("Create", "DeXuatTheLoai")',
+                        type: 'POST',
+                        data: $("#dexuatForm").serialize(),
+                        success: function (response) {
+                            if (response.success) {
+                                showToast('Gửi thành công!', 'success');
+                                location.reload(); // Chuyển hướng đến trang mới
+                            } else {
+                                showToast('Lỗi khi gửi!', 'danger');
+                            }
+                        },
+                        error: function () {
+                            showToast('Lỗi khi gửi!', 'danger');
+                        }
+                    });
+                }
+            });
+        });
+
+        // Hiển thị Toast thông báo và sau đó chuyển hướng đến trang khác
+        function showToast(message, type) {
+            $('#toastTitle').text(type === 'success' ? 'Thành công' : 'Lỗi');
+            $('#toastMessage').text(message);
+            var toastElement = $('#actionToast');
+            toastElement.removeClass('bg-success bg-danger bg-warning').addClass('bg-' + type);
+            toastElement.toast('show');
+            // Đặt thời gian trễ trước khi ẩn toast và chuyển hướng đến trang khác
+            setTimeout(function () {
+               
+                $('#actionToast').toast('hide'); // Ẩn toast sau khi đã trễ
+            }, 2000); // Thay đổi số 2000 thành thời gian (trong miligiây) bạn muốn hiển thị toast trước khi biến mất và chuyển hướng đến trang khác
+        }
+    </script>
+}
+<style>
+
+    h2 {
+        text-align: center; /* Căn giữa nội dung của h2 */
+        margin-top: 20px; /* Khoảng cách từ trên xuống */
+        margin-bottom: 20px; /* Khoảng cách từ dưới lên */
+    }
+</style>

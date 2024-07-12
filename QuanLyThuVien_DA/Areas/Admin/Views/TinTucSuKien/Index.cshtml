@@ -1,0 +1,422 @@
+﻿@model IEnumerable<QuanLyThuVien_DA.Models.FITHOU_LIB_TinTucSuKienView>
+
+@{
+    ViewBag.Title = "Tin tức và sự kiện";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+@{
+    var userId = Session["UserID"];
+    var userName = Session["UserName"];
+    var userRole = Session["UserRole"];
+}
+
+<script src="~/Plugins/Plugins/ckeditor/ckeditor.js"></script>
+
+<!-- Button to open Create Modal -->
+<button type="button" class="btn btn-primary mb-2" data-bs-toggle="modal" data-bs-target="#createModal" id="openCreateModal">
+    <i class="fa fa-newspaper"></i>
+    <span> Thêm </span>
+</button>
+
+<!-- Modal Thêm, Sửa -->
+<div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true"
+     data-user-id="@userId" data-user-name="@userName" data-user-role="@userRole" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg">
+        <!-- Sử dụng lớp modal-lg để làm modal rộng hơn -->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createModalLabel">Thêm mới tin tức</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createForm" class="needs-validation" novalidate>
+                    <input type="hidden" id="TinTucId" name="TinTucId">
+                    <input type="hidden" id="UserID" name="UserID" value="@userId">
+
+                    <!-- Tiêu đề -->
+                    <div class="row mb-3">
+                        <label for="TieuDe" class="col-sm-3 col-form-label text-end">Tiêu đề</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="TieuDe" name="TieuDe" required>
+                        </div>
+                    </div>
+
+                    <!-- Nội dung -->
+                    <div class="row mb-3">
+                        <label for="NoiDung" class="col-sm-3 col-form-label text-end">Nội dung</label>
+                        <div class="col-sm-9">
+                            <textarea class="form-control" id="NoiDung" name="NoiDung"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Người thêm -->
+                    <div class="row mb-3">
+                        <label for="HoTen" class="col-sm-3 col-form-label text-end">Người thêm</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="HoTen" name="HoTen" readonly required>
+                        </div>
+                    </div>
+
+                    <!-- Ảnh nền -->
+                    <div class="row mb-3">
+                        <label for="AnhNen" class="col-sm-3 col-form-label text-end">Ảnh nền</label>
+                        <div class="col-sm-9">
+                            <input type="file" class="form-control mb-2" id="AnhNen" name="AnhNen" />
+                            <img id="currentAnhNen" src="#" alt="Current Image" style="display:none; width:100px; height:auto;" />
+                            <span id="AnhNenFileName" style="display:none; margin-left: 10px;"></span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="saveChangesBtn">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<table class="table mt-3">
+    <thead>
+        <tr>
+            <th>Tiêu đề </th>
+            <th>Ngày đăng tải</th>
+            <th>Người đăng tải</th>
+            <th>Tác vụ</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr data-tintuc-id="@item.ID">
+                <td>@Html.DisplayFor(modelItem => item.TieuDe)</td>
+                <td>@item.NgayDang.ToString("dd/MM/yyyy")</td>
+                <td>@Html.DisplayFor(modelItem => item.HoTen)</td>
+                <td>
+                    <button class="btn btn-info btn-sm edit-btn">
+                        <i class="fa fa-edit"></i>
+                    </button> |
+                    <button class="btn btn-danger btn-sm delete-btn" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                        <i class="fa fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (ViewBag.Pagination != null)
+{
+    <div class="d-flex justify-content-center">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination">
+                @if (ViewBag.Pagination.PageNumber > 1)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.Pagination.PageNumber - 1 })" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                }
+                @for (int i = 1; i <= ViewBag.Pagination.PageTotal; i++)
+                {
+                    <li class="page-item @(i == ViewBag.Pagination.PageNumber ? "active" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { page = i })">@i</a>
+                    </li>
+                }
+                @if (ViewBag.Pagination.PageNumber < ViewBag.Pagination.PageTotal)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.Pagination.PageNumber + 1 })" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    </div>
+}
+<!-- Modal Xóa -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Bạn có chắc chắn muốn xóa tin tức này không?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Xóa</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Toast *@
+<div aria-live="polite" aria-atomic="true" style="position: relative; z-index: 9999;">
+    <div id="toastContainer" style="position: fixed; top: 20px; right: 20px;">
+        <div class="toast" id="actionToast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="1000">
+            <div class="toast-header">
+                <strong class="mr-auto" id="toastTitle">Thông báo</strong>
+                <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="toast-body text-white" id="toastMessage"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            CKEDITOR.replace('NoiDung');
+
+            // Xử lý sự kiện khi nhấn nút Sửa
+            $(document).on('click', '.edit-btn', function () {
+                var tintucId = $(this).closest('tr').data('tintuc-id');
+                openEditModal(tintucId);
+            });
+
+            // Xử lý sự kiện khi nhấn nút Thêm
+            $('#openCreateModal').click(function () {
+                $('#createModalLabel').text('Thêm mới tin tức');
+                $('#saveChangesBtn').text('Thêm').off('click').on('click', function () {
+                    createTinTuc();
+                });
+                $('#HoTen').val('@userName'); // Set default user name
+                $('#createModal').modal('show');
+            });
+
+            // Xử lý sự kiện khi đóng modal Thêm/Sửa
+            $('#createModal').on('hide.bs.modal', function () {
+                resetModal();
+            });
+
+            // Hàm reset modal về trạng thái mặc định
+            function resetModal() {
+                $('#createModalLabel').text('Thêm mới tin tức');
+                $('#saveChangesBtn').text('Thêm').off('click').on('click', function () {
+                    createTinTuc();
+                });
+                $('#createForm')[0].reset();
+                $('#TinTucId').val('');
+
+                // Reset ảnh và file tên
+                $('#currentAnhNen').hide();
+                $('#AnhNenFileName').hide();
+
+                $('#createForm').removeClass('was-validated');
+
+                // Reset CKEditor
+                for (instance in CKEDITOR.instances) {
+                    CKEDITOR.instances[instance].setData('');
+                }
+            }
+
+         // Trong hàm openEditModal:
+function openEditModal(tintucId) {
+    $.ajax({
+        url: '@Url.Action("GetTinTuc", "TinTucSuKien")',
+        type: 'GET',
+        data: { id: tintucId },
+        success: function (response) {
+            if (response) {
+                $('#createModalLabel').text('Chỉnh sửa tin tức');
+                $('#saveChangesBtn').text('Lưu thay đổi').off('click').on('click', function () {
+                    editTinTuc(tintucId);
+                });
+
+                $('#TieuDe').val(response.TieuDe);
+                CKEDITOR.instances['NoiDung'].setData(response.NoiDung); // Ensure CKEditor content is set correctly
+                $('#HoTen').val(response.HoTen);
+                $('#TinTucId').val(response.ID);
+
+                // Hiển thị ảnh nền (nếu có)
+                if (response.AnhNen) {
+                    $('#currentAnhNen').attr('src', response.AnhNen).show();
+                    var fileName = response.AnhNen.split('/').pop(); // Lấy tên tệp từ URL
+                    $('#AnhNenFileName').text(fileName).show(); // Hiển thị tên tệp
+                } else {
+                    $('#currentAnhNen').hide();
+                    $('#AnhNenFileName').hide(); // Ẩn tên tệp nếu không có ảnh nền
+                }
+
+                $('#createModal').modal('show');
+            } else {
+                showToast('Không tìm thấy tin tức để chỉnh sửa!', 'warning');
+            }
+        },
+        error: function () {
+            showToast('Lỗi khi lấy dữ liệu tin tức để chỉnh sửa!', 'danger');
+        }
+    });
+}
+
+            // Hàm tạo mới tin tức
+            function createTinTuc() {
+                var form = $('#createForm')[0];
+                if (form.checkValidity() === false) {
+                    form.classList.add('was-validated');
+                    return;
+                }
+
+                // Cập nhật nội dung CKEditor vào textarea
+                for (instance in CKEDITOR.instances) {
+                    CKEDITOR.instances[instance].updateElement();
+                }
+
+                var formData = new FormData(form);
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("Create", "TinTucSuKien")',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.success) {
+                            $('#createModal').modal('hide');
+                            showToast('Thêm tin tức thành công!', 'success');
+                            // Đặt thời gian trễ trước khi ẩn toast
+                            setTimeout(function () {
+                                location.reload();
+                                $('#actionToast').toast('hide'); // Ẩn toast sau khi đã trễ
+                            }, 1000); 
+                        } else {
+                            showToast('Lỗi khi thêm tin tức!', 'danger');
+                        }
+                    },
+                    error: function () {
+                        showToast('Lỗi khi thêm tin tức!', 'danger');
+                    }
+                });
+            }
+
+            // Hàm chỉnh sửa tin tức
+            function editTinTuc(tintucId) {
+                var form = $('#createForm')[0];
+                if (form.checkValidity() === false) {
+                    form.classList.add('was-validated');
+                    return;
+                }
+
+                // Cập nhật nội dung CKEditor vào textarea
+                for (instance in CKEDITOR.instances) {
+                    CKEDITOR.instances[instance].updateElement();
+                }
+
+                var formData = new FormData(form);
+                formData.append('ID', tintucId);
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("Edit", "TinTucSuKien")',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.success) {
+                            $('#createModal').modal('hide');
+                            showToast('Cập nhật tin tức thành công!', 'success');
+                            // Đặt thời gian trễ trước khi ẩn toast
+                            setTimeout(function () {
+                                location.reload();
+                                $('#actionToast').toast('hide'); // Ẩn toast sau khi đã trễ
+                            }, 1000); 
+                        } else {
+                            showToast('Lỗi khi cập nhật tin tức!', 'danger');
+                        }
+                    },
+                    error: function () {
+                        showToast('Lỗi khi cập nhật tin tức!', 'danger');
+                    }
+                });
+            }
+
+            // Xử lý sự kiện khi nhấn nút Xóa
+            $(document).on('click', '.delete-btn', function () {
+                var tintucDeleteId = $(this).closest('tr').data('tintuc-id');
+                $('#confirmDeleteBtn').data('tintuc-id', tintucDeleteId);
+                $('#deleteModal').modal('show');
+            });
+
+            // Xử lý sự kiện khi nhấn nút Xác nhận Xóa
+            $('#confirmDeleteBtn').click(function () {
+                var tintucDeleteId = $(this).data('tintuc-id');
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("Delete", "TinTucSuKien")',
+                    data: { ID: tintucDeleteId },
+                    success: function (response) {
+                        if (response.success) {
+                            $('#deleteModal').modal('hide');
+                            showToast('Xóa tin tức thành công!', 'success');
+                            // Đặt thời gian trễ trước khi ẩn toast
+                            setTimeout(function () {
+                                location.reload();
+                                $('#actionToast').toast('hide'); // Ẩn toast sau khi đã trễ
+                            }, 1000); 
+                        } else {
+                            showToast('Lỗi khi xóa tin tức!', 'danger');
+                        }
+                    },
+                    error: function () {
+                        showToast('Lỗi khi xóa tin tức!', 'danger');
+                    }
+                });
+            });
+
+            // Hàm hiển thị thông báo Toast
+            function showToast(message, type) {
+                $('#toastTitle').text(type === 'success' ? 'Thành công' : 'Lỗi');
+                $('#toastMessage').text(message);
+                var toastElement = $('#actionToast');
+                toastElement.removeClass('bg-success bg-danger').addClass('bg-' + type);
+                toastElement.toast('show');
+            }
+        });
+    </script>
+}
+ 
+
+
+<style>
+    /* Custom column widths */
+    .table th:nth-child(1),
+    .table td:nth-child(1) {
+        width: 40%;
+    }
+    .modal-dialog {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .modal-body {
+     padding-right : 80px
+    }
+    .table th:nth-child(2),
+    .table td:nth-child(2) {
+        width: 15%;
+    }
+
+    .table th:nth-child(3),
+    .table td:nth-child(3) {
+        width: 15%;
+    }
+
+    .table th:nth-child(4),
+    .table td:nth-child(4) {
+        width: 15%;
+    }
+
+    tr, td {
+        color: black;
+    }
+</style>

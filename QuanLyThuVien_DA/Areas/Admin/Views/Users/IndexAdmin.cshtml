@@ -1,0 +1,455 @@
+﻿@model IEnumerable<QuanLyThuVien_DA.Models.FITHOU_LIB_Users>
+
+@{
+    ViewBag.Title = "Danh sách người quản trị";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+<button type="button" class="btn btn-primary mb-2" data-bs-toggle="modal" data-bs-target="#createModal" id="openCreateModal">
+    <i class="fa fa-user-plus"></i>
+</button>
+@{
+    var userId = Session["UserID"];
+    var userName = Session["UserName"];
+    var userRole = Session["UserRole"];
+}
+@* Modal Thêm, Sửa *@
+<div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createModalLabel">Thêm người dùng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createForm" class="needs-validation" novalidate>
+                    <input type="hidden" id="UserId" name="UserId">
+                    <div class="row mb-3">
+                        <label for="HoTen" class="col-sm-3 col-form-label text-end">Họ Tên</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="HoTen" name="HoTen" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="MaSinhVien" class="col-sm-3 col-form-label text-end">Tài khoản</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="MaSinhVien" name="MaSinhVien" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="MatKhauHash" class="col-sm-3 col-form-label text-end">Mật Khẩu</label>
+                        <div class="col-sm-9">
+                            <input type="password" class="form-control" id="MatKhauHash" name="MatKhauHash" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="SoDienThoai" class="col-sm-3 col-form-label text-end">Số Điện Thoại</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="SoDienThoai" name="SoDienThoai" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="Email" class="col-sm-3 col-form-label text-end">Email</label>
+                        <div class="col-sm-9">
+                            <input type="email" class="form-control" id="Email" name="Email" required>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label for="VaiTro" class="col-sm-3 col-form-label text-end">Vai Trò</label>
+                        <div class="col-sm-9">
+                            <select class="form-control" id="VaiTro" name="VaiTro" required>
+                                <option value="Sinh viên">Sinh viên</option>
+                                <option value="Giảng viên">Giảng viên</option>
+                                <option value="Thủ thư">Thủ thư</option>
+                                @*<option value="Admin">Admin</option>*@
+                                <option value="Trưởng khoa">Trưởng khoa</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="saveChangesBtn">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Modal Xóa *@
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Bạn có chắc chắn muốn xóa người dùng này không?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Xóa</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Họ Tên</th>
+            <th>Tài Khoản</th>
+            <th>Số Điện Thoại</th>
+            <th>Email</th>
+            <th>Vai Trò</th>
+            <th>Trạng thái</th>
+            <th>Tác Vụ</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr data-user-id="@item.ID">
+                <td>@Html.DisplayFor(modelItem => item.HoTen)</td>
+                <td>@Html.DisplayFor(modelItem => item.MaSinhVien)</td>
+                <td>@Html.DisplayFor(modelItem => item.SoDienThoai)</td>
+                <td>@Html.DisplayFor(modelItem => item.Email)</td>
+                <td>@Html.DisplayFor(modelItem => item.VaiTro)</td>
+                <td>@(item.TrangThai ? "Hoạt động" : "Vô hiệu hóa")</td>
+                <td>
+                    <button class="btn btn-info btn-sm edit-btn">
+                        <i class="fa fa-edit"></i>
+                    </button>
+                    @if (item.TrangThai == true && !(userRole.Equals("Admin") && item.ID.Equals(userId)))
+                    {
+                        <span> | </span>
+                        <button class="btn btn-danger btn-sm delete-btn">
+                            <i class="fa fa-user-slash"></i>
+                        </button>
+                        <span> | </span>
+                        <button class="btn btn-warning btn-sm disable-btn">
+                            <i class="fa fa-ban"></i>
+                        </button>
+                    }
+                    else if (item.TrangThai == false && !(userRole.Equals("Admin") && item.ID.Equals(userId)))
+                    {
+                        <span> | </span>
+                        <button class="btn btn-danger btn-sm delete-btn">
+                            <i class="fa fa-user-slash"></i>
+                        </button>
+                        <span> | </span>
+                        <button class="btn btn-success btn-sm enable-btn">
+                            <i class="fa fa-check"></i>
+                        </button>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+
+</table>
+@if (ViewBag.Pagination != null)
+{
+    <div class="d-flex justify-content-center">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination">
+                @if (ViewBag.Pagination.PageNumber > 1)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.Action("IndexAdmin", new { page = ViewBag.Pagination.PageNumber - 1 })" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                }
+                @for (int i = 1; i <= ViewBag.Pagination.PageTotal; i++)
+                {
+                    <li class="page-item @(i == ViewBag.Pagination.PageNumber ? "active" : "")">
+                        <a class="page-link" href="@Url.Action("IndexAdmin", new { page = i })">@i</a>
+                    </li>
+                }
+                @if (ViewBag.Pagination.PageNumber < ViewBag.Pagination.PageTotal)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.Action("IndexAdmin", new { page = ViewBag.Pagination.PageNumber + 1 })" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    </div>
+}
+<div aria-live="polite" aria-atomic="true" style="position: relative; z-index: 9999;">
+    <div id="toastContainer" style="position: fixed; top: 20px; right: 20px;">
+        <div class="toast" id="actionToast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="1000">
+            <div class="toast-header">
+                <strong class="mr-auto" id="toastTitle">Thông báo</strong>
+                <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="toast-body text-white" id="toastMessage"></div>
+        </div>
+    </div>
+</div>
+
+
+
+@*-- Xử lý Ajax--*@
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Xử lý sự kiện khi nhấn nút Sửa
+            $('.edit-btn').click(function () {
+                var userId = $(this).closest('tr').data('user-id');
+                openEditModal(userId);
+            });
+
+            // Xử lý sự kiện khi nhấn nút Thêm
+            $('#openCreateModal').click(function () {
+                $('#createModalLabel').text('Thêm người dùng');
+                $('#saveChangesBtn').attr('onclick', 'createUser()');
+                $('#createForm')[0].reset();
+            });
+
+            $('#createModal').on('hide.bs.modal', function () {
+                resetModal();
+            });
+
+            function resetModal() {
+                $('#createModalLabel').text('Thêm người dùng');
+                $('#saveChangesBtn').attr('onclick', 'createUser()');
+                $('#createForm')[0].reset();
+                $('#HoTen').prop('readonly', false);
+                $('#MaSinhVien').prop('readonly', false);
+                $('#MatKhauHash').prop('readonly', false);
+                $('#SoDienThoai').prop('readonly', false);
+                $('#Email').prop('readonly', false);
+            }
+
+            // Hàm mở modal chỉnh sửa người dùng
+            function openEditModal(userId) {
+                $('#createModalLabel').text('Chỉnh sửa người dùng');
+                $('#saveChangesBtn').attr('onclick', 'editUser(' + userId + ')');
+                console.log(userId);
+                // Lấy thông tin người dùng và điền vào form
+                $.ajax({
+                    url: '@Url.Action("GetUser", "Users")?ID=' + userId,
+                    type: 'GET',
+                    success: function (response) {
+                        $('#UserId').val(response.ID);
+                        $('#HoTen').prop('readonly', true);
+                        $('#MaSinhVien').prop('readonly', true);
+                        $('#MatKhauHash').prop('readonly', true);
+                        $('#SoDienThoai').prop('readonly', true);
+                        $('#Email').prop('readonly', true);
+
+                        $('#HoTen').val(response.HoTen);
+                        $('#MaSinhVien').val(response.MaSinhVien);
+                        $('#MatKhauHash').val(response.MatKhauHash);
+                        $('#SoDienThoai').val(response.SoDienThoai);
+                        $('#Email').val(response.Email);
+
+                        $('#VaiTro').val(response.VaiTro);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error: " + error);
+                        console.error("Response: " + xhr.responseText);
+                        showToast('Lỗi !!! ' + error, 'danger');
+                    }
+                });
+
+                $('#createModal').modal('show');
+            }
+        });
+
+        // Hàm xử lý thêm người dùng
+        function createUser() {
+            var form = $('#createForm');
+            if (form[0].checkValidity() === false) {
+                form.addClass('was-validated');
+                return;
+            }
+
+            var formData = new FormData(form[0]);
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Create", "Users")',
+                processData: false,
+                contentType: false,
+                data: formData,
+                success: function (response) {
+                    if (response.success) {
+                        $('#createModal').modal('hide');
+                        showToast('Thêm thành công!', 'success');
+                        // Đặt thời gian trễ trước khi ẩn toast
+                        setTimeout(function () {
+                            location.reload();
+                            $('#actionToast').toast('hide'); // Ẩn toast sau khi đã trễ
+                        }, 1000); 
+                    } else {
+                        showToast('Lỗi!', 'danger');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error: " + error);
+                    console.error("Response: " + xhr.responseText);
+                    showToast('Lỗi!', 'danger');
+                }
+            });
+        }
+
+        // Hàm xử lý cập nhật người dùng
+        function editUser(userId) {
+            var form = $('#createForm');
+            if (form[0].checkValidity() === false) {
+                form.addClass('was-validated');
+                return;
+            }
+
+            var formData = new FormData(form[0]);
+            formData.append('ID', userId);
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Edit", "Users")',
+                processData: false,
+                contentType: false,
+                data: formData,
+                success: function (response) {
+                    if (response.success) {
+                        $('#createModal').modal('hide');
+                        showToast('Cập nhật thành công!', 'success');
+                        // Đặt thời gian trễ trước khi ẩn toast
+                        setTimeout(function () {
+                            location.reload();
+                            $('#actionToast').toast('hide'); // Ẩn toast sau khi đã trễ
+                        }, 1000); 
+                    } else {
+                        showToast('Lỗi!', 'danger');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error: " + error);
+                    console.error("Response: " + xhr.responseText);
+                    showToast('Lỗi!', 'danger');
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            var userIdToDelete;
+
+            // Xử lý sự kiện khi nhấn nút Xóa
+            $('.delete-btn').click(function () {
+                userIdToDelete = $(this).closest('tr').data('user-id');
+                $('#deleteModal').modal('show');
+            });
+
+            // Xử lý sự kiện khi nhấn nút Xác nhận xóa trong modal
+            $('#confirmDeleteBtn').click(function () {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("Delete", "Users")',
+                    data: { id: userIdToDelete },
+                    success: function (response) {
+                        if (response.success) {
+                            $('#deleteModal').modal('hide');
+                            showToast('Xóa thành công!', 'success');
+                            // Đặt thời gian trễ trước khi ẩn toast
+                            setTimeout(function () {
+                                location.reload();
+                                $('#actionToast').toast('hide'); // Ẩn toast sau khi đã trễ
+                            }, 1000); 
+                        } else {
+                            showToast('Lỗi khi xóa!', 'danger');
+                        }
+                    },
+                    error: function () {
+                        showToast('Lỗi khi xóa!', 'danger');
+                    }
+                });
+            });
+        });
+
+        // Hiển thị Toast thông báo và sau đó tải lại trang
+        function showToast(message, type) {
+            $('#toastTitle').text(type === 'success' ? 'Thành công' : 'Lỗi');
+            $('#toastMessage').text(message);
+            var toastElement = $('#actionToast');
+            toastElement.removeClass('bg-success bg-danger bg-warning').addClass('bg-' + type);
+            toastElement.toast('show');
+
+     
+        }
+
+               // Xử lý sự kiện khi nhấn nút Vô hiệu hóa
+      $('.disable-btn').click(function () {
+          var userIdToDisable = $(this).closest('tr').data('user-id');
+          disableUser(userIdToDisable);
+      });
+
+      // Xử lý sự kiện khi nhấn nút Bật lại
+      $('.enable-btn').click(function () {
+          var userIdToEnable = $(this).closest('tr').data('user-id');
+          enableUser(userIdToEnable);
+      });
+
+      // Hàm xử lý vô hiệu hóa người dùng
+      function disableUser(userId) {
+          $.ajax({
+              type: 'POST',
+              url: '@Url.Action("Disable", "Users")',
+              data: { id: userId },
+              success: function (response) {
+                  if (response.success) {
+                      showToast('Người dùng đã bị vô hiệu hóa', 'success');
+                      // Đặt thời gian trễ trước khi ẩn toast
+                      setTimeout(function () {
+                          location.reload();
+                          $('#actionToast').toast('hide'); // Ẩn toast sau khi đã trễ
+                      }, 1000); 
+                  } else {
+                      showToast('Lỗi khi vô hiệu hóa!', 'danger');
+                  }
+              },
+              error: function () {
+                  showToast('Lỗi khi vô hiệu hóa!', 'danger');
+              }
+          });
+      }
+
+      // Hàm xử lý bật lại người dùng
+      function enableUser(userId) {
+          $.ajax({
+              type: 'POST',
+              url: '@Url.Action("Enable", "Users")',
+              data: { id: userId },
+              success: function (response) {
+                  if (response.success) {
+                      showToast('Người dùng đã hoạt động lại!', 'success');
+                      // Đặt thời gian trễ trước khi ẩn toast
+                      setTimeout(function () {
+                          location.reload();
+                          $('#actionToast').toast('hide'); // Ẩn toast sau khi đã trễ
+                      }, 1000); 
+                  } else {
+                      showToast('Lỗi khi bật lại!', 'danger');
+                  }
+              },
+              error: function () {
+                  showToast('Lỗi khi bật lại!', 'danger');
+              }
+          });
+      }
+
+    </script>
+}
+<style>
+    tr, td {
+        color: black;
+    }
+</style>

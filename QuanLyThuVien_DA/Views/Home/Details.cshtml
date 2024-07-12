@@ -1,0 +1,111 @@
+﻿@model QuanLyThuVien_DA.Models.FITHOU_LIB_DocumentsDetailView
+
+@{
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+
+@{
+    var userID = Session["UserID"];
+    var userName = Session["UserName"];
+    var userRole = Session["UserRole"];
+}
+
+<!-- Button Profile -->
+@if (userID != null)
+{
+    <div style="position: fixed; top: 10px; right: 10px;">
+        <a class="nav-link edit-btn text-dark" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="mr-2 d-none d-lg-inline text-gray-600 small font-weight-bold">Xin chào, @userName</span>
+        </a>
+
+        <!-- Dropdown - User Information -->
+        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
+            <a class="dropdown-item edit-btn" href="~/Home/UserProfile">
+                <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                Trang cá nhân
+            </a>
+            @if (!userRole.Equals("Sinh viên") && !userRole.Equals("Giảng viên"))
+            {
+                <a class="dropdown-item" href="~/Admin/Default">
+                    <i class="fas fa-toolbox fa-sm fa-fw mr-2 text-gray-400 mt-2"></i>
+                    Trang quản trị
+                </a>
+            }
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="~/Home/Logout">
+                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                Đăng xuất
+            </a>
+        </div>
+    </div>
+}
+else
+{
+    <div style="position: fixed; top: 10px; right: 10px;">
+        <a class="nav-link" href="@Url.Action("Login", "Home")">
+            <span class="mr-2 d-none d-lg-inline text-gray-600 small text-dark font-weight-bold">Đăng nhập</span>
+        </a>
+    </div>
+}
+
+<h2 class="text-center font-weight-bold mb-4 text-primary">@Model.TenTaiLieu</h2>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <img src="@Url.Content("~/Image/" + Model.AnhNen)" class="img-fluid custom-img-details" alt="@Model.TenTaiLieu">
+        </div>
+        <div class="col-md-6">
+            <p><strong>Tên tài liệu:</strong> @Model.TenTaiLieu</p>
+            <p><strong>Thể loại:</strong> @Model.TenTheLoai</p>
+            <p><strong>Tác giả:</strong> @Model.TacGia</p>
+            <p><strong>Mô tả:</strong> @Model.MoTa</p>
+            <p><strong>Ngày tải:</strong> @Model.NgayTai.ToString("dd/MM/yyyy")</p>
+            @if (userID != null)
+            {
+                <a href="@Url.Content("~/Documents/" + Model.FileTaiLieu)" class="btn btn-primary">Xem tài liệu</a>
+            }
+            else
+            {
+                <a href="@Url.Action("Login", "Home")" class="btn btn-primary">Đăng nhập để xem</a>
+            }
+        </div>
+    </div>
+
+    <h2 class="font-weight-bold mt-5 mb-4 text-primary text-center">Tài liệu liên quan</h2>
+    <div class="row justify-content-center">
+        @foreach (var relatedDocument in Model.RelatedDocuments)
+        {
+            <div class="col-five col-sm-6 mb-4">
+                <div class="card">
+                    <a href="@Url.Action("Details", "Home", new { id = relatedDocument.ID })">
+                        <img src="@Url.Content("~/Image/" + relatedDocument.AnhNen)" class="card-img-top" alt="@relatedDocument.TenTaiLieu">
+                    </a>
+                    <div class="card-body mb-5">
+                        <h5 class="card-title" data-toggle="tooltip" title="@relatedDocument.TenTaiLieu">
+                            <a href="@Url.Action("Details", "Home", new { id = relatedDocument.ID })" class="text-dark">@relatedDocument.TenTaiLieu</a>
+                        </h5>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .custom-img-details {
+        max-width: 50%;
+        height: auto;
+        display: block;
+        margin: 0 auto;
+    }
+
+    p {
+        color: black;
+    }
+
+    .col-five {
+        width: 20%;
+        max-width: 20%;
+    }
+</style>

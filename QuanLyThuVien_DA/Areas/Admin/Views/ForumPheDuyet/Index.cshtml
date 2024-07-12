@@ -1,0 +1,198 @@
+﻿@model IEnumerable<QuanLyThuVien_DA.Models.FITHOU_LIB_PostView>
+@{
+    ViewBag.Title = "Danh sách bài đăng";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Họ Tên</th>
+            <th>Tiêu đề</th>
+            <th>Ngày đăng tải</th>
+            <th>Trạng Thái</th>
+            <th>Tác vụ</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr data-post-id="@item.ID">
+                <td>@item.HoTen</td>
+                <td>@item.TieuDe</td>
+                <td>@item.NgayTao.ToString("dd/MM/yyyy")</td>
+                <td>@(item.TrangThai ? "Đã duyệt" : "Chưa duyệt")</td>
+                <td>
+                    <a href="@Url.RouteUrl("Default", new { controller = "Forum", action = "Details", id = item.ID })" class="btn btn-primary btn-sm edit-btn">
+                        <i class="fa fa-link"></i>
+                    </a>
+                    <span> | </span>
+                    <button class="btn btn-danger btn-sm delete-btn" data-id="@item.ID">
+                        <i class="fa fa-trash"></i>
+                    </button>
+                    @if (item.TrangThai == false)
+                    {
+
+                        <button class="btn btn-success btn-sm confirm-btn" data-id="@item.ID">
+                             <i class="fa fa-check"></i>
+                        </button>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (ViewBag.Pagination != null)
+{
+    <div class="d-flex justify-content-center">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination">
+                @if (ViewBag.Pagination.PageNumber > 1)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.Pagination.PageNumber - 1 })" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                }
+                @for (int i = 1; i <= ViewBag.Pagination.PageTotal; i++)
+                {
+                    <li class="page-item @(i == ViewBag.Pagination.PageNumber ? "active" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { page = i })">@i</a>
+                    </li>
+                }
+                @if (ViewBag.Pagination.PageNumber < ViewBag.Pagination.PageTotal)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.Pagination.PageNumber + 1 })" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    </div>
+}
+
+<!-- Modal xóa -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Bạn có chắc chắn muốn xóa bài đăng này không?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Xóa</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div aria-live="polite" aria-atomic="true" style="position: relative; z-index: 9999;">
+    <div id="toastContainer" style="position: fixed; top: 20px; right: 20px;">
+        <div class="toast" id="actionToast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="1000">
+            <div class="toast-header">
+                <strong class="mr-auto" id="toastTitle">Thông báo</strong>
+                <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="toast-body text-white" id="toastMessage"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+
+            var postIDToDelete;
+
+            // Xử lý sự kiện khi nhấn nút Xác nhận
+            $('.confirm-btn').click(function () {
+                var button = $(this);
+                var postID = button.data('id');
+                confirmDeXuat(postID, button);
+            });
+
+            // Hàm gọi Ajax để xác nhận đề xuất
+            function confirmDeXuat(postID, button) {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("Confirm", "ForumPheDuyet")',
+                    data: { id: postID },
+                    success: function (response) {
+                        if (response.success) {
+                            showToast('Đã phê duyệt', 'success');
+                            button.closest('tr').find('td:nth-child(4)').text('Đã duyệt');
+                            button.remove(); // Remove the confirm button after success
+                        } else {
+                            showToast('Lỗi!!!', 'danger');
+                        }
+                    },
+                    error: function () {
+                        showToast('Lỗi!!!', 'danger');
+                    }
+                });
+            }
+
+            // Xử lý sự kiện khi nhấn nút Xóa
+            $('.delete-btn').click(function () {
+                postIDToDelete = $(this).data('id');
+                $('#deleteModal').modal('show');
+            });
+
+            // Xử lý sự kiện khi nhấn nút Xác nhận xóa trong modal
+            $('#confirmDeleteBtn').click(function () {
+                deletePost(postIDToDelete);
+            });
+
+            // Hàm gọi Ajax để xóa bài đăng
+            function deletePost(postID) {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("DeletePost", "ForumPheDuyet")',
+                    data: { id: postID },
+                    success: function (response) {
+                        if (response.success) {
+                            $('#deleteModal').modal('hide');
+                            showToast('Xóa thành công!', 'success');
+                            $('tr[data-post-id="' + postID + '"]').remove();
+                           setTimeout(function () {
+                                location.reload();
+                            }, 1000);
+                        } else {
+                            showToast('Lỗi khi xóa!', 'danger');
+                        }
+                    },
+                    error: function () {
+                        showToast('Lỗi khi xóa!', 'danger');
+                    }
+                });
+            }
+
+            // Hàm hiển thị Toast thông báo và sau đó tải lại trang
+            function showToast(message, type) {
+                $('#toastTitle').text(type === 'success' ? 'Thành công' : 'Lỗi');
+                $('#toastMessage').text(message);
+                var toastElement = $('#actionToast');
+                toastElement.removeClass('bg-success bg-danger bg-warning').addClass('bg-' + type);
+                toastElement.toast('show');
+             
+            }
+        });
+    </script>
+}
+
+<style>
+    tr, td {
+        color: black;
+    }
+</style>

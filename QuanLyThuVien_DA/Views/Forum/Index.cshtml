@@ -1,0 +1,411 @@
+﻿@model IEnumerable<QuanLyThuVien_DA.Models.FITHOU_LIB_PostView>
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+
+@{
+    // Lấy thông tin từ Session
+    var userID = Session["UserID"];
+    var userName = Session["UserName"];
+    var userRole = Session["UserRole"];
+}
+
+<script src="~/Plugins/Plugins/ckeditor/ckeditor.js"></script>
+
+@if (userID != null)
+{
+    <div style="position: fixed; top: 10px; right: 10px;">
+        <a class="nav-link edit-btn text-dark" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="mr-2 d-none d-lg-inline text-gray-600 small font-weight-bold">Xin chào, @userName</span>
+        </a>
+
+        <!-- Dropdown - User Information -->
+        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
+            <a class="dropdown-item edit-btn" href="~/Home/UserProfile">
+                <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                Trang cá nhân
+            </a>
+            @if (!userRole.Equals("Sinh viên") && !userRole.Equals("Giảng viên"))
+            {
+                <a class="dropdown-item" href="~/Admin/Default">
+                    <i class="fas fa-toolbox fa-sm fa-fw mr-2 text-gray-400 mt-2"></i>
+                    Trang quản trị
+                </a>
+            }
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="~/Home/Logout">
+                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                Đăng xuất
+            </a>
+        </div>
+    </div>
+}
+else
+{
+    <div style="position: fixed; top: 10px; right: 10px;">
+        <a class="nav-link" href="@Url.Action("Login", "Home")">
+            <span class="mr-2 d-none d-lg-inline text-gray-600 small text-dark font-weight-bold">Đăng nhập</span>
+        </a>
+    </div>
+}
+
+<!-- Modal Thêm, Sửa -->
+<div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true"
+     data-user-id="@userID" data-user-name="@userName" data-user-role="@userRole" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createModalLabel">Thêm bài đăng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createForm" class="needs-validation" novalidate>
+                    <input type="hidden" id="PostId" name="PostId">
+                    <input type="hidden" id="UserID" name="UserID" value="@userID">
+
+                    <!-- Tiêu đề -->
+                    <div class="row mb-3">
+                        <label for="TieuDe" class="col-sm-3 col-form-label text-end">Tiêu đề</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="TieuDe" name="TieuDe" required>
+                        </div>
+                    </div>
+
+                    <!-- Nội dung -->
+                    <div class="row mb-3">
+                        <label for="NoiDung" class="col-sm-3 col-form-label text-end">Nội dung</label>
+                        <div class="col-sm-9">
+                            <textarea class="form-control" id="NoiDung" name="NoiDung"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Người thêm -->
+                    <div class="row mb-3">
+                        <label for="HoTen" class="col-sm-3 col-form-label text-end">Người thêm</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="HoTen" name="HoTen" readonly required>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" id="saveChangesBtn">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h2 class="text-center font-weight-bold mb-4 text-primary">Danh sách bài đăng</h2>
+
+<!-- Button to open Create Modal -->
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <form class="form-inline">
+                <input type="text" id="searchTerm" name="searchTerm" class="form-control mr-sm-2" placeholder="Tìm kiếm bài đăng">
+                <button type="button" class="btn btn-primary mr-3" onclick="searchPosts()">Tìm kiếm</button>
+                @if (userID != null)
+                {
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal" id="openCreateModalBtn">
+                        <span class="text-white"> Thêm </span>
+                    </button>
+                }
+            </form>
+        </div>
+    </div>
+
+    <div id="postsList">
+        @foreach (var post in Model)
+        {
+            <div class="post-box news-item">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title" data-toggle="tooltip" title="@post.TieuDe">
+                            <i class="fas fa-newspaper mr-2"></i>
+                            <a href="@Url.Action("Details", "Forum", new { id = post.ID })" class="text-dark">@post.TieuDe</a>
+                        </h5>
+                        <h6><i class="far fa-clock mr-2"></i> Ngày đăng: @post.NgayTao.ToString("dd/MM/yyyy")</h6>
+
+                        @if (userName != null && userName.Equals(post.HoTen))
+                        {
+                            <div class="d-flex justify-content-end">
+                                <button type="button" class="btn btn-primary editPostBtn" data-id="@post.ID">
+                                    <i class="fa fa-edit"></i>
+                                </button>
+
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+</div>
+@if (ViewBag.Pagination != null)
+{
+    <div class="d-flex justify-content-center">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination">
+                @if (ViewBag.Pagination.PageNumber > 1)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.Pagination.PageNumber - 1 })" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                }
+                @for (int i = 1; i <= ViewBag.Pagination.PageTotal; i++)
+                {
+                    <li class="page-item @(i == ViewBag.Pagination.PageNumber ? "active" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { page = i })">@i</a>
+                    </li>
+                }
+                @if (ViewBag.Pagination.PageNumber < ViewBag.Pagination.PageTotal)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.Pagination.PageNumber + 1 })" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    </div>
+}
+@* Modal Toast *@
+<div aria-live="polite" aria-atomic="true" style="position: relative; z-index: 9999;">
+    <div id="toastContainer" style="position: fixed; top: 20px; right: 20px;">
+        <div class="toast" id="actionToast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="1000">
+            <div class="toast-header">
+                <strong class="mr-auto" id="toastTitle">Thông báo</strong>
+                <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="toast-body text-white" id="toastMessage"></div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+      $(document).ready(function () {
+    CKEDITOR.replace('NoiDung');
+
+    // Xử lý sự kiện khi nhấn nút Thêm
+    $('#openCreateModalBtn').click(function () {
+        $('#createModalLabel').text('Thêm bài đăng');
+        $('#saveChangesBtn').text('Lưu').off('click').on('click', function () {
+            createPost();
+        });
+        $('#createForm')[0].reset();
+        $('#HoTen').val('@userName');
+
+        $('#createModal').modal('show');
+    });
+
+    // Sự kiện click vào nút Edit
+    $('.editPostBtn').click(function () {
+        var postId = $(this).data('id');
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("GetPost", "Forum")',
+            data: { id: postId },
+            success: function (response) {
+                $('#createModalLabel').text('Sửa bài đăng');
+                $('#saveChangesBtn').text('Cập nhật').off('click').on('click', function () {
+                    editPost(postId);
+                });
+
+                $('#PostId').val(response.ID);
+                $('#TieuDe').val(response.TieuDe);
+                CKEDITOR.instances.NoiDung.setData(response.NoiDung);
+                $('#HoTen').val(response.HoTen);
+                $('#createModal').modal('show');
+            },
+            error: function () {
+                showToast('Lỗi khi nạp dữ liệu bài đăng!', 'danger');
+            }
+        });
+    });
+
+    // Xử lý sự kiện khi đóng modal Thêm/Sửa
+    $('#createModal').on('hide.bs.modal', function () {
+        resetModal();
+    });
+
+    // Hàm reset modal về trạng thái mặc định
+    function resetModal() {
+        $('#createModalLabel').text('Thêm bài đăng');
+        $('#saveChangesBtn').text('Lưu').off('click').on('click', function () {
+            createPost();
+        });
+        $('#createForm')[0].reset();
+        $('#PostId').val('');
+        $('#createForm').removeClass('was-validated');
+
+        // Reset CKEditor
+        for (instance in CKEDITOR.instances) {
+            CKEDITOR.instances[instance].setData('');
+        }
+    }
+
+    // Hàm tạo mới bài đăng
+    function createPost() {
+        var form = $('#createForm')[0];
+        if (form.checkValidity() === false) {
+            form.classList.add('was-validated');
+            return;
+        }
+
+        // Cập nhật nội dung CKEditor vào textarea
+        for (instance in CKEDITOR.instances) {
+            CKEDITOR.instances[instance].updateElement();
+        }
+
+        var formData = new FormData(form);
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("Create", "Forum")',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                if (response.success) {
+                    $('#createModal').modal('hide');
+                    showToast('Thêm bài đăng thành công!', 'success');
+                    // Đặt thời gian trễ trước khi ẩn toast
+                    setTimeout(function () {
+                        location.reload();
+                    }, 1000);
+                } else {
+                    showToast('Lỗi!', 'danger');
+                }
+            },
+            error: function () {
+                showToast('Lỗi!', 'danger');
+            }
+        });
+    }
+
+    // Hàm chỉnh sửa bài đăng
+    function editPost(postId) {
+        var form = $('#createForm')[0];
+        if (form.checkValidity() === false) {
+            form.classList.add('was-validated');
+            return;
+        }
+
+        // Cập nhật nội dung CKEditor vào textarea
+        for (instance in CKEDITOR.instances) {
+            CKEDITOR.instances[instance].updateElement();
+        }
+
+        var formData = new FormData(form);
+        formData.append("ID", postId);
+
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("Edit", "Forum")',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response) {
+                if (response.success) {
+                    $('#createModal').modal('hide');
+                    // Đặt thời gian trễ trước khi ẩn toast
+                    setTimeout(function () {
+                        location.reload();
+                    }, 1000);
+                } else {
+                    showToast('Lỗi!', 'danger');
+                }
+            },
+            error: function () {
+                showToast('Lỗi!', 'danger');
+            }
+        });
+    }
+
+    // Hàm hiển thị thông báo Toast
+    function showToast(message, type) {
+        $('#toastTitle').text(type === 'success' ? 'Thành công' : 'Lỗi');
+        $('#toastMessage').text(message);
+        var toastElement = $('#actionToast');
+        toastElement.removeClass('bg-success bg-danger').addClass('bg-' + type);
+        toastElement.toast('show');
+    }
+
+
+      });
+      function searchPosts(pageNumber = 1) {
+    var searchTerm = $('#searchTerm').val();
+    $.ajax({
+        url: '@Url.Action("Index", "Forum")',
+        type: 'GET',
+        data: {
+            page: pageNumber,
+            searchTerm: searchTerm
+        },
+        success: function (response) {
+            var postsList = $('#postsList');
+            postsList.empty();
+
+            if (response.length > 0) {
+                $.each(response, function (index, post) {
+                    var postHtml = '<div class="post-box news-item">' +
+                        '<div class="card mb-3">' +
+                        '<div class="card-body">' +
+                        '<h5 class="card-title" data-toggle="tooltip" title="' + post.TieuDe + '">' +
+                        '<i class="fas fa-newspaper mr-2"></i>' +
+                        '<a href="@Url.Action("Details", "Forum")/' + post.ID + '" class="text-dark">' + post.TieuDe + '</a>' +
+                        '</h5>' +
+                        '<h6><i class="far fa-clock mr-2"></i> Ngày đăng: ' + post.NgayTao + '</h6>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>';
+
+                    postsList.append(postHtml);
+                });
+            } else {
+                postsList.append('<div class="col-md-12"><p class="text-center">Không tìm thấy bài đăng phù hợp.</p></div>');
+            }
+
+            // Update pagination if available
+            if (response.paginationHtml) {
+                $('#pagination').html(response.paginationHtml);
+            }
+        },
+        error: function () {
+            showToast('Lỗi khi tìm kiếm bài đăng!', 'danger');
+        }
+    });
+}
+
+    </script>
+}
+<style>
+    .post-box {
+        margin-bottom: 20px; /* Khoảng cách giữa các box */
+    }
+
+    .card {
+        border: 1px solid #ddd; /* Viền */
+        border-radius: 5px; /* Bo góc */
+        padding: 15px; /* Khoảng cách nội dung và viền */
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); /* Đổ bóng */
+    }
+
+    .card-title {
+        font-weight: bold;
+    }
+
+    .card-body h6 {
+        color: #888; /* Màu chữ */
+    }
+</style> 

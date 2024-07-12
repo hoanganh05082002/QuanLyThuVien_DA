@@ -1,0 +1,72 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - My ASP.NET Application</title>
+    <!-- Custom fonts for this template-->
+    <link href="~/Interface/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <!-- Custom styles for this template-->
+    <link href="~/Interface/css/sb-admin-2.min.css" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <style>
+        .brand-text {
+            color : #b7b9cc;
+            font-weight: bold;
+            font-size: 1.5rem; /* Adjust as needed */
+        }
+
+        .navbar-brand .img-fluid {
+            max-height: 60px;
+        }
+
+        .content-background {
+            background-color: #f8f9fc; /* Màu nền */
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+            <div class="container-fluid">
+                <a class="navbar-brand d-flex align-items-center justify-content-center" href="~/Home/Index">
+                    <div class="d-flex align-items-center mx-3">
+                        <img src="~/Image/FITHOULIB-Logo.png" alt="FITHOU LIB" class="img-fluid" style="max-height: 60px;" />
+                        <span class="brand-text text-dark">FITHOU<sup>LIB</sup></span>
+                    </div>
+                </a>
+            </div>
+        </nav>
+    </header>
+    <!-- Topbar Navbar -->
+  
+
+    <div class="container body-content content-background">
+        @RenderBody()
+    </div>
+
+    <hr />
+    <footer class="sticky-footer bg-white fixed-bottom ">
+        <div class="container my-auto">
+            <div class="copyright text-center my-auto mb-4">
+                <span>&copy; FITHOU-LIB 2024</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap core JavaScript-->
+    <script src="~/Interface/vendor/jquery/jquery.min.js"></script>
+    <script src="~/Interface/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- Core plugin JavaScript-->
+    <script src="~/Interface/vendor/jquery-easing/jquery.easing.min.js"></script>
+    <!-- Custom scripts for all pages-->
+    <script src="~/Interface/js/sb-admin-2.min.js"></script>
+    <!-- Current year script -->
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
+    @RenderSection("scripts", required: false)
+</body>
+</html>
+
+

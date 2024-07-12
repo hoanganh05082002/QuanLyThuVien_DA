@@ -1,0 +1,98 @@
+﻿@model QuanLyThuVien_DA.Models.FITHOU_LIB_TinTucSuKienView
+
+@{
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+
+@{
+    var userID = Session["UserID"];
+    var userName = Session["UserName"];
+    var userRole = Session["UserRole"];
+}
+
+<!-- Button Profile -->
+@if (userID != null)
+{
+    <div style="position: fixed; top: 10px; right: 10px;">
+        <a class="nav-link edit-btn text-dark" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="mr-2 d-none d-lg-inline text-gray-600 small font-weight-bold">Xin chào, @userName</span>
+        </a>
+
+        <!-- Dropdown - User Information -->
+        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
+            <a class="dropdown-item edit-btn" href="~/Home/UserProfile">
+                <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                Trang cá nhân
+            </a>
+            @if (!userRole.Equals("Sinh viên") && !userRole.Equals("Giảng viên"))
+            {
+                <a class="dropdown-item" href="~/Admin/Default">
+                    <i class="fas fa-toolbox fa-sm fa-fw mr-2 text-gray-400 mt-2"></i>
+                    Trang quản trị
+                </a>
+            }
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="~/Home/Logout">
+                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                Đăng xuất
+            </a>
+
+        </div>
+    </div>
+}
+else
+{
+    <div style="position: fixed; top: 10px; right: 10px;">
+        <a class="nav-link" href="@Url.Action("Login", "Home")">
+            <span class="mr-2 d-none d-lg-inline text-gray-600 small text-dark font-weight-bold">Đăng nhập</span>
+        </a>
+    </div>
+}
+
+<h3 class="text-center font-weight-bold mb-2 text-primary">@Model.TieuDe</h3>
+
+
+<style>
+    .custom-img-details {
+        max-width: 100%; /* Đảm bảo hình ảnh không vượt quá kích thước cột */
+        height: auto; /* Đảm bảo tỷ lệ hình ảnh */
+    }
+
+    .details-container {
+        margin-bottom: 20px;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+
+        .details-container p {
+            margin-bottom: 10px;
+        }
+
+    .details-content {
+        margin-top: 20px;
+    }
+</style>
+
+<div class="container details-container">
+    <div class="row details-content">
+        <div class="col-12">
+            <p><strong></strong></p>
+            <div>@Html.Raw(Model.NoiDung)</div>
+        </div>
+    </div>
+</div>
+
+
+<style>
+    .custom-img-details {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 0 auto;
+    }
+
+    p {
+        color: black;
+    }
+</style>
