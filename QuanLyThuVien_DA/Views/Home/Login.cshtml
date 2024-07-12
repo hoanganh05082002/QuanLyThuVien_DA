@@ -1,0 +1,95 @@
+﻿@model IEnumerable<QuanLyThuVien_DA.Models.FITHOU_LIB_Users>
+
+@{
+    ViewBag.Title = "Login";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>@ViewBag.Title</title>
+</head>
+
+<!-- Outer Row -->
+<div class="row justify-content-center">
+
+    <div class="col-xl-10 col-lg-12 col-md-9">
+
+        <div class="card o-hidden border-0 shadow-lg my-5">
+            <div class="card-body p-0">
+                <!-- Nested Row within Card Body -->
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <!-- Adjusted from col-lg-6 to col-lg-8 -->
+                        <div class="p-5">
+                            <div class="text-center">
+                                <h1 class="h4 text-gray-900 mb-3">Đăng nhập</h1>
+                            </div>
+                            <form class="user" method="post" action="~/Home/Login">
+                                <div class="form-group mb-3 input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fas fa-user m-2"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control form-control-user" id="exampleInputMaSinhVien" name="MaSinhVien" placeholder="Nhập tài khoản..." required>
+                                </div>
+                                <div class="form-group mb-3 input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fas fa-lock m-2"></i></span>
+                                    </div>
+                                    <input type="password" class="form-control form-control-user" id="exampleInputPassword" name="MatKhauHash" placeholder="Nhập mật khẩu..." required>
+                                </div>
+                               
+                                    @if (ViewBag.ErrorMessage != null)
+                                    {
+                                        <div class="alert alert-danger" role="alert">
+                                            @ViewBag.ErrorMessage
+                                        </div>
+                                    }
+                                    <div class="form-group mt-3 text-center">
+                                        <button type="submit" class="btn btn-primary btn-user">
+                                            Đăng nhập
+                                        </button>
+                                    </div>
+                            </form>
+                            <hr>
+                            <div class="text-center">
+                                <a class="small" href="~/Home/ForgetPassword">Quên mật khẩu?</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+</div>
+<style>
+
+    .full-image {
+        width: 90%;
+        height: 90%; /* Hoặc chiều cao mong muốn */
+        object-fit: cover; /* Để ảnh phủ kín thẻ mà không bị méo */
+    }
+</style>
+@section Scripts{
+    <script>
+        $(document).ready(function () {
+            $('#ToggePassword').click(function () {
+                var input = $('#exampleInputPassword');
+                var icon = $(this).find('i');
+
+                if (input.attr('type') === 'password') {
+                    input.attr('type', 'text');
+                    icon.removeClass('fa-eye').addClass('fa-eye-slash');
+                } else {
+                    input.attr('type', 'password');
+                    icon.removeClass('fa-eye-slash').addClass('fa-eye');
+                }
+            });
+        });
+
+    </script>
+}

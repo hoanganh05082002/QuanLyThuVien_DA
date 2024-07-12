@@ -1,0 +1,365 @@
+﻿@model IEnumerable<QuanLyThuVien_DA.Models.FITHOU_LIB_CategoriesView>
+
+@{
+    ViewBag.Title = "Thể loại tài liệu";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+@{
+    var userId = Session["UserID"];
+    var userName = Session["UserName"];
+    var userRole = Session["UserRole"];
+}
+
+<button type="button" class="btn btn-primary mb-2" data-bs-toggle="modal" data-bs-target="#createModal" id="openCreateModal">
+    <i class="fa fa-layer-group-plus"></i>
+    <span> Thêm </span>
+</button>
+<table class="table mt-3">
+    <thead>
+        <tr>
+            <th>Tên thể loại</th>
+            <th>Mô tả </th>
+            <th>Sửa đổi lần cuối</th>
+            <th>Tác vụ</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr data-theloai-id="@item.ID">
+                <td>@Html.DisplayFor(modelItem => item.TenTheLoai)</td>
+                <td>@Html.DisplayFor(modelItem => item.MoTa)</td>
+                <td>@Html.DisplayFor(modelItem => item.HoTen)</td>
+                <td>
+                    <button class="btn btn-info btn-sm edit-btn">
+                        <i class="fa fa-edit"></i>
+                    </button> |
+                    <button class="btn btn-danger btn-sm delete-btn">
+                        <i class="fa fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (ViewBag.Pagination != null)
+{
+    <div class="d-flex justify-content-center">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination">
+                @if (ViewBag.Pagination.PageNumber > 1)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.Pagination.PageNumber - 1 })" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                }
+                @for (int i = 1; i <= ViewBag.Pagination.PageTotal; i++)
+                {
+                    <li class="page-item @(i == ViewBag.Pagination.PageNumber ? "active" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { page = i })">@i</a>
+                    </li>
+                }
+                @if (ViewBag.Pagination.PageNumber < ViewBag.Pagination.PageTotal)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.Pagination.PageNumber + 1 })" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    </div>
+}
+
+
+<!-- Modal Thêm, Sửa thường -->
+<div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true"
+     data-user-id="@userId" data-user-name="@userName" data-user-role="@userRole" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createModalLabel">Thêm mới thể loại</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createForm" class="needs-validation" novalidate>
+                    <input type="hidden" id="TheLoaiId" name="TheLoaiId">
+                    <input type="hidden" id="UserID" name="UserID" value="@userId">
+                    <div class="row mb-3">
+                        <label for="TenTheLoai" class="col-sm-3 col-form-label text-end">Tên thể loại</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="TenTheLoai" name="TenTheLoai" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="MoTa" class="col-sm-3 col-form-label text-end">Mô tả</label>
+                        <div class="col-sm-9">
+                            <textarea class="form-control" id="MoTa" name="MoTa" rows="3" required></textarea>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label for="HoTen" class="col-sm-3 col-form-label text-end">Người thêm</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="HoTen" name="HoTen" readonly required>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="saveChangesBtn">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Xóa -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Bạn có chắc chắn muốn xóa thể loại này không? 
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Xóa</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Toast *@
+<div aria-live="polite" aria-atomic="true" style="position: relative; z-index: 9999;">
+    <div id="toastContainer" style="position: fixed; top: 20px; right: 20px;">
+        <div class="toast" id="actionToast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="1000">
+            <div class="toast-header">
+                <strong class="mr-auto" id="toastTitle">Thông báo</strong>
+                <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="toast-body text-white" id="toastMessage"></div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+
+            // Xử lý sự kiện khi nhấn nút Sửa
+            $('.edit-btn').click(function () {
+                var theloaiId = $(this).closest('tr').data('theloai-id');
+                openEditModal(theloaiId);
+            });
+
+            $('#createModal').on('hide.bs.modal', function () {
+                resetModal();
+            });
+
+            $('#createModal').on('show.bs.modal', function (event) {
+                var modal = $(this);
+                var userId = modal.data('user-id');
+                var userName = modal.data('user-name');
+                $('#HoTen').val(userName);
+                $('#UserID').val(userId);
+                $('#HoTen').prop('readonly', true);
+            });
+
+            // Hàm mở modal chỉnh sửa thể loại
+            function openEditModal(theloaiId) {
+                $('#createModalLabel').text('Chỉnh sửa thể loại tài liệu');
+                $('#saveChangesBtn').text('Save changes').off('click').on('click', function () {
+                    editTheLoai(theloaiId);
+                });
+
+                // Lấy thông tin thể loại và điền vào form
+                $.ajax({
+                    url: '@Url.Action("GetTheLoai", "Categories")?ID=' + theloaiId,
+                    type: 'GET',
+                    success: function (response) {
+                        $('#TheLoaiId').val(response.ID);
+                        $('#TenTheLoai').val(response.TenTheLoai);
+                        $('#MoTa').val(response.MoTa);
+                        $('#HoTen').val(response.HoTen);
+                        $('#UserID').val(userId);
+
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error: " + error);
+                        console.error("Response: " + xhr.responseText);
+                        showToast('Lỗi !!! ' + error, 'danger');
+                    }
+                });
+                $('#createModal').modal('show');  // Ensure modal is shown after data is loaded
+            }
+
+            // Reset modal to default state
+            function resetModal() {
+                $('#createModalLabel').text('Thêm mới thể loại');
+                $('#saveChangesBtn').text('Create').off('click').on('click', function () {
+                    createTheLoai();
+                });
+                $('#createForm')[0].reset();
+                $('#TheLoaiId').val('');
+                $('#createForm').removeClass('was-validated');
+            }
+
+            // Xử lý sự kiện khi nhấn nút Lưu trong modal
+            $('#saveChangesBtn').click(function () {
+                var form = $('#createForm');
+                if (form[0].checkValidity() === false) {
+                    form.addClass('was-validated');
+                    return;
+                }
+                if ($('#TheLoaiId').val()) {
+                    editTheLoai($('#TheLoaiId').val());
+                } else {
+                    createTheLoai();
+                }
+            });
+
+            // Hàm xử lý thêm thể loại
+            function createTheLoai() {
+                var form = $('#createForm');
+                if (form[0].checkValidity() === false) {
+                    form.addClass('was-validated');
+                    return;
+                }
+                var formData = new FormData(form[0]);
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("Create", "Categories")',
+                    processData: false,
+                    contentType: false,
+                    data: formData,
+                    success: function (response) {
+                        if (response.success) {
+                            $('#createModal').modal('hide');
+                            showToast('Thêm thành công!', 'success');
+                        } else {
+                            showToast('Lỗi!', 'danger');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error: " + error);
+                        console.error("Response: " + xhr.responseText);
+                        showToast('Lỗi!', 'danger');
+                    }
+                });
+            }
+
+            // Hàm xử lý cập nhật thể loại
+            function editTheLoai(theloaiId) {
+                var form = $('#createForm');
+                if (form[0].checkValidity() === false) {
+                    form.addClass('was-validated');
+                    return;
+                }
+                var formData = new FormData(form[0]);
+                formData.append('ID', theloaiId);
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("Edit", "Categories")',
+                    processData: false,
+                    contentType: false,
+                    data: formData,
+                    success: function (response) {
+                        if (response.success) {
+                            $('#createModal').modal('hide');
+                            showToast('Cập nhật thành công!', 'success');
+                            location.reload(); // Chuyển hướng đến trang mới
+                        } else {
+                            showToast('Lỗi!', 'danger');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error: " + error);
+                        console.error("Response: " + xhr.responseText);
+                        showToast('Lỗi!', 'danger');
+                    }
+                });
+            }
+
+            var theloaiIdToDelete;
+
+            // Xử lý sự kiện khi nhấn nút Xóa
+            $('.delete-btn').click(function () {
+                theloaiIdToDelete = $(this).closest('tr').data('theloai-id');
+                $('#deleteModal').modal('show');
+            });
+
+            // Xử lý sự kiện khi nhấn nút Xác nhận xóa trong modal
+            $('#confirmDeleteBtn').click(function () {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("Delete", "Categories")',
+                    data: { id: theloaiIdToDelete },
+                    success: function (response) {
+                        if (response.success) {
+                            $('#deleteModal').modal('hide');
+                            showToast('Xóa thành công!', 'success');
+                            location.reload(); // Chuyển hướng đến trang mới
+                        } else {
+                            showToast(response.message, 'danger');
+                        }
+                    },
+                    error: function () {
+                        showToast('Lỗi khi xóa!', 'danger');
+                    }
+                });
+            });
+        });
+
+        // Hiển thị Toast thông báo và sau đó chuyển hướng đến trang khác
+        function showToast(message, type) {
+            $('#toastTitle').text(type === 'success' ? 'Thành công' : 'Lỗi');
+            $('#toastMessage').text(message);
+            var toastElement = $('#actionToast');
+            toastElement.removeClass('bg-success bg-danger bg-warning').addClass('bg-' + type);
+            toastElement.toast('show');
+            // Đặt thời gian trễ trước khi ẩn toast và chuyển hướng đến trang khác
+            setTimeout(function () {
+                
+                $('#actionToast').toast('hide'); // Ẩn toast sau khi đã trễ
+            }, 2000); // Thay đổi số 2000 thành thời gian (trong miligiây) bạn muốn hiển thị toast trước khi biến mất và chuyển hướng đến trang khác
+        }
+    </script>
+}
+<style>
+    /* Custom column widths */
+    .table th:nth-child(1),
+    .table td:nth-child(1) {
+        width: 15%;
+    }
+
+    .table th:nth-child(2),
+    .table td:nth-child(2) {
+        width: 50%;
+    }
+
+    .table th:nth-child(3),
+    .table td:nth-child(3) {
+        width: 15%;
+    }
+
+    .table th:nth-child(4),
+    .table td:nth-child(4) {
+        width: 10%;
+    }
+
+    tr, td {
+        color: black;
+    }
+</style>

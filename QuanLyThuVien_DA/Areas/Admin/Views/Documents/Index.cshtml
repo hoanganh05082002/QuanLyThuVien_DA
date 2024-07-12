@@ -1,0 +1,462 @@
+﻿@model IEnumerable<QuanLyThuVien_DA.Models.FITHOU_LIB_DocumentsView>
+
+@{
+    ViewBag.Title = "Tài liệu";
+    Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+@{
+    var userId = Session["UserID"];
+    var userName = Session["UserName"];
+    var userRole = Session["UserRole"];
+}
+
+<button type="button" class="btn btn-primary mb-2" data-bs-toggle="modal" data-bs-target="#createModal" id="openCreateModal">
+    <i class="fa fa-layer-group-plus"></i>
+    <span>Thêm</span>
+</button>
+
+<!-- Modal Thêm, Sửa -->
+<div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true"
+     data-user-id="@userId" data-user-name="@userName" data-user-role="@userRole" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createModalLabel">Thêm mới tài liệu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createForm" class="needs-validation" novalidate enctype="multipart/form-data">
+                    <input type="hidden" id="UserID" name="UserID" value="@userId">
+                    <div class="row mb-3">
+                        <label for="TenTaiLieu" class="col-sm-3 col-form-label text-end">Tên tài liệu</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="TenTaiLieu" name="TenTaiLieu" required />
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <label for="TheLoaiTaiLieuID" class="col-sm-3 col-form-label text-end">Tên thể loại</label>
+                        <div class="col-sm-9">
+                            <select class="form-control" id="TheLoaiTaiLieuID" name="TheLoaiTaiLieuID" required>
+                                <option value="" hidden>Chọn thể loại</option>
+                                @foreach (var item in (SelectList)ViewBag.TheLoaiList)
+                                {
+                                    <option value="@item.Value">@item.Text</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="TieuDe" class="col-sm-3 col-form-label text-end">Tiêu đề</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="TieuDe" name="TieuDe" required />
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="MoTa" class="col-sm-3 col-form-label text-end">Mô tả</label>
+                        <div class="col-sm-9">
+                            <textarea class="form-control" id="MoTa" name="MoTa" rows="3" required></textarea>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="TacGia" class="col-sm-3 col-form-label text-end">Tác giả</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="TacGia" name="TacGia" required />
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="AnhNen" class="col-sm-3 col-form-label text-end">Ảnh nền</label>
+                        <div class="col-sm-9">
+                            <input type="file" class="form-control mb-2" id="AnhNen" name="AnhNen" />
+                            <img id="currentAnhNen" src="#" alt="Current Image" style="display:none; width:100px; height:auto;" />
+                            <span id="AnhNenFileName" style="display:none; margin-left: 10px;"></span> <!-- Thêm phần tử này -->
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="FileTaiLieu" class="col-sm-3 col-form-label text-end">File tài liệu</label>
+                        <div class="col-sm-9">
+                            <input type="file" class="form-control mb-2" id="FileTaiLieu" name="FileTaiLieu" accept="application/pdf">
+                            <span id="FileTaiLieuFileName" style="display:none; margin-left: 10px;"></span>
+                            <embed id="pdfViewer" style="display:none; width:100%; height:600px;" type="application/pdf">
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="saveChangesBtn">Create</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Tên tài liệu</th>
+            <th>Thể loại</th>
+            <th>Tiêu đề</th>
+            <th>Mô tả</th>
+            <th>Tác giả</th>
+            <th>Ngày tải</th>
+            <th>Tác vụ</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr data-tailieu-id="@item.ID">
+                <td>@Html.DisplayFor(modelItem => item.TenTaiLieu)</td>
+                <td>@Html.DisplayFor(modelItem => item.TenTheLoai)</td>
+                <td>@Html.DisplayFor(modelItem => item.TieuDe)</td>
+                <td>@Html.DisplayFor(modelItem => item.MoTa)</td>
+                <td>@Html.DisplayFor(modelItem => item.TacGia)</td>
+                <td>@item.NgayTai.ToString("dd/MM/yyyy")</td>
+                <td>
+                    <button class="btn btn-info btn-sm edit-btn" data-tailieu-id="@item.ID">
+                        <i class="fa fa-edit"></i>
+                    </button> |
+                    <button class="btn btn-danger btn-sm delete-btn">
+                        <i class="fa fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@* Toast *@
+<div aria-live="polite" aria-atomic="true" style="position: relative; z-index: 9999;">
+    <div id="toastContainer" style="position: fixed; top: 20px; right: 20px;">
+        <div class="toast" id="actionToast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="1000">
+            <div class="toast-header">
+                <strong class="mr-auto" id="toastTitle">Thông báo</strong>
+                <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="toast-body text-white" id="toastMessage"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Xóa -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Bạn có chắc chắn muốn xóa tài liệu này không?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Xóa</button>
+            </div>
+        </div>
+    </div>
+</div>
+@if (ViewBag.Pagination != null)
+{
+    <div class="d-flex justify-content-center">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination">
+                @if (ViewBag.Pagination.PageNumber > 1)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.Pagination.PageNumber - 1 })" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                }
+                @for (int i = 1; i <= ViewBag.Pagination.PageTotal; i++)
+                {
+                    <li class="page-item @(i == ViewBag.Pagination.PageNumber ? "active" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { page = i })">@i</a>
+                    </li>
+                }
+                @if (ViewBag.Pagination.PageNumber < ViewBag.Pagination.PageTotal)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.Pagination.PageNumber + 1 })" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    </div>
+}
+
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            document.getElementById('FileTaiLieu').addEventListener('change', function (event) {
+                var file = event.target.files[0];
+                if (file && file.type === 'application/pdf') {
+                    var fileURL = URL.createObjectURL(file);
+                    document.getElementById('pdfViewer').src = fileURL;
+                    document.getElementById('pdfViewer').style.display = 'block';
+                } else {
+                    document.getElementById('pdfViewer').style.display = 'none';
+                }
+            });
+
+            // Xử lý sự kiện khi nhấn nút Sửa
+            $('.edit-btn').click(function () {
+                var tailieuId = $(this).closest('tr').data('tailieu-id');
+                openEditModal(tailieuId);
+            });
+
+            $('#createModal').on('hide.bs.modal', function () {
+                resetModal();
+            });
+
+            $('#createModal').on('show.bs.modal', function (event) {
+                var modal = $(this);
+                var userId = modal.data('user-id');
+                var userName = modal.data('user-name');
+                $('#HoTen').val(userName);
+                $('#UserID').val(userId);
+                $('#HoTen').prop('readonly', true);
+            });
+
+            function resetModal() {
+                $('#createModalLabel').text('Thêm mới tài liệu');
+                $('#saveChangesBtn').text('Create').off('click').on('click', function () {
+                    createTaiLieu();
+                });
+                $('#createForm')[0].reset();
+                $('#TheLoaiID').val('');
+                $('#createForm').removeClass('was-validated');
+
+                // Reset ảnh và file tên
+                $('#currentAnhNen').hide();
+                $('#AnhNenFileName').hide();
+                $('#currentFileTaiLieu').hide();
+                $('#FileTaiLieuFileName').hide();
+            }
+
+           $('#saveChangesBtn').click(function () {
+                var form = $('#createForm');
+                var fileInput = $('#FileTaiLieu')[0];
+                var file = fileInput.files[0];
+
+                if (file && file.type !== 'application/pdf') {
+                    showToast('Chỉ chấp nhận tài liệu PDF!', 'danger');
+                    return;
+                }
+
+                // Kiểm tra kích thước file
+                if (file && file.size > 4 * 1024 * 1024) { // 4MB limit
+                    showToast('File tài liệu không được vượt quá 4MB!', 'danger');
+                    return;
+                }
+
+                if (form[0].checkValidity() === false) {
+                    form.addClass('was-validated');
+                    return;
+                }
+                createTaiLieu();
+            });
+
+            function createTaiLieu() {
+                var form = $('#createForm');
+                var formData = new FormData(form[0]);
+
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("Create", "Documents")',
+                    processData: false,
+                    contentType: false,
+                    data: formData,
+                    success: function (response) {
+                        if (response.success) {
+                            $('#createModal').modal('hide');
+                            showToast('Thêm thành công!', 'success');
+                            location.reload();
+                        } else {
+                            showToast('Lỗi!', 'danger');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error: " + error);
+                        console.error("Response: " + xhr.responseText);
+                        showToast('Lỗi!', 'danger');
+                    }
+                });
+            }
+
+
+
+            // Hàm mở modal chỉnh sửa tài liệu
+            function openEditModal(tailieuId) {
+                $('#createModalLabel').text('Chỉnh sửa tài liệu');
+                $('#saveChangesBtn').text('Save changes').off('click').on('click', function () {
+                    editTaiLieu(tailieuId);
+                });
+
+                // Lấy thông tin tài liệu và điền vào form
+                $.ajax({
+                    url: '@Url.Action("GetDocumentById", "Documents")?id=' + tailieuId,
+                    type: 'GET',
+                    success: function (response) {
+                        console.log(response); // Kiểm tra dữ liệu trả về từ server
+
+                        $('#TenTaiLieu').val(response.TenTaiLieu);
+                        $('#TheLoaiTaiLieuID').val(response.TheLoaiTaiLieuID);
+                        $('#MoTa').val(response.MoTa);
+                        $('#TieuDe').val(response.TieuDe);
+                        $('#TacGia').val(response.TacGia);
+
+                        // Hiển thị ảnh nền (nếu có)
+                        if (response.AnhNen) {
+                            $('#currentAnhNen').attr('src', response.AnhNen).show();
+                            var fileName = response.AnhNen.split('/').pop(); // Lấy tên tệp từ URL
+                            $('#AnhNenFileName').text(fileName).show(); // Hiển thị tên tệp
+                        } else {
+                            $('#currentAnhNen').hide();
+                            $('#AnhNenFileName').hide(); // Ẩn tên tệp nếu không có ảnh nền
+                        }
+
+                        // Hiển thị file tài liệu (nếu có)
+                        if (response.FileTaiLieu) {
+                            $('#currentFileTaiLieu').attr('href', response.FileTaiLieu).text('Download').show();
+                            var fileName = response.FileTaiLieu.split('/').pop(); // Lấy tên tệp từ URL
+                            $('#FileTaiLieuFileName').text(fileName).show(); // Hiển thị tên tệp
+                        } else {
+                            $('#currentFileTaiLieu').hide();
+                            $('#FileTaiLieuFileName').hide(); // Ẩn tên tệp nếu không có file tài liệu
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error: " + error);
+                        console.error("Response: " + xhr.responseText);
+                        showToast('Lỗi !!! ' + error, 'danger');
+                    }
+                });
+
+                $('#createModal').modal('show');  // Ensure modal is shown after data is loaded
+            }
+
+         function editTaiLieu(tailieuId) {
+                var form = $('#createForm');
+                var formData = new FormData(form[0]);
+                formData.append('ID', tailieuId); // Gửi ID của tài liệu để xác định tài liệu nào cần chỉnh sửa
+
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("Edit", "Documents")',
+                    processData: false,
+                    contentType: false,
+                    data: formData,
+                    success: function (response) {
+                        if (response.success) {
+                            $('#createModal').modal('hide');
+                            showToast('Chỉnh sửa thành công!', 'success');
+                            location.reload();
+                        } else {
+                            // Handle failure with JSON response
+                            showToast(response.message || 'Lỗi!', 'danger');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error: " + error);
+                        console.error("Response: " + xhr.responseText);
+                        showToast('Lỗi!', 'danger');
+                    }
+                });
+            }
+
+
+
+            var tailieuIdToDelete;
+
+            // Xử lý sự kiện khi nhấn nút Xóa
+            $('.delete-btn').click(function () {
+                tailieuIdToDelete = $(this).closest('tr').data('tailieu-id');
+                $('#deleteModal').modal('show');
+            });
+
+            // Xử lý sự kiện khi nhấn nút Xác nhận xóa trong modal
+            $('#confirmDeleteBtn').click(function () {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("Delete", "Documents")',
+                    data: { id: tailieuIdToDelete },
+                    success: function (response) {
+                        if (response.success) {
+                            $('#deleteModal').modal('hide');
+                            showToast('Xóa thành công!', 'success');
+                            location.reload();
+                        } else {
+                            showToast('Lỗi khi xóa!', 'danger');
+                        }
+                    },
+                    error: function () {
+                        showToast('Lỗi khi xóa!', 'danger');
+                    }
+                });
+            });
+
+            function showToast(message, type) {
+                $('#toastTitle').text(type === 'success' ? 'Thành công' : 'Lỗi');
+                $('#toastMessage').text(message);
+                var toastElement = $('#actionToast');
+                toastElement.removeClass('bg-success bg-danger bg-warning').addClass('bg-' + type);
+                toastElement.toast('show');
+                setTimeout(function () {
+                    $('#actionToast').toast('hide');
+                }, 2000);
+            }
+        });
+    </script>
+}
+
+
+<style>
+    /* Custom column widths */
+    .table th:nth-child(1),
+    .table td:nth-child(1) {
+        width: 15%;
+    }
+
+    .table th:nth-child(2),
+    .table td:nth-child(2) {
+        width: 10%;
+    }
+
+    .table th:nth-child(3),
+    .table td:nth-child(3) {
+        width: 20%;
+    }
+
+    .table th:nth-child(4),
+    .table td:nth-child(4) {
+        width: 20%;
+    }
+
+    .table th:nth-child(5),
+    .table td:nth-child(5) {
+        width: 10%;
+    }
+
+    .table th:nth-child(6),
+    .table td:nth-child(6) {
+        width: 10%;
+    }
+
+    .table th:nth-child(7),
+    .table td:nth-child(7) {
+        width: 10%;
+    }
+
+    tr, td {
+        color: black;
+    }
+</style>

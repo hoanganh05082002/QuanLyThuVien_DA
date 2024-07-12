@@ -1,0 +1,106 @@
+﻿@model IEnumerable<QuanLyThuVien_DA.Models.FITHOU_LIB_HistoryView>
+
+@if (ViewBag.AccessHistory != null && ViewBag.AccessHistory.Count > 0)
+{
+    <div class="access-history">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width: 40%">Tên Tài Liệu</th>
+                    <th style="width: 30%">Thời Gian Truy Cập</th>
+                    <th style="width: 20%">Đường dẫn</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in ViewBag.AccessHistory)
+                {
+                    <tr>
+                        <td>@item.TenTaiLieu</td>
+                        <td>@item.ThoiGian.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                        <td>
+                            <a href="@Url.RouteUrl("Default", new { controller = "Home", action = "Details", id = item.TaiLieuID })" class="btn btn-primary btn-sm edit-btn">
+                                <i class="fa fa-link"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        @if (ViewBag.Pagination != null)
+        {
+        <div class="d-flex justify-content-center">
+            <nav aria-label="Page navigation example">
+                <ul class="pagination">
+                    @if (ViewBag.Pagination.PageNumber > 1)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="@Url.Action("UserProfile", new { page = ViewBag.Pagination.PageNumber - 1 })" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    }
+                    @for (int i = 1; i <= ViewBag.Pagination.PageTotal; i++)
+                    {
+                        <li class="page-item @(i == ViewBag.Pagination.PageNumber ? "active" : "")">
+                            <a class="page-link" href="@Url.Action("UserProfile", new { page = i })">@i</a>
+                        </li>
+                    }
+                    @if (ViewBag.Pagination.PageNumber < ViewBag.Pagination.PageTotal)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="@Url.Action("UserProfile", new { page = ViewBag.Pagination.PageNumber + 1 })" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        </div>
+        }
+    </div>
+}
+else
+{
+    <p class="text-center">Không có lịch sử truy cập </p>
+}
+
+<style>
+    .access-history {
+        background-color: white; /* Nền trắng */
+        color: black; /* Chữ đen */
+        padding: 20px; /* Thêm khoảng cách xung quanh */
+        border-radius: 5px; /* Bo tròn các góc */
+        border: 1px solid #ddd; /* Thêm viền nhạt */
+        margin: 20px; /* Khoảng cách bên ngoài */
+    }
+
+    .table th, .table td {
+        text-align: center;
+        vertical-align: middle;
+        color: black; /* Chữ đen */
+    }
+
+    .table th {
+        background-color: #f8f9fa; /* Nền nhạt cho tiêu đề */
+    }
+
+    .table td {
+        background-color: white; /* Nền trắng cho các ô */
+    }
+
+    .pagination .page-item .page-link {
+        color: black; /* Chữ đen cho các liên kết phân trang */
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #007bff; /* Màu nền xanh cho trang hiện tại */
+        border-color: #007bff;
+        color: white; /* Chữ trắng cho trang hiện tại */
+    }
+
+    .pagination .page-item .page-link:hover {
+        background-color: #007bff; /* Màu nền xanh khi di chuột qua */
+        color: white; /* Chữ trắng khi di chuột qua */
+    }
+</style>
