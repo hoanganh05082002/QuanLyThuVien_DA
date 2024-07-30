@@ -12,45 +12,6 @@
     var userRole = Session["UserRole"];
 }
 
-<!-- Button Profile -->
-@if (userID != null)
-{
-    <div style="position: fixed; top: 10px; right: 10px;">
-        <a class="nav-link edit-btn text-dark" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="mr-2 d-none d-lg-inline text-gray-600 small font-weight-bold">Xin chào, @userName</span>
-        </a>
-
-        <!-- Dropdown - User Information -->
-        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
-            <a class="dropdown-item edit-btn" href="~/Home/UserProfile">
-                <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                Trang cá nhân
-            </a>
-            @if (!userRole.Equals("Sinh viên") && !userRole.Equals("Giảng viên"))
-            {
-                <a class="dropdown-item" href="~/Admin/Default">
-                    <i class="fas fa-toolbox fa-sm fa-fw mr-2 text-gray-400 mt-2"></i>
-                    Trang quản trị
-                </a>
-            }
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="~/Home/Logout">
-                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                Đăng xuất
-            </a>
-
-        </div>
-    </div>
-}
-else
-{
-    <div style="position: fixed; top: 10px; right: 10px;">
-        <a class="nav-link" href="@Url.Action("Login", "Home")">
-            <span class="mr-2 d-none d-lg-inline text-gray-600 small text-dark font-weight-bold">Đăng nhập</span>
-        </a>
-    </div>
-}
-
 
 <h2 class="font-weight-bold mb-4 text-primary">Danh sách tin tức</h2>
 
@@ -81,7 +42,7 @@ else
                             <!-- Cột nội dung -->
                             <div class="card-body">
                                 <h5 class="card-title" data-toggle="tooltip" title="@news.TieuDe">
-                                    <a href="@Url.Action("Details", "News", new { id = news.ID })" class="text-dark">@news.TieuDe</a>
+                                    <a href="@Url.Action("Details", "News", new { id = news.ID })" class="text-black">@news.TieuDe</a>
                                 </h5>
                                 <h6><i class="far fa-clock mr-2"></i> Ngày đăng: @news.NgayDang.ToString("dd/MM/yyyy")</h6>
                             </div>
@@ -129,54 +90,54 @@ else
 @section Scripts {
     <script>
      function searchNews(pageNumber = 1) {
-    var searchTerm = $('#searchTerm').val();
-    $.ajax({
-        url: '@Url.Action("Index", "News")',
-        type: 'GET',
-        data: {
-            page: pageNumber,
-            searchTerm: searchTerm
-        },
-        success: function (response) {
-            var newsList = $('#newsList');
-            newsList.empty();
+        var searchTerm = $('#searchTerm').val();
+        $.ajax({
+            url: '@Url.Action("Index", "News")',
+            type: 'GET',
+            data: {
+                page: pageNumber,
+                searchTerm: searchTerm
+            },
+            success: function (response) {
+                var newsList = $('#newsList');
+                newsList.empty();
 
-            if (response && response.length > 0) { // Kiểm tra nếu có dữ liệu trả về
-                $.each(response, function (index, news) {
-                    var formattedDate = formatDateFromEpoch(news.NgayDang);
-                    var newsHtml = '<div class="post-box news-item col-md-12">' +
-                        '<div class="card mb-3">' +
-                        '<div class="row no-gutters">' +
-                        '<div class="col-md-1">' +
-                        '<a href="@Url.Action("Details", "News")/' + news.ID + '">' +
-                        '<img src="@Url.Content("~/Image/")' + news.AnhNen + '" class="card-img p-1 mt-1" alt="' + news.TieuDe + '">' +
-                        '</a>' +
-                        '</div>' +
-                        '<div class="col-md-11">' +
-                        '<div class="card-body">' +
-                        '<h5 class="card-title" data-toggle="tooltip" title="' + news.TieuDe + '">' +
-                        '<a href="@Url.Action("Details", "News")/' + news.ID + '" class="text-dark">' + news.TieuDe + '</a>' +
-                        '</h5>' +
-                        '<h6><i class="far fa-clock mr-2"></i> Ngày đăng: ' + formattedDate + '</h6>' +
-                        '</div>' +
-                        '</div>' +
-                        '</div>' +
-                        '</div>';
-                    newsList.append(newsHtml);
-                });
-            } else {
-                newsList.append('<div class="col-md-12"><p class="text-center">Không tìm thấy tin tức phù hợp.</p></div>');
-            }
+                if (response && response.length > 0) { // Kiểm tra nếu có dữ liệu trả về
+                    $.each(response, function (index, news) {
+                        var formattedDate = formatDateFromEpoch(news.NgayDang);
+                        var newsHtml = '<div class="post-box news-item col-md-12">' +
+                            '<div class="card mb-3">' +
+                            '<div class="row no-gutters">' +
+                            '<div class="col-md-1">' +
+                            '<a href="@Url.Action("Details", "News")/' + news.ID + '">' +
+                            '<img src="@Url.Content("~/Image/")' + news.AnhNen + '" class="card-img p-1 mt-1" alt="' + news.TieuDe + '">' +
+                            '</a>' +
+                            '</div>' +
+                            '<div class="col-md-11">' +
+                            '<div class="card-body">' +
+                            '<h5 class="card-title" data-toggle="tooltip" title="' + news.TieuDe + '">' +
+                            '<a href="@Url.Action("Details", "News")/' + news.ID + '" class="text-dark">' + news.TieuDe + '</a>' +
+                            '</h5>' +
+                            '<h6><i class="far fa-clock mr-2"></i> Ngày đăng: ' + formattedDate + '</h6>' +
+                            '</div>' +
+                            '</div>' +
+                            '</div>' +
+                            '</div>';
+                        newsList.append(newsHtml);
+                    });
+                } else {
+                    newsList.append('<div class="col-md-12"><p class="text-center">Không tìm thấy tin tức phù hợp.</p></div>');
+                }
 
-            // Cập nhật lại thanh phân trang nếu có
-            if (response.paginationHtml) {
-                $('#pagination').html(response.paginationHtml);
+                // Cập nhật lại thanh phân trang nếu có
+                if (response.paginationHtml) {
+                    $('#pagination').html(response.paginationHtml);
+                }
+            },
+            error: function () {
+                $('#newsList').html('<div class="col-md-12"><p class="text-center">Đã xảy ra lỗi khi tìm kiếm tin tức.</p></div>');
             }
-        },
-        error: function () {
-            $('#newsList').html('<div class="col-md-12"><p class="text-center">Đã xảy ra lỗi khi tìm kiếm tin tức.</p></div>');
-        }
-    });
+        });
 
         }
         // Hàm chuyển đổi ngày từ Epoch sang định dạng ngày tháng năm
@@ -187,10 +148,6 @@ else
                 + date.getFullYear();
             return formattedDate;
         }
-
-
-
-
     </script>
 }
 

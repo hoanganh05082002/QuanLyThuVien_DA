@@ -23,12 +23,32 @@
             <th>Trạng thái</th>
         </tr>
     </thead>
-    <tbody>
+    <tbody id="categoryTableBody">
         @foreach (var item in Model)
         {
             <tr data-theloai-id="@item.ID">
                 <td>@Html.DisplayFor(modelItem => item.TenTheLoai)</td>
-                <td>@(item.TrangThai ? "Đã duyệt" : "Chưa duyệt")</td>
+                <td>
+                    @{
+                        string trangThaiText;
+                        switch (item.TrangThai)
+                        {
+                            case 0:
+                                trangThaiText = "Chưa duyệt";
+                                break;
+                            case 1:
+                                trangThaiText = "Đã duyệt";
+                                break;
+                            case 2:
+                                trangThaiText = "Từ chối";
+                                break;
+                            default:
+                                trangThaiText = "Trạng thái không xác định";
+                                break;
+                        }
+                    }
+                    @trangThaiText
+                </td>
             </tr>
         }
     </tbody>
@@ -130,7 +150,6 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
-
             $('#createModal').on('hide.bs.modal', function () {
                 resetModal();
             });
@@ -170,6 +189,7 @@
                         if (response.success) {
                             $('#createModal').modal('hide');
                             showToast('Thêm thành công!', 'success');
+                            appendCategory(response.newCategory);
                         } else {
                             showToast('Lỗi!', 'danger');
                         }
@@ -182,31 +202,58 @@
                 });
             }
 
+            function appendCategory(category) {
+                var trangThaiText;
+                switch (category.TrangThai) {
+                    case 0:
+                        trangThaiText = "Chưa duyệt";
+                        break;
+                    case 1:
+                        trangThaiText = "Đã duyệt";
+                        break;
+                    case 2:
+                        trangThaiText = "Từ chối";
+                        break;
+                    default:
+                        trangThaiText = "Trạng thái không xác định";
+                        break;
+                }
+
+                var newRow = '<tr data-theloai-id="' + category.ID + '">' +
+                    '<td>' + category.TenTheLoai + '</td>' +
+                    '<td>' + trangThaiText + '</td>' +
+                    '</tr>';
+
+                $('#categoryTableBody').append(newRow);
+            }
+
             function showToast(message, type) {
                 $('#toastTitle').text(type === 'success' ? 'Thành công' : 'Lỗi');
                 $('#toastMessage').text(message);
                 var toastElement = $('#actionToast');
-                toastElement.removeClass('bg-success bg-danger').addClass('bg-' + type);
-                toastElement.toast('show');
-                setTimeout(function () {
-                    $('#actionToast').toast('hide');
-                }, 2000);
+                toastElement.removeClass('bg-success bg-danger bg-warning').addClass('bg-' + type);
+                toastElement.toast({
+                    autohide: true, // Enable auto-hide
+                    delay: 1000
+                }).toast('show');
             }
-
         });
     </script>
 }
+
+
 <style>
     /* Custom column widths */
     .table th:nth-child(1),
     .table td:nth-child(1) {
-        width: 15%;
+        width: 50%;
     }
 
     .table th:nth-child(2),
     .table td:nth-child(2) {
-        width: 10%;
+        width: 50%;
     }
+
     tr, td {
         color: black;
     }

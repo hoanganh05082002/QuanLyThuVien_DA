@@ -19,7 +19,6 @@ namespace QuanLyThuVien_DA.Models
         public string TieuDe { get; set; }
         public string NoiDung { get; set; }
         public Nullable<System.DateTime> NgayTao { get; set; }
-        public Nullable<int> SoLuotXem { get; set; }
-        public Nullable<bool> TrangThai { get; set; }
+        public Nullable<int> TrangThai { get; set; }
     }
 }

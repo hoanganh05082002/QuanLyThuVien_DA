@@ -10,45 +10,6 @@
     var userRole = Session["UserRole"];
 }
 
-<!-- Button Profile -->
-@if (userID != null)
-{
-    <div style="position: fixed; top: 10px; right: 10px;">
-        <a class="nav-link edit-btn text-dark" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="mr-2 d-none d-lg-inline text-gray-600 small font-weight-bold">Xin chào, @userName</span>
-        </a>
-
-        <!-- Dropdown - User Information -->
-        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
-            <a class="dropdown-item edit-btn" href="~/Home/UserProfile">
-                <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                Trang cá nhân
-            </a>
-            @if (!userRole.Equals("Sinh viên") && !userRole.Equals("Giảng viên"))
-            {
-                <a class="dropdown-item" href="~/Admin/Default">
-                    <i class="fas fa-toolbox fa-sm fa-fw mr-2 text-gray-400 mt-2"></i>
-                    Trang quản trị
-                </a>
-            }
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="~/Home/Logout">
-                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                Đăng xuất
-            </a>
-
-        </div>
-    </div>
-}
-else
-{
-    <div style="position: fixed; top: 10px; right: 10px;">
-        <a class="nav-link" href="@Url.Action("Login", "Home")">
-            <span class="mr-2 d-none d-lg-inline text-gray-600 small text-dark font-weight-bold">Đăng nhập</span>
-        </a>
-    </div>
-}
-
 
 <h2 class="font-weight-bold mb-4 text-primary">Danh sách tài liệu</h2>
 
@@ -76,9 +37,9 @@ else
                     <a href="@Url.Action("Details", "Home", new { id = document.ID })">
                         <img src="@Url.Content("~/Image/" + document.AnhNen)" class="card-img-top" alt="@document.TenTaiLieu">
                     </a>
-                    <div class="card-body mb-4">
+                    <div class="card-body">
                         <h5 class="card-title" data-toggle="tooltip" title="@document.TenTaiLieu">
-                            <a href="@Url.Action("Details", "Home", new { id = document.ID })" class="text-dark">@document.TenTaiLieu</a>
+                            <a href="@Url.Action("Details", "Home", new { id = document.ID })" class="text-black">@document.TenTaiLieu</a>
                         </h5>
                     </div>
                 </div>
@@ -149,7 +110,7 @@ else
                         '</a>' +
                         '<div class="card-body">' +
                         '<h5 class="card-title" data-toggle="tooltip" title="' + document.TenTaiLieu + '">' +
-                        '<a href="/Home/Details/' + document.ID + '" class="text-dark">' + document.TenTaiLieu + '</a>' +
+                        '<a href="/Home/Details/' + document.ID + '" class="text-black">' + document.TenTaiLieu + '</a>' +
                         '</h5>' +
                         '</div>' +
                         '</div>' +

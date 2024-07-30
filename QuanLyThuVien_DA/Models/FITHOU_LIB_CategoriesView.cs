@@ -12,9 +12,9 @@ namespace QuanLyThuVien_DA.Models
         public string MoTa { get; set; }
         public string HoTen { get; set; }
         public int UserID { get; set; }
-        public int DeXuatTheLoaiID { get; set; }
+        public int? DeXuatTheLoaiID { get; set; }
 
-        public bool TrangThai {  get; set; }
+        public int TrangThai {  get; set; }
 
         
     }

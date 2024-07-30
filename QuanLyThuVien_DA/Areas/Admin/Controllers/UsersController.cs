@@ -217,20 +217,6 @@ namespace QuanLyThuVien_DA.Areas.Admin.Controllers
         }
 
 
-        // POST: Admin/Users/Delete/5
-        [HttpPost]
-        public async Task<ActionResult> Delete(int ID)
-        {
-            var user = await db.FITHOU_LIB_Users.FindAsync(ID);
-            if (user == null)
-            {
-                return HttpNotFound();
-            }
-
-            db.FITHOU_LIB_Users.Remove(user);
-            await db.SaveChangesAsync();
-            return Json(new { success = true });
-        }
 
     }
 }

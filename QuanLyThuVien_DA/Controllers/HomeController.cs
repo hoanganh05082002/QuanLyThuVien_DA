@@ -243,7 +243,6 @@ namespace QuanLyThuVien_DA.Controllers
         [HttpPost]
         public ActionResult Login(FITHOU_LIB_Users user)
         {
- 
             var existingUser = db.FITHOU_LIB_Users
                 .FirstOrDefault(u => u.MaSinhVien == user.MaSinhVien && u.TrangThai == true);
 
@@ -260,6 +259,9 @@ namespace QuanLyThuVien_DA.Controllers
                     Session["UserRole"] = existingUser.VaiTro;
                     Session["UserEmail"] = existingUser.Email;
                     Session["IsFirstLogin"] = existingUser.isFirstLogin;
+
+                    // Set session timeout
+                    Session.Timeout = 120; // Session timeout set to 120 minutes
 
                     if (existingUser.TrangThai == false)
                     {
@@ -289,6 +291,7 @@ namespace QuanLyThuVien_DA.Controllers
             return View();
         }
 
+
         [HttpPost]
         public async Task<ActionResult> ChangePassword(FITHOU_LIB_Users user)
         {
@@ -300,9 +303,16 @@ namespace QuanLyThuVien_DA.Controllers
                     return HttpNotFound();
                 }
 
-                // Hash the password if it has changed
+                // Verify the new password is different from the old password
                 if (!string.IsNullOrEmpty(user.MatKhauHash))
                 {
+                    bool isSamePassword = BCrypt.Net.BCrypt.Verify(user.MatKhauHash, existingUser.MatKhauHash);
+                    if (isSamePassword)
+                    {
+                        return Json(new { success = false, message = "Mật khẩu mới phải khác mật khẩu cũ." });
+                    }
+
+                    // Hash the new password
                     existingUser.MatKhauHash = BCrypt.Net.BCrypt.HashPassword(user.MatKhauHash);
                     existingUser.isFirstLogin = true; // Update the isFirstLogin flag
                 }
@@ -318,6 +328,7 @@ namespace QuanLyThuVien_DA.Controllers
 
             return Json(new { success = false });
         }
+
 
         [HttpPost]
         public async Task<ActionResult> EditProfile(FITHOU_LIB_Users user)
@@ -479,6 +490,70 @@ namespace QuanLyThuVien_DA.Controllers
             return Json(new { documents, pagination }, JsonRequestBehavior.AllowGet);
         }
 
+
+        [HttpGet]
+        public ActionResult GetNotifications()
+        {
+            // Lấy danh sách thông báo cho người dùng hiện tại (giả sử bạn có UserID trong session)
+            int userId = (int)Session["UserID"];
+            var notifications = db.FITHOU_LIB_ThongBao
+                                 .Where(n => n.UserID == userId)
+                                 .OrderByDescending(n => n.TrangThai == false) // Sắp xếp theo trạng thái: chưa đọc (false) trước
+                                 .ThenByDescending(n => n.NgayTao)  // Sắp xếp theo ngày tạo để có thông báo mới ở trên
+                                 .ToList();
+
+            return PartialView("_Notification", notifications);
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> MarkAsRead(int id)
+        {
+            try
+            {
+                var notification = db.FITHOU_LIB_ThongBao.Find(id);
+                if (notification == null)
+                {
+                    return Json(new { success = false, error = "Notification not found" });
+                }
+
+                if (notification.TrangThai == false) // Check if it's already marked as read
+                {
+                    // Mark as read
+                    notification.TrangThai = true;
+
+                    // Convert content to HTML with faded text
+                    notification.NoiDung = $"<span class='text-secondary'>{notification.NoiDung}</span>";
+
+                    db.Entry(notification).State = EntityState.Modified;
+                    await db.SaveChangesAsync();
+                }
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, error = ex.Message });
+            }
+        }
+
+
+        public async Task<JsonResult> GetUnreadNotificationCount()
+        {
+            try
+            {
+                // Giả sử UserID được lưu trong Session
+                var userId = Convert.ToInt32(Session["UserID"]);
+
+                var unreadCount = await db.FITHOU_LIB_ThongBao
+                                          .CountAsync(n => n.TrangThai == false && n.UserID == userId);
+
+                return Json(new { count = unreadCount }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, error = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
 
 
     }

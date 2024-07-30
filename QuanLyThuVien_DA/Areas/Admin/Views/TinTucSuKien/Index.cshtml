@@ -79,68 +79,73 @@
 </div>
 
 
+<div>
 
-
-<table class="table mt-3">
-    <thead>
-        <tr>
-            <th>Tiêu đề </th>
-            <th>Ngày đăng tải</th>
-            <th>Người đăng tải</th>
-            <th>Tác vụ</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr data-tintuc-id="@item.ID">
-                <td>@Html.DisplayFor(modelItem => item.TieuDe)</td>
-                <td>@item.NgayDang.ToString("dd/MM/yyyy")</td>
-                <td>@Html.DisplayFor(modelItem => item.HoTen)</td>
-                <td>
-                    <button class="btn btn-info btn-sm edit-btn">
-                        <i class="fa fa-edit"></i>
-                    </button> |
-                    <button class="btn btn-danger btn-sm delete-btn" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                        <i class="fa fa-trash"></i>
-                    </button>
-                </td>
+    <table id="newTable" class="table mt-3">
+        <thead>
+            <tr>
+                <th>Tiêu đề </th>
+                <th>Ngày đăng tải</th>
+                <th>Người đăng tải</th>
+                <th>Tác vụ</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr data-tintuc-id="@item.ID">
+                    <td>@Html.DisplayFor(modelItem => item.TieuDe)</td>
+                    <td>@item.NgayDang.ToString("dd/MM/yyyy")</td>
+                    <td>@Html.DisplayFor(modelItem => item.HoTen)</td>
+                    <td>
+                        <button class="btn btn-info btn-sm edit-btn">
+                            <i class="fa fa-edit"></i>
+                        </button> |
+                        <button class="btn btn-danger btn-sm delete-btn" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 
-@if (ViewBag.Pagination != null)
-{
-    <div class="d-flex justify-content-center">
-        <nav aria-label="Page navigation example">
-            <ul class="pagination">
-                @if (ViewBag.Pagination.PageNumber > 1)
-                {
-                    <li class="page-item">
-                        <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.Pagination.PageNumber - 1 })" aria-label="Previous">
-                            <span aria-hidden="true">&laquo;</span>
-                        </a>
-                    </li>
-                }
-                @for (int i = 1; i <= ViewBag.Pagination.PageTotal; i++)
-                {
-                    <li class="page-item @(i == ViewBag.Pagination.PageNumber ? "active" : "")">
-                        <a class="page-link" href="@Url.Action("Index", new { page = i })">@i</a>
-                    </li>
-                }
-                @if (ViewBag.Pagination.PageNumber < ViewBag.Pagination.PageTotal)
-                {
-                    <li class="page-item">
-                        <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.Pagination.PageNumber + 1 })" aria-label="Next">
-                            <span aria-hidden="true">&raquo;</span>
-                        </a>
-                    </li>
-                }
-            </ul>
-        </nav>
+    <div class="d-flex justify-content-center" id="pagination">
+        @if (ViewBag.Pagination != null)
+        {
+            <div class="d-flex justify-content-center">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination">
+                        @if (ViewBag.Pagination.PageNumber > 1)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.Pagination.PageNumber - 1 })" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                        }
+                        @for (int i = 1; i <= ViewBag.Pagination.PageTotal; i++)
+                        {
+                            <li class="page-item @(i == ViewBag.Pagination.PageNumber ? "active" : "")">
+                                <a class="page-link" href="@Url.Action("Index", new { page = i })">@i</a>
+                            </li>
+                        }
+                        @if (ViewBag.Pagination.PageNumber < ViewBag.Pagination.PageTotal)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.Pagination.PageNumber + 1 })" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            </div>
+        }
     </div>
-}
+
+</div>
+
 <!-- Modal Xóa -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -180,28 +185,64 @@
         $(document).ready(function () {
             CKEDITOR.replace('NoiDung');
 
-            // Xử lý sự kiện khi nhấn nút Sửa
-            $(document).on('click', '.edit-btn', function () {
-                var tintucId = $(this).closest('tr').data('tintuc-id');
-                openEditModal(tintucId);
-            });
+            var currentPageNumber = 1;
 
-            // Xử lý sự kiện khi nhấn nút Thêm
+            function setupPage() {
+                attachEventHandlers();
+                reloadNewTable(currentPageNumber);
+            }
+
+            setupPage();
+
+            function reloadNewTable(pageNumber) {
+                var url = '@Url.Action("Index", "TinTucSuKien")';
+                $.get(url, { page: pageNumber })
+                    .done(function (data) {
+                        $('#newTable tbody').html($(data).find('#newTable tbody').html());
+                        $('#pagination').html($(data).find('#pagination').html());
+                        attachEventHandlers();
+                    })
+                    .fail(function (xhr, status, error) {
+                        console.error("Error: " + error);
+                        showToast('Lỗi!', 'danger');
+                    });
+            }
+
+            function attachEventHandlers() {
+                $('.edit-btn').off('click').on('click', function () {
+                    var tintucId = $(this).closest('tr').data('tintuc-id');
+                    openEditModal(tintucId);
+                });
+
+                $('.delete-btn').off('click').on('click', function () {
+                    var tintucIdToDelete = $(this).closest('tr').data('tintuc-id');
+                    $('#deleteModal').modal('show');
+                    $('#confirmDeleteBtn').off('click').on('click', function () {
+                        deleteTinTuc(tintucIdToDelete);
+                    });
+                });
+
+                $('#pagination').off('click', '.page-link').on('click', '.page-link', function (e) {
+                    e.preventDefault();
+                    var pageNumber = $(this).text().trim();
+                    reloadNewTable(pageNumber);
+                });
+            }
+
             $('#openCreateModal').click(function () {
+                resetModal();
                 $('#createModalLabel').text('Thêm mới tin tức');
                 $('#saveChangesBtn').text('Thêm').off('click').on('click', function () {
                     createTinTuc();
                 });
-                $('#HoTen').val('@userName'); // Set default user name
+                 $('#HoTen').val(@Html.Raw(Json.Encode(userName)));
                 $('#createModal').modal('show');
             });
 
-            // Xử lý sự kiện khi đóng modal Thêm/Sửa
             $('#createModal').on('hide.bs.modal', function () {
                 resetModal();
             });
 
-            // Hàm reset modal về trạng thái mặc định
             function resetModal() {
                 $('#createModalLabel').text('Thêm mới tin tức');
                 $('#saveChangesBtn').text('Thêm').off('click').on('click', function () {
@@ -209,59 +250,51 @@
                 });
                 $('#createForm')[0].reset();
                 $('#TinTucId').val('');
-
-                // Reset ảnh và file tên
                 $('#currentAnhNen').hide();
                 $('#AnhNenFileName').hide();
-
                 $('#createForm').removeClass('was-validated');
-
-                // Reset CKEditor
                 for (instance in CKEDITOR.instances) {
                     CKEDITOR.instances[instance].setData('');
                 }
             }
 
-         // Trong hàm openEditModal:
-function openEditModal(tintucId) {
-    $.ajax({
-        url: '@Url.Action("GetTinTuc", "TinTucSuKien")',
-        type: 'GET',
-        data: { id: tintucId },
-        success: function (response) {
-            if (response) {
-                $('#createModalLabel').text('Chỉnh sửa tin tức');
-                $('#saveChangesBtn').text('Lưu thay đổi').off('click').on('click', function () {
-                    editTinTuc(tintucId);
+            function openEditModal(tintucId) {
+                $.ajax({
+                    url: '@Url.Action("GetTinTuc", "TinTucSuKien")',
+                    type: 'GET',
+                    data: { id: tintucId },
+                    success: function (response) {
+                        if (response) {
+                            $('#createModalLabel').text('Chỉnh sửa tin tức');
+                            $('#saveChangesBtn').text('Lưu thay đổi').off('click').on('click', function () {
+                                editTinTuc(tintucId);
+                            });
+
+                            $('#TieuDe').val(response.TieuDe);
+                            CKEDITOR.instances['NoiDung'].setData(response.NoiDung);
+                            $('#HoTen').val(response.HoTen);
+                            $('#TinTucId').val(response.ID);
+
+                            if (response.AnhNen) {
+                                $('#currentAnhNen').attr('src', response.AnhNen).show();
+                                var fileName = response.AnhNen.split('/').pop();
+                                $('#AnhNenFileName').text(fileName).show();
+                            } else {
+                                $('#currentAnhNen').hide();
+                                $('#AnhNenFileName').hide();
+                            }
+
+                            $('#createModal').modal('show');
+                        } else {
+                            showToast('Không tìm thấy tin tức để chỉnh sửa!', 'warning');
+                        }
+                    },
+                    error: function () {
+                        showToast('Lỗi khi lấy dữ liệu tin tức để chỉnh sửa!', 'danger');
+                    }
                 });
-
-                $('#TieuDe').val(response.TieuDe);
-                CKEDITOR.instances['NoiDung'].setData(response.NoiDung); // Ensure CKEditor content is set correctly
-                $('#HoTen').val(response.HoTen);
-                $('#TinTucId').val(response.ID);
-
-                // Hiển thị ảnh nền (nếu có)
-                if (response.AnhNen) {
-                    $('#currentAnhNen').attr('src', response.AnhNen).show();
-                    var fileName = response.AnhNen.split('/').pop(); // Lấy tên tệp từ URL
-                    $('#AnhNenFileName').text(fileName).show(); // Hiển thị tên tệp
-                } else {
-                    $('#currentAnhNen').hide();
-                    $('#AnhNenFileName').hide(); // Ẩn tên tệp nếu không có ảnh nền
-                }
-
-                $('#createModal').modal('show');
-            } else {
-                showToast('Không tìm thấy tin tức để chỉnh sửa!', 'warning');
             }
-        },
-        error: function () {
-            showToast('Lỗi khi lấy dữ liệu tin tức để chỉnh sửa!', 'danger');
-        }
-    });
-}
 
-            // Hàm tạo mới tin tức
             function createTinTuc() {
                 var form = $('#createForm')[0];
                 if (form.checkValidity() === false) {
@@ -269,7 +302,6 @@ function openEditModal(tintucId) {
                     return;
                 }
 
-                // Cập nhật nội dung CKEditor vào textarea
                 for (instance in CKEDITOR.instances) {
                     CKEDITOR.instances[instance].updateElement();
                 }
@@ -285,11 +317,7 @@ function openEditModal(tintucId) {
                         if (response.success) {
                             $('#createModal').modal('hide');
                             showToast('Thêm tin tức thành công!', 'success');
-                            // Đặt thời gian trễ trước khi ẩn toast
-                            setTimeout(function () {
-                                location.reload();
-                                $('#actionToast').toast('hide'); // Ẩn toast sau khi đã trễ
-                            }, 1000); 
+                            reloadNewTable(currentPageNumber);
                         } else {
                             showToast('Lỗi khi thêm tin tức!', 'danger');
                         }
@@ -300,7 +328,6 @@ function openEditModal(tintucId) {
                 });
             }
 
-            // Hàm chỉnh sửa tin tức
             function editTinTuc(tintucId) {
                 var form = $('#createForm')[0];
                 if (form.checkValidity() === false) {
@@ -308,7 +335,6 @@ function openEditModal(tintucId) {
                     return;
                 }
 
-                // Cập nhật nội dung CKEditor vào textarea
                 for (instance in CKEDITOR.instances) {
                     CKEDITOR.instances[instance].updateElement();
                 }
@@ -325,11 +351,7 @@ function openEditModal(tintucId) {
                         if (response.success) {
                             $('#createModal').modal('hide');
                             showToast('Cập nhật tin tức thành công!', 'success');
-                            // Đặt thời gian trễ trước khi ẩn toast
-                            setTimeout(function () {
-                                location.reload();
-                                $('#actionToast').toast('hide'); // Ẩn toast sau khi đã trễ
-                            }, 1000); 
+                            reloadNewTable(currentPageNumber);
                         } else {
                             showToast('Lỗi khi cập nhật tin tức!', 'danger');
                         }
@@ -340,29 +362,16 @@ function openEditModal(tintucId) {
                 });
             }
 
-            // Xử lý sự kiện khi nhấn nút Xóa
-            $(document).on('click', '.delete-btn', function () {
-                var tintucDeleteId = $(this).closest('tr').data('tintuc-id');
-                $('#confirmDeleteBtn').data('tintuc-id', tintucDeleteId);
-                $('#deleteModal').modal('show');
-            });
-
-            // Xử lý sự kiện khi nhấn nút Xác nhận Xóa
-            $('#confirmDeleteBtn').click(function () {
-                var tintucDeleteId = $(this).data('tintuc-id');
+            function deleteTinTuc(tintucId) {
                 $.ajax({
                     type: 'POST',
                     url: '@Url.Action("Delete", "TinTucSuKien")',
-                    data: { ID: tintucDeleteId },
+                    data: { ID: tintucId },
                     success: function (response) {
                         if (response.success) {
                             $('#deleteModal').modal('hide');
                             showToast('Xóa tin tức thành công!', 'success');
-                            // Đặt thời gian trễ trước khi ẩn toast
-                            setTimeout(function () {
-                                location.reload();
-                                $('#actionToast').toast('hide'); // Ẩn toast sau khi đã trễ
-                            }, 1000); 
+                            reloadNewTable(currentPageNumber);
                         } else {
                             showToast('Lỗi khi xóa tin tức!', 'danger');
                         }
@@ -371,20 +380,24 @@ function openEditModal(tintucId) {
                         showToast('Lỗi khi xóa tin tức!', 'danger');
                     }
                 });
-            });
+            }
 
-            // Hàm hiển thị thông báo Toast
             function showToast(message, type) {
                 $('#toastTitle').text(type === 'success' ? 'Thành công' : 'Lỗi');
                 $('#toastMessage').text(message);
                 var toastElement = $('#actionToast');
-                toastElement.removeClass('bg-success bg-danger').addClass('bg-' + type);
-                toastElement.toast('show');
+                toastElement.removeClass('bg-success bg-danger bg-warning').addClass('bg-' + type);
+                toastElement.toast({
+                    autohide: true, // Enable auto-hide
+                    delay: 1000
+                }).toast('show');
             }
+
         });
     </script>
 }
- 
+
+
 
 
 <style>
@@ -393,14 +406,16 @@ function openEditModal(tintucId) {
     .table td:nth-child(1) {
         width: 40%;
     }
+
     .modal-dialog {
         margin-left: auto;
         margin-right: auto;
     }
 
     .modal-body {
-     padding-right : 80px
+        padding-right: 80px
     }
+
     .table th:nth-child(2),
     .table td:nth-child(2) {
         width: 15%;

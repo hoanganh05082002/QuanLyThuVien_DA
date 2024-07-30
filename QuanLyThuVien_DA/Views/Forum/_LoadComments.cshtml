@@ -1,0 +1,30 @@
+﻿@{
+    var userID = Session["UserID"];
+    var userName = Session["UserName"];
+    var userRole = Session["UserRole"];
+}
+
+@model IEnumerable<QuanLyThuVien_DA.Models.CommentViewModel>
+
+@foreach (var comment in Model)
+{
+    <div class="comment-box mb-3 p-3 border rounded" data-binhluan-id="@comment.ID">
+        <div class="comment-header d-flex justify-content-between align-items-center mb-2">
+            <div class="comment-author">
+                <p class="small">
+                    <i class="fas fa-user text-primary"></i> @comment.HoTen &nbsp;&nbsp;
+                    <i class="far fa-clock text-warning"></i> @comment.NgayTao.ToString("dd/MM/yyyy HH:mm")
+                </p>
+            </div>
+            @if (userRole != null && userRole.Equals("All") || (userName != null && userName.Equals(comment.HoTen)))
+            {
+                <button class="btn btn-danger btn-sm delete-btn">
+                    <i class="fa fa-trash"></i>
+                </button>
+            }
+        </div>
+        <div class="comment-body">
+            <p class="text-black">@comment.BinhLuan</p>
+        </div>
+    </div>
+}

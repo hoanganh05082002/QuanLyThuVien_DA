@@ -1,4 +1,5 @@
-﻿using QuanLyThuVien_DA.Models;
+﻿using DocumentFormat.OpenXml.Office2010.Excel;
+using QuanLyThuVien_DA.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -10,6 +11,7 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Services.Description;
 using System.Web.UI;
 
 namespace QuanLyThuVien_DA.Controllers
@@ -18,7 +20,6 @@ namespace QuanLyThuVien_DA.Controllers
     {
         FITHOU_LIBEntities db = new FITHOU_LIBEntities();
         // GET: Forum
-
         [HttpGet]
 
         public ActionResult Index(string searchTerm, int? page)
@@ -26,7 +27,7 @@ namespace QuanLyThuVien_DA.Controllers
             int pageSize = 5;
             int pageNumber = (page ?? 1);
 
-            var query = db.FITHOU_LIB_BaiDang.Where(post => post.TrangThai == true);
+            var query = db.FITHOU_LIB_BaiDang.Where(post => post.TrangThai == 1);
 
             if (!string.IsNullOrEmpty(searchTerm))
             {
@@ -37,7 +38,7 @@ namespace QuanLyThuVien_DA.Controllers
 
             var posts = (from user in db.FITHOU_LIB_Users
                          join post in query on user.ID equals post.UserID
-                         orderby post.ID
+                         orderby post.NgayTao descending
                          select new FITHOU_LIB_PostView
                          {
                              ID = post.ID,
@@ -45,7 +46,7 @@ namespace QuanLyThuVien_DA.Controllers
                              NoiDung = post.NoiDung,
                              TieuDe = post.TieuDe,
                              NgayTao = post.NgayTao ?? DateTime.MinValue,
-                             TrangThai = post.TrangThai ?? false
+                             TrangThai = (int)post.TrangThai
                          })
                          .Skip((pageNumber - 1) * pageSize)
                          .Take(pageSize)
@@ -67,22 +68,13 @@ namespace QuanLyThuVien_DA.Controllers
             return View(posts);
         }
 
-      
 
-        public async Task<ActionResult> Details(int? id, int? page)
+        public async Task<ActionResult> Details(int? id)
         {
             if (id == null)
             {
                 return new HttpStatusCodeResult(System.Net.HttpStatusCode.BadRequest);
             }
-
-            int pageSize = 5;
-            int pageNumber = page ?? 1;
-
-            // Lấy tổng số lượng bình luận cho bài đăng có ID tương ứng
-            var totalCount = await db.FITHOU_LIB_BinhLuan
-                                    .Where(comment => comment.BaiDangID == id)
-                                    .CountAsync();
 
             // Lấy thông tin bài đăng và các bình luận, sử dụng phân trang
             var posts = await (from user in db.FITHOU_LIB_Users
@@ -99,7 +91,7 @@ namespace QuanLyThuVien_DA.Controllers
                                    Comments = (from comment in db.FITHOU_LIB_BinhLuan
                                                where comment.BaiDangID == post.ID
                                                join commenter in db.FITHOU_LIB_Users on comment.UserID equals commenter.ID
-                                               orderby comment.ID // Sắp xếp bình luận theo ID hoặc ngày tạo
+                                               orderby comment.NgayTao // Sắp xếp bình luận theo ID hoặc ngày tạo
                                                select new CommentViewModel
                                                {
                                                    ID = comment.ID,
@@ -107,8 +99,6 @@ namespace QuanLyThuVien_DA.Controllers
                                                    HoTen = commenter.HoTen,
                                                    NgayTao = comment.NgayTao ?? DateTime.MinValue
                                                })
-                                               //.Skip((pageNumber - 1) * pageSize)
-                                               //.Take(pageSize)
                                                .ToList()
                                })
                                .FirstOrDefaultAsync();
@@ -117,17 +107,69 @@ namespace QuanLyThuVien_DA.Controllers
             {
                 return HttpNotFound();
             }
-
-            // Tạo đối tượng phân trang
-            var pagination = new PaginationViewModel
-            {
-                PageNumber = pageNumber,
-                PageSize = pageSize,
-                PageTotal = (int)Math.Ceiling((double)totalCount / pageSize)
-            };
-
-            ViewBag.Pagination = pagination;
             return View(posts);
+        }
+
+        public async Task<ActionResult> RefuseDetails(int? id)
+        {
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(System.Net.HttpStatusCode.BadRequest);
+            }
+
+            // Lấy thông tin bài đăng và các bình luận, sử dụng phân trang
+            var posts = await (from user in db.FITHOU_LIB_Users
+                               join post in db.FITHOU_LIB_BaiDang on user.ID equals post.UserID
+                               where post.ID == id
+                               orderby post.ID
+                               select new FITHOU_LIB_CommentPostDetails
+                               {
+                                   BaiDangID = post.ID,
+                                   HoTen = user.HoTen,
+                                   NoiDung = post.NoiDung,
+                                   TieuDe = post.TieuDe,
+                                   NgayTao = post.NgayTao ?? DateTime.MinValue,
+                                   Comments = (from comment in db.FITHOU_LIB_BinhLuan
+                                               where comment.BaiDangID == post.ID
+                                               join commenter in db.FITHOU_LIB_Users on comment.UserID equals commenter.ID
+                                               orderby comment.NgayTao // Sắp xếp bình luận theo ID hoặc ngày tạo
+                                               select new CommentViewModel
+                                               {
+                                                   ID = comment.ID,
+                                                   BinhLuan = comment.BinhLuan,
+                                                   HoTen = commenter.HoTen,
+                                                   NgayTao = comment.NgayTao ?? DateTime.MinValue
+                                               })
+                                               .ToList()
+                               })
+                               .FirstOrDefaultAsync();
+
+            if (posts == null)
+            {
+                return HttpNotFound();
+            }
+            return View(posts);
+        }
+        public async Task<ActionResult> LoadComments(int? postId)
+        {
+            if (postId == null)
+            {
+                return new HttpStatusCodeResult(System.Net.HttpStatusCode.BadRequest);
+            }
+
+            var comments = await (from comment in db.FITHOU_LIB_BinhLuan
+                                  where comment.BaiDangID == postId
+                                  join commenter in db.FITHOU_LIB_Users on comment.UserID equals commenter.ID
+                                  orderby comment.NgayTao // Sắp xếp bình luận theo ngày tạo
+                                  select new CommentViewModel
+                                  {
+                                      ID = comment.ID,
+                                      BinhLuan = comment.BinhLuan,
+                                      HoTen = commenter.HoTen,
+                                      NgayTao = comment.NgayTao ?? DateTime.MinValue
+                                  }).ToListAsync();
+
+            return PartialView("_LoadComments", comments);
         }
 
 
@@ -185,6 +227,7 @@ namespace QuanLyThuVien_DA.Controllers
 
                     posts.NgayTao = DateTime.Now;
                     db.FITHOU_LIB_BaiDang.Add(posts);
+                    posts.TrangThai = 0;
                     db.SaveChanges();
                     return Json(new { success = true });
                 }
@@ -223,7 +266,11 @@ namespace QuanLyThuVien_DA.Controllers
                         existingPost.UserID = posts.UserID;
                         existingPost.NgayTao = DateTime.Now;
                         // Nếu sửa thì Trạng Thái sẽ là chưa duyệt
-                        existingPost.TrangThai = false;
+                        existingPost.TrangThai = 0;
+
+                        // Xóa các thông báo liên quan đến bài đăng
+                        var notifications = db.FITHOU_LIB_ThongBao.Where(n => n.BaiDangID == posts.ID);
+                        db.FITHOU_LIB_ThongBao.RemoveRange(notifications);
 
                         await db.SaveChangesAsync();
                         return Json(new { success = true });
@@ -271,18 +318,23 @@ namespace QuanLyThuVien_DA.Controllers
             return Json(result, JsonRequestBehavior.AllowGet);
         }
 
-
         [HttpPost]
-        public async Task<ActionResult> DeletePost(int ID)
+        public async Task<ActionResult> DeletePost(int id)
         {
-            var posts = await db.FITHOU_LIB_BaiDang.FindAsync(ID);
-            if (posts == null)
+            var post = await db.FITHOU_LIB_BaiDang.FindAsync(id);
+            if (post == null)
             {
                 return HttpNotFound();
             }
 
-            db.FITHOU_LIB_BaiDang.Remove(posts);
+            // Xóa các thông báo liên quan đến bài đăng
+            var notifications = db.FITHOU_LIB_ThongBao.Where(n => n.BaiDangID == id);
+            db.FITHOU_LIB_ThongBao.RemoveRange(notifications);
+
+            // Xóa bài đăng
+            db.FITHOU_LIB_BaiDang.Remove(post);
             await db.SaveChangesAsync();
+
             return Json(new { success = true });
         }
 
@@ -300,7 +352,18 @@ namespace QuanLyThuVien_DA.Controllers
             return Json(new { success = true });
         }
 
-       
+        [HttpGet]
+        public ActionResult GetNotifications()
+        {
+            // Lấy danh sách thông báo cho người dùng hiện tại (giả sử bạn có UserID trong session)
+            int userId = (int)Session["UserID"];
+            var notifications = db.FITHOU_LIB_ThongBao
+                                 .Where(n => n.UserID == userId)
+                                 .OrderByDescending(n => n.NgayTao)
+                                 .ToList();
+
+            return PartialView("_Notification", notifications);
+        }
 
 
     }

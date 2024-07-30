@@ -3,76 +3,107 @@
     ViewBag.Title = "Danh sách đề xuất thể loại";
     Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
 }
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Họ Tên</th>
-            <th>Email</th>
-            <th>Tên Thể Loại</th>
-            <th>Lý Do Đề Xuất</th>
-            <th>Ngày Đề Xuất</th>
-            <th>Trạng Thái</th>
-            <th>Tác vụ</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr data-dexuat-id="@item.ID">
-                <td>@item.HoTen</td>
-                <td>@item.Email</td>
-                <td>@item.TenTheLoai</td>
-                <td>@item.LyDoDeXuat</td>
-                <td>@item.NgayDeXuat.ToString("dd/MM/yyyy")</td>
-                <td>@(item.TrangThai ? "Đã duyệt" : "Chưa duyệt")</td>
-                <td>
-                    @if (item.TrangThai == false)
-                    {
+
+<div>
+    <table id="dexuatTable" class="table">
+        <thead>
+            <tr>
+                <th>Họ Tên</th>
+                <th>Email</th>
+                <th>Tên Thể Loại</th>
+                <th>Lý Do Đề Xuất</th>
+                <th>Ngày Đề Xuất</th>
+                <th>Trạng Thái</th>
+                <th>Tác vụ</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr data-dexuat-id="@item.ID">
+                    <td>@item.HoTen</td>
+                    <td>@item.Email</td>
+                    <td>@item.TenTheLoai</td>
+                    <td>@item.LyDoDeXuat</td>
+                    <td>@item.NgayDeXuat.ToString("dd/MM/yyyy")</td>
+                    <td>
+                        @{
+                            string trangThaiText;
+                            switch (item.TrangThai)
+                            {
+                                case 0:
+                                    trangThaiText = "Chưa duyệt";
+                                    break;
+                                case 1:
+                                    trangThaiText = "Đã duyệt";
+                                    break;
+                                case 2:
+                                    trangThaiText = "Từ chối";
+                                    break;
+                                default:
+                                    trangThaiText = "Trạng thái không xác định";
+                                    break;
+                            }
+                        }
+                        @trangThaiText
+                    </td>
+
+                    <td>
+
+                        @if (item.TrangThai == 0)
+                        {
+                            <button class="btn btn-success btn-sm confirm-btn" data-id="@item.ID">
+                                <i class="fa fa-check"></i>
+                            </button>
+                            <button class="btn btn-warning btn-sm refuse-btn" data-id="@item.ID">
+                                <i class="fa fa-ban"></i>
+                            </button>
+                        }
                         <button class="btn btn-danger btn-sm delete-btn">
                             <i class="fa fa-trash"></i>
                         </button>
-                        <button class="btn btn-success btn-sm confirm-btn" data-id="@item.ID" @(item.TrangThai ? "style='display: none;'" : "")>
-                            <i class="fa fa-check"></i>
-                        </button>
-                    }
-
-                </td>
-            </tr>
+                    </td>
+                   
+                </tr>
+            }
+        </tbody>
+    </table>
+    <div class="d-flex justify-content-center" id="pagination">
+        @if (ViewBag.Pagination != null)
+        {
+            <div class="d-flex justify-content-center">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination">
+                        @if (ViewBag.Pagination.PageNumber > 1)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("IndexPheDuyet", new { page = ViewBag.Pagination.PageNumber - 1 })" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                        }
+                        @for (int i = 1; i <= ViewBag.Pagination.PageTotal; i++)
+                        {
+                            <li class="page-item @(i == ViewBag.Pagination.PageNumber ? "active" : "")">
+                                <a class="page-link" href="@Url.Action("IndexPheDuyet", new { page = i })">@i</a>
+                            </li>
+                        }
+                        @if (ViewBag.Pagination.PageNumber < ViewBag.Pagination.PageTotal)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("IndexPheDuyet", new { page = ViewBag.Pagination.PageNumber + 1 })" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            </div>
         }
-    </tbody>
-</table>
-
-@if (ViewBag.Pagination != null)
-{
-    <div class="d-flex justify-content-center">
-        <nav aria-label="Page navigation example">
-            <ul class="pagination">
-                @if (ViewBag.Pagination.PageNumber > 1)
-                {
-                    <li class="page-item">
-                        <a class="page-link" href="@Url.Action("IndexPheDuyet", new { page = ViewBag.Pagination.PageNumber - 1 })" aria-label="Previous">
-                            <span aria-hidden="true">&laquo;</span>
-                        </a>
-                    </li>
-                }
-                @for (int i = 1; i <= ViewBag.Pagination.PageTotal; i++)
-                {
-                    <li class="page-item @(i == ViewBag.Pagination.PageNumber ? "active" : "")">
-                        <a class="page-link" href="@Url.Action("IndexPheDuyet", new { page = i })">@i</a>
-                    </li>
-                }
-                @if (ViewBag.Pagination.PageNumber < ViewBag.Pagination.PageTotal)
-                {
-                    <li class="page-item">
-                        <a class="page-link" href="@Url.Action("IndexPheDuyet", new { page = ViewBag.Pagination.PageNumber + 1 })" aria-label="Next">
-                            <span aria-hidden="true">&raquo;</span>
-                        </a>
-                    </li>
-                }
-            </ul>
-        </nav>
     </div>
-}
+
+</div>
+
 
 <!-- Modal xóa -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
@@ -111,14 +142,58 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
-            // Xử lý sự kiện khi nhấn nút Xác nhận
-            $('.confirm-btn').click(function () {
-                var button = $(this); // Get the button that was clicked
-                var dexuatID = button.data('id');
-                confirmDeXuat(dexuatID, button);
-            });
 
-            // Hàm gọi Ajax để xác nhận đề xuất
+            var currentPageNumber = 1;
+
+            function setupPage() {
+                attachEventHandlers();
+                reloadDXTable(currentPageNumber);
+            }
+
+            setupPage();
+
+            function reloadDXTable(pageNumber) {
+                var url = '@Url.Action("IndexPheDuyet", "DeXuatPheDuyet")';
+                $.get(url, { page: pageNumber })
+                    .done(function (data) {
+                        $('#dexuatTable tbody').html($(data).find('#dexuatTable tbody').html());
+                        $('#pagination').html($(data).find('#pagination').html());
+                        attachEventHandlers();
+                    })
+                    .fail(function (xhr, status, error) {
+                        console.error("Error: " + error);
+                        showToast('Lỗi!', 'danger');
+                    });
+            }
+
+            function attachEventHandlers() {
+                $('.delete-btn').off('click').on('click', function () {
+                    var dexuatIdToDelete = $(this).closest('tr').data('dexuat-id');
+                    $('#deleteModal').modal('show');
+                    $('#confirmDeleteBtn').off('click').on('click', function () {
+                        deleteDeXuat(dexuatIdToDelete);
+                    });
+                });
+
+                $('#pagination').off('click', '.page-link').on('click', '.page-link', function (e) {
+                    e.preventDefault();
+                    var pageNumber = $(this).text().trim();
+                    reloadDXTable(pageNumber);
+                });
+
+                $('.confirm-btn').off('click').on('click', function () {
+                    var button = $(this);
+                    var dexuatID = button.data('id');
+                    confirmDeXuat(dexuatID, button);
+                });
+
+                $('.refuse-btn').off('click').on('click', function () {
+                    var button = $(this);
+                    var dexuatID = button.data('id');
+                    refuseDeXuat(dexuatID, button);
+                });
+            }
+
             function confirmDeXuat(dexuatID, button) {
                 $.ajax({
                     type: 'POST',
@@ -127,7 +202,9 @@
                     success: function (response) {
                         if (response.success) {
                             showToast('Đã phê duyệt', 'success');
-
+                            setTimeout(function () {
+                                reloadDXTable(currentPageNumber);
+                            }, 1000);
                         } else {
                             showToast('Lỗi!!!', 'danger');
                         }
@@ -138,51 +215,102 @@
                 });
             }
 
-            // Xử lý sự kiện khi nhấn nút Xóa
-            $('.delete-btn').click(function () {
-                var dexuatIdToDelete = $(this).closest('tr').data('dexuat-id');
-                $('#deleteModal').modal('show');
+             function refuseDeXuat(dexuatID, button) {
+             $.ajax({
+                 type: 'POST',
+                 url: '@Url.Action("Refuse", "DeXuatPheDuyet")',
+                 data: { id: dexuatID },
+                 success: function (response) {
+                     if (response.success) {
+                         showToast('Đã từ chối', 'success');
+                         setTimeout(function () {
+                             reloadDXTable(currentPageNumber);
+                         }, 1000);
+                     } else {
+                         showToast('Lỗi!!!', 'danger');
+                     }
+                 },
+                 error: function () {
+                     showToast('Lỗi!!!', 'danger');
+                 }
+             });
+         }
 
-                // Xử lý sự kiện khi nhấn nút Xác nhận xóa trong modal
-                $('#confirmDeleteBtn').click(function () {
-                    $.ajax({
-                        type: 'POST',
-                        url: '@Url.Action("Delete", "DeXuatPheDuyet")',
-                        data: { id: dexuatIdToDelete },
-                        success: function (response) {
-                            if (response.success) {
-                                $('#deleteModal').modal('hide');
-                                showToast('Xóa thành công!', 'success');
-                            } else {
-                                showToast('Lỗi khi xóa!', 'danger');
-                            }
-                        },
-                        error: function () {
+            function deleteDeXuat(dexuatID) {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("Delete", "DeXuatPheDuyet")',
+                    data: { id: dexuatID },
+                    success: function (response) {
+                        if (response.success) {
+                            $('#deleteModal').modal('hide');
+                            showToast('Xóa thành công!', 'success');
+                            $('tr[data-dexuat-id="' + dexuatID + '"]').remove();
+                            setTimeout(function () {
+                                reloadDXTable(currentPageNumber);
+                            }, 1000);
+                        } else {
                             showToast('Lỗi khi xóa!', 'danger');
                         }
-                    });
+                    },
+                    error: function () {
+                        showToast('Lỗi khi xóa!', 'danger');
+                    }
                 });
-            });
+            }
 
-            // Hàm hiển thị Toast thông báo và sau đó tải lại trang
             function showToast(message, type) {
                 $('#toastTitle').text(type === 'success' ? 'Thành công' : 'Lỗi');
                 $('#toastMessage').text(message);
                 var toastElement = $('#actionToast');
                 toastElement.removeClass('bg-success bg-danger bg-warning').addClass('bg-' + type);
-                toastElement.toast('show');
-
-                // Đặt thời gian trễ trước khi ẩn toast
-                setTimeout(function () {
-                    $('#actionToast').toast('hide'); // Ẩn toast sau khi đã trễ
-                    location.reload();
-                }, 2000); // Thời gian hiển thị toast trước khi biến mất (ms)
+                toastElement.toast({
+                    autohide: true,
+                    delay: 3000
+                }).toast('show');
             }
         });
     </script>
 }
 
+
 <style>
+    /* Custom column widths */
+    .table th:nth-child(1),
+    .table td:nth-child(1) {
+        width: 10%;
+    }
+
+    .table th:nth-child(2),
+    .table td:nth-child(2) {
+        width: 10%;
+    }
+
+    .table th:nth-child(3),
+    .table td:nth-child(3) {
+        width: 10%;
+    }
+
+    .table th:nth-child(4),
+    .table td:nth-child(4) {
+        width: 15%;
+    }
+
+    .table th:nth-child(5),
+    .table td:nth-child(5) {
+        width: 10%;
+    }
+
+    .table th:nth-child(6),
+    .table td:nth-child(6) {
+        width: 10%;
+    }
+
+    .table th:nth-child(7),
+    .table td:nth-child(7) {
+        width: 10%;
+    }
+
     tr, td {
         color: black;
     }

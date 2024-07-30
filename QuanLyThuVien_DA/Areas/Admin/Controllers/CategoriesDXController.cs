@@ -24,12 +24,12 @@ namespace QuanLyThuVien_DA.Areas.Admin.Controllers
             var totalCount = db.FITHOU_LIB_TheLoaiTaiLieu.Count();
             var dexuattheloai = (from user in db.FITHOU_LIB_Users
                                  join dexuat in db.FITHOU_LIB_DeXuatTheLoai on user.ID equals dexuat.UserID
-                                 orderby dexuat.ID
+                                 orderby dexuat.TrangThai , dexuat.NgayDeXuat descending
                                  select new FITHOU_LIB_CategoriesView
                                  {
                                      ID = dexuat.ID,
                                      TenTheLoai = dexuat.TenTheLoai,
-                                     TrangThai = dexuat.TrangThai ?? false
+                                     TrangThai = (int)dexuat.TrangThai
                                  })
                                  .Skip((pageNumber - 1) * pageSize)
                                  .Take(pageSize)
@@ -45,7 +45,7 @@ namespace QuanLyThuVien_DA.Areas.Admin.Controllers
 
             // Loại bỏ các DeXuatTheLoaiID đã được thêm khỏi SelectList
             var selectListItems = db.FITHOU_LIB_DeXuatTheLoai
-                                    .Where(d => !addedDeXuatIds.Contains(d.ID) && d.TrangThai == true)
+                                    .Where(d => !addedDeXuatIds.Contains(d.ID) && d.TrangThai == 1)
                                     .ToList();
 
             ViewBag.TheLoaiList = new SelectList(selectListItems, "ID", "TenTheLoai");

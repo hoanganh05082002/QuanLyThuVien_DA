@@ -1,0 +1,122 @@
+﻿@model IEnumerable<QuanLyThuVien_DA.Models.FITHOU_LIB_ThongBao>
+
+<div class="notification-list">
+    <a class="nav-link text-white" href="#" id="notification-button" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i class="fa fa-bell mr-2 text-warning"></i>
+        <span id="unread-count" class="badge badge-light text-danger"></span>
+    </a>
+
+    <div class="dropdown-menu dropdown-menu-right mr-5" id="notification-container" aria-labelledby="notification-button">
+        @foreach (var notification in Model)
+        {
+            var cssClass = notification.TrangThai == true ? "notification-item read" : "notification-item unread";
+            <div class="notification-item unread" data-id="@notification.ID">
+                @if (notification.NoiDung.Contains("Bài đăng của bạn đã được phê duyệt"))
+                {
+                    <a class="dropdown-item" href="@Url.RouteUrl("Default", new { controller = "Forum", action = "Details", id = notification.BaiDangID })">
+                        @Html.Raw(notification.NoiDung)
+                    </a>
+                }
+                else if (notification.NoiDung.Contains("Bài đăng của bạn đã bị từ chối"))
+                {
+                    <a class="dropdown-item" href="@Url.RouteUrl("Default", new { controller = "Forum", action = "RefuseDetails", id = notification.BaiDangID })">
+                        <span>@Html.Raw(notification.NoiDung)</span>
+                    </a>
+                }
+                else
+                {
+                    <span class="dropdown-item">@Html.Raw(notification.NoiDung)</span>
+                }
+            </div>
+            <div class="dropdown-divider"></div>
+        }
+    </div>
+</div>
+
+
+
+<script>
+    $(document).ready(function () {
+        function updateUnreadCount() {
+            $.ajax({
+                url: '@Url.Action("GetUnreadNotificationCount", "Home")',
+                type: 'GET',
+                success: function (response) {
+                    if (response.count !== undefined) {
+                        $('#unread-count').text(response.count);
+                    } else {
+                        console.error("Server-side error:", response.error);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error fetching unread notification count:", error);
+                }
+            });
+        }
+
+        // Gọi hàm updateUnreadCount khi trang được tải
+        updateUnreadCount();
+
+        function markAsRead(id) {
+            $.ajax({
+                url: '@Url.Action("MarkAsRead", "Home")',
+                type: 'POST',
+                data: { id: id },
+                success: function (response) {
+                    if (response.success) {
+                        var notificationItem = $('div[data-id="' + id + '"]');
+                        notificationItem.find('span').css('color', '#6c757d'); // Color for read notification
+                        notificationItem.removeClass('unread').addClass('read');
+                        updateUnreadCount();
+                    } else {
+                        console.error("Server-side error:", response.error);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error marking notification as read:", error);
+                }
+            });
+        }
+
+        // Gán sự kiện click cho các thông báo
+        $(document).on('click', '.notification-item', function () {
+            var id = $(this).data('id');
+            markAsRead(id);
+        });
+    });
+</script>
+
+
+
+
+<style>
+    /* Thiết lập chiều cao và thanh cuộn cho dropdown menu */
+    #notification-container {
+        max-height: 200px; /* Thay đổi chiều cao theo nhu cầu của bạn */
+        overflow-y: auto; /* Thêm thanh cuộn dọc khi nội dung vượt quá chiều cao */
+    }
+
+    /* Đảm bảo rằng các mục thông báo chiếm toàn bộ chiều rộng của menu */
+    .notification-item {
+        padding: 10px;
+    }
+
+        /* Thay đổi các lớp CSS để giúp nhận diện thông báo đã đọc và chưa đọc */
+        .notification-item.unread {
+            font-weight: bold;
+            color: #000;
+        }
+
+        .notification-item.read {
+            font-weight: normal;
+            color: #888;
+        }
+
+            .notification-item.read span {
+                color: #6c757d; /* Màu của text-secondary */
+            }
+
+        .notification-item.unread span {
+            color: black; /* Màu của text-primary */
+        }
+</style>

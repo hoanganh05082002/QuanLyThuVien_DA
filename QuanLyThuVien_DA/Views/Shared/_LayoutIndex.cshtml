@@ -13,18 +13,22 @@
     <link href="~/Interface/css/sb-admin-2.min.css" rel="stylesheet">
 </head>
 
+@{
+    string currentUrl = Url.Action("UserProfile", "Home");
+}
+
 <body id="page-top">
     <!-- Page Wrapper -->
-    <div id="wrapper">
-        <div id="content-wrapper" class="d-flex flex-column" >
-            <div id="content" >
+    <div id="wrapper" class="border-wrapper">
+        <div id="content-wrapper" class="d-flex flex-column">
+            <div id="content">
                 <!-- Topbar -->
-                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+                <nav class="navbar navbar-expand navbar-dark bg-primary py-3 topbar static-top">
                     <!-- Sidebar - Brand -->
                     <a class="sidebar-brand d-flex align-items-center justify-content-center" href="~/Home/Index">
                         <div class="sidebar-brand-text mx-3 d-flex align-items-center">
-                            <img src="~/Image/FITHOULIB-Logo.png" alt="FITHOU LIB" class="img-fluid" />
-                            <span class="text-dark">FITHOU<sup>LIB</sup></span>
+                            <img src="~/Image/FITHOULIB-Logo.png" alt="FITHOU LIB" class="img-fluid rounded-circle mr-2" />
+                            <span class="text-white">FITHOU<sup>LIB</sup></span>
                         </div>
                     </a>
                     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,43 +37,74 @@
                     <div class="collapse navbar-collapse" id="navbarNav">
                         <ul class="navbar-nav">
                             <li class="nav-item">
-                                <a class="nav-link text-dark" href="~/Home/InforFITHOU">Thông tin chung</a>
+                                <a class="nav-link text-white" href="~/Home/InforFITHOU">Thông tin chung</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" href="~/Forum/Index">Diễn đàn trao đổi</a>
+                                <a class="nav-link text-white" href="~/Forum/Index">Diễn đàn trao đổi</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" href="~/DeXuatTheLoai/Create">Gửi yêu cầu</a>
+                                <a class="nav-link text-white" href="~/DeXuatTheLoai/Create">Gửi yêu cầu</a>
                             </li>
-
                             <li class="nav-item">
-                                <a class="nav-link text-dark" href="~/News/Index">Tin tức và sự kiện</a>
+                                <a class="nav-link text-white" href="~/News/Index">Tin tức và sự kiện</a>
                             </li>
-
+                        </ul>
+                        <ul class="navbar-nav ml-auto">
+                            <li class="nav-item">
+                                <a class="nav-link text-white" href="#" id="notification-button">
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <div id="notification-container"></div>
+                            </li>
+                            <li class="nav-item">
+                                @if (Request.Url.AbsolutePath == currentUrl)
+                                {
+                                    @Html.Partial("_ViewUserProfile")
+                                }
+                                else
+                                {
+                                    @Html.Partial("_ViewUser")
+                                }
+                            </li>
                         </ul>
                     </div>
-
                 </nav>
             </div>
-            <main role="main">
-                @RenderBody()
-            </main>
-                <footer class="sticky-footer bg-white">
-                    <div class="container my-auto">
-                        <div class="copyright text-center my-auto mb-4">
-                            <span>&copy; FITHOU-LIB 2024</span>
-                        </div>
-                    </div>
-                </footer>
-            
-
-            <!-- End of Footer -->
         </div>
-        <!-- End of Content Wrapper -->
     </div>
-    <a class="scroll-to-top rounded" href="#page-top">
-        <i class="fas fa-angle-up"></i>
-    </a>
+
+
+    <main role="main">
+        @RenderBody()
+    </main>
+
+    <footer class="sticky-footer bg-primary py-1 fixed-bottom">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 text-left">
+                    <div>
+                        <span class="text-white">
+                            Khoa Công nghệ Thông tin - Trường Đại học Mở Hà Nội<br>
+                            Địa chỉ: B101 Nguyễn Hiền - Hai Bà Trưng - Hà Nội<br>
+                            Khu giảng đường: 96 Định Công - Hà Nội
+                        </span>
+                    </div>
+                </div>
+                <div class="col-md-6 text-lg-right">
+                    <div>
+                        <span class="text-white">Phát triển &amp; cung cấp bởi</span>
+                        <br />
+                        <span class="text-white">Nguyễn Hoàng Anh - 2010A01</span>
+                        <br>
+                        <span class="text-white">&copy; FITHOU-LIB 2024</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+
     <!-- Bootstrap core JavaScript-->
     <script src="~/Interface/vendor/jquery/jquery.min.js"></script>
     <script src="~/Interface/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -87,25 +122,128 @@
 
 </html>
 
+<script>
+    $(document).ready(function() {
+        // Tự động bật thông báo khi trang được tải lên
+        $.ajax({
+            url: '@Url.Action("GetNotifications", "Home")',
+            type: 'GET',
+            success: function(data) {
+                $('#notification-container').html(data);
+            }
+        });
+
+        // Thêm sự kiện click cho nút thông báo
+        $('#notification-button').click(function(event) {
+            event.preventDefault();
+
+            $.ajax({
+                url: '@Url.Action("GetNotifications", "Home")',
+                type: 'GET',
+                success: function(data) {
+                    $('#notification-container').html(data);
+                }
+            });
+        });
+    });
+</script>
+
+
 <style>
+  
+    .sticky-footer {
+        background-color: #007bff; /* Ensure background matches your theme */
+    }
+
+        .sticky-footer .container {
+            max-width: 1140px; /* Limit container width for better alignment */
+        }
+
+        .sticky-footer .text-white {
+            font-size: 0.875rem; /* Adjust text size for readability */
+            line-height: 1.5; /* Increase line height for better spacing */
+        }
+
+        .sticky-footer .row {
+            margin: 0; /* Remove default row margin */
+        }
+
+        .sticky-footer .col-md-6 {
+            padding: 0.5rem; /* Add padding to columns for spacing */
+        }
+
+    .navbar.bg-primary {
+        background-color: #007bff; /* Màu nền xanh */
+    }
+
+    /* Đặt màu chữ cho các liên kết trong navbar */
+    .navbar .nav-link {
+        color: #ffffff; /* Màu chữ trắng */
+    }
+
+        /* Thay đổi màu chữ khi hover */
+        .navbar .nav-link:hover {
+            color: #d3d3d3; /* Màu chữ sáng hơn khi hover */
+        }
+
+    /* Đặt màu chữ cho các phần tử trong thanh điều hướng khi collapse */
+    .navbar .navbar-brand .text-white {
+        color: #ffffff; /* Màu chữ trắng cho nhãn hiệu */
+    }
+
+    /* Đảm bảo các phần tử trong dropdown-menu có nền và chữ phù hợp */
+    .dropdown-menu {
+        color: #ffffff; /* Màu chữ trong menu dropdown */
+    }
+
+        .dropdown-menu .dropdown-item {
+            color: black; /* Màu chữ cho các mục trong dropdown */
+        }
+
+    .navbar {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        z-index: 1030; /* Đảm bảo navbar luôn hiển thị trên các phần tử khác */
+    }
+
+    main {
+        margin-top: 1rem;
+        padding-top: 50px; /* Đảm bảo nội dung không bị che bởi navbar */
+    }
+
+
     .sidebar-brand .sidebar-brand-text img {
         max-height: 70px;
         height: auto;
         width: auto;
     }
+
     .nav-item .nav-link {
         font-size: 1rem; /* Kích thước chữ */
         font-weight: bold;
     }
+
     .sidebar-brand-text span {
         color: #b7b9cc; /* Màu chữ */
         font-size: 1.5rem; /* Kích thước chữ */
         font-weight: bold;
     }
-    span{
+
+    span {
         color: black;
     }
+
     navbar {
         position: fixed
     }
+
+    main {
+        margin-bottom: 10%;
+    }
+
+    .img-fluid.rounded-circle {
+        border-radius: 50%; /* Bo tròn hoàn toàn */
+    }
+
 </style>

@@ -28,11 +28,12 @@ namespace QuanLyThuVien_DA.Models
         public virtual DbSet<FITHOU_LIB_Users> FITHOU_LIB_Users { get; set; }
         public virtual DbSet<FITHOU_LIB_TheLoaiTaiLieu> FITHOU_LIB_TheLoaiTaiLieu { get; set; }
         public virtual DbSet<FITHOU_LIB_TaiLieu> FITHOU_LIB_TaiLieu { get; set; }
-        public virtual DbSet<FITHOU_LIB_DeXuatTheLoai> FITHOU_LIB_DeXuatTheLoai { get; set; }
         public virtual DbSet<FITHOU_LIB_VaiTro> FITHOU_LIB_VaiTro { get; set; }
         public virtual DbSet<FITHOU_LIB_TinTucSuKien> FITHOU_LIB_TinTucSuKien { get; set; }
-        public virtual DbSet<FITHOU_LIB_BaiDang> FITHOU_LIB_BaiDang { get; set; }
         public virtual DbSet<FITHOU_LIB_BinhLuan> FITHOU_LIB_BinhLuan { get; set; }
         public virtual DbSet<FITHOU_LIB_LichSuTruyCap> FITHOU_LIB_LichSuTruyCap { get; set; }
+        public virtual DbSet<FITHOU_LIB_DeXuatTheLoai> FITHOU_LIB_DeXuatTheLoai { get; set; }
+        public virtual DbSet<FITHOU_LIB_BaiDang> FITHOU_LIB_BaiDang { get; set; }
+        public virtual DbSet<FITHOU_LIB_ThongBao> FITHOU_LIB_ThongBao { get; set; }
     }
 }

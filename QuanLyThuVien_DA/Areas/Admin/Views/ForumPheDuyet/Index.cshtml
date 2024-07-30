@@ -4,76 +4,107 @@
     Layout = "~/Areas/Admin/Views/Shared/_LayoutAdmin.cshtml";
 }
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Họ Tên</th>
-            <th>Tiêu đề</th>
-            <th>Ngày đăng tải</th>
-            <th>Trạng Thái</th>
-            <th>Tác vụ</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr data-post-id="@item.ID">
-                <td>@item.HoTen</td>
-                <td>@item.TieuDe</td>
-                <td>@item.NgayTao.ToString("dd/MM/yyyy")</td>
-                <td>@(item.TrangThai ? "Đã duyệt" : "Chưa duyệt")</td>
-                <td>
-                    <a href="@Url.RouteUrl("Default", new { controller = "Forum", action = "Details", id = item.ID })" class="btn btn-primary btn-sm edit-btn">
-                        <i class="fa fa-link"></i>
-                    </a>
-                    <span> | </span>
-                    <button class="btn btn-danger btn-sm delete-btn" data-id="@item.ID">
-                        <i class="fa fa-trash"></i>
-                    </button>
-                    @if (item.TrangThai == false)
-                    {
-
-                        <button class="btn btn-success btn-sm confirm-btn" data-id="@item.ID">
-                             <i class="fa fa-check"></i>
-                        </button>
-                    }
-                </td>
+<div>
+    <table id="postTable" class="table">
+        <thead>
+            <tr>
+                <th>Họ Tên</th>
+                <th>Tiêu đề</th>
+                <th>Ngày đăng tải</th>
+                <th>Trạng Thái</th>
+                <th>Tác vụ</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr data-post-id="@item.ID">
+                    <td>@item.HoTen</td>
+                    <td>@item.TieuDe</td>
+                    <td>@item.NgayTao.ToString("dd/MM/yyyy")</td>
+                    <td>
+                        @{
+                            string trangThaiText;
+                            switch (item.TrangThai)
+                            {
+                                case 0:
+                                    trangThaiText = "Chưa duyệt";
+                                    break;
+                                case 1:
+                                    trangThaiText = "Đã duyệt";
+                                    break;
+                                case 2:
+                                    trangThaiText = "Từ chối";
+                                    break;
+                                default:
+                                    trangThaiText = "Trạng thái không xác định";
+                                    break;
+                            }
+                        }
+                        @trangThaiText
+                    </td>
+                    <td>
+                        @if (item.TrangThai != 2)
+                        {
+                            <a href="@Url.RouteUrl("Default", new { controller = "Forum", action = "Details", id = item.ID })" class="btn btn-primary btn-sm edit-btn">
+                                <i class="fa fa-link"></i>
+                            </a>
+                        }
+                        @if (item.TrangThai == 0)
+                        {
+                            <button class="btn btn-success btn-sm confirm-btn" data-id="@item.ID">
+                                <i class="fa fa-check"></i>
+                            </button>
+                            <button class="btn btn-warning btn-sm refuse-btn" data-id="@item.ID">
+                                <i class="fa fa-ban"></i>
+                            </button>
+                        }
+                        <button class="btn btn-danger btn-sm delete-btn">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    </td>
+                    <td>
 
-@if (ViewBag.Pagination != null)
-{
-    <div class="d-flex justify-content-center">
-        <nav aria-label="Page navigation example">
-            <ul class="pagination">
-                @if (ViewBag.Pagination.PageNumber > 1)
-                {
-                    <li class="page-item">
-                        <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.Pagination.PageNumber - 1 })" aria-label="Previous">
-                            <span aria-hidden="true">&laquo;</span>
-                        </a>
-                    </li>
-                }
-                @for (int i = 1; i <= ViewBag.Pagination.PageTotal; i++)
-                {
-                    <li class="page-item @(i == ViewBag.Pagination.PageNumber ? "active" : "")">
-                        <a class="page-link" href="@Url.Action("Index", new { page = i })">@i</a>
-                    </li>
-                }
-                @if (ViewBag.Pagination.PageNumber < ViewBag.Pagination.PageTotal)
-                {
-                    <li class="page-item">
-                        <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.Pagination.PageNumber + 1 })" aria-label="Next">
-                            <span aria-hidden="true">&raquo;</span>
-                        </a>
-                    </li>
-                }
-            </ul>
-        </nav>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <div class="d-flex justify-content-center" id="pagination">
+        @if (ViewBag.Pagination != null)
+        {
+            <div class="d-flex justify-content-center">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination">
+                        @if (ViewBag.Pagination.PageNumber > 1)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.Pagination.PageNumber - 1 })" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                        }
+                        @for (int i = 1; i <= ViewBag.Pagination.PageTotal; i++)
+                        {
+                            <li class="page-item @(i == ViewBag.Pagination.PageNumber ? "active" : "")">
+                                <a class="page-link" href="@Url.Action("Index", new { page = i })">@i</a>
+                            </li>
+                        }
+                        @if (ViewBag.Pagination.PageNumber < ViewBag.Pagination.PageTotal)
+                        {
+                            <li class="page-item">
+                                <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.Pagination.PageNumber + 1 })" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </nav>
+            </div>
+        }
     </div>
-}
+
+</div>
 
 <!-- Modal xóa -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
@@ -112,49 +143,98 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
+            var currentPageNumber = 1;
 
-            var postIDToDelete;
-
-            // Xử lý sự kiện khi nhấn nút Xác nhận
-            $('.confirm-btn').click(function () {
-                var button = $(this);
-                var postID = button.data('id');
-                confirmDeXuat(postID, button);
-            });
-
-            // Hàm gọi Ajax để xác nhận đề xuất
-            function confirmDeXuat(postID, button) {
-                $.ajax({
-                    type: 'POST',
-                    url: '@Url.Action("Confirm", "ForumPheDuyet")',
-                    data: { id: postID },
-                    success: function (response) {
-                        if (response.success) {
-                            showToast('Đã phê duyệt', 'success');
-                            button.closest('tr').find('td:nth-child(4)').text('Đã duyệt');
-                            button.remove(); // Remove the confirm button after success
-                        } else {
-                            showToast('Lỗi!!!', 'danger');
-                        }
-                    },
-                    error: function () {
-                        showToast('Lỗi!!!', 'danger');
-                    }
-                });
+            function setupPage() {
+                attachEventHandlers();
+                reloadNewTable(currentPageNumber);
             }
 
-            // Xử lý sự kiện khi nhấn nút Xóa
-            $('.delete-btn').click(function () {
-                postIDToDelete = $(this).data('id');
-                $('#deleteModal').modal('show');
-            });
+            setupPage();
 
-            // Xử lý sự kiện khi nhấn nút Xác nhận xóa trong modal
-            $('#confirmDeleteBtn').click(function () {
-                deletePost(postIDToDelete);
-            });
+            function reloadNewTable(pageNumber) {
+                var url = '@Url.Action("Index", "ForumPheDuyet")';
+                $.get(url, { page: pageNumber })
+                    .done(function (data) {
+                        $('#postTable tbody').html($(data).find('#postTable tbody').html());
+                        $('#pagination').html($(data).find('#pagination').html());
+                        attachEventHandlers();
+                    })
+                    .fail(function (xhr, status, error) {
+                        console.error("Error: " + error);
+                        showToast('Lỗi!', 'danger');
+                    });
+            }
 
-            // Hàm gọi Ajax để xóa bài đăng
+            function attachEventHandlers() {
+
+                $('.delete-btn').off('click').on('click', function () {
+                    var postIDToDelete = $(this).closest('tr').data('post-id');
+                    $('#deleteModal').modal('show');
+                    $('#confirmDeleteBtn').off('click').on('click', function () {
+                        deletePost(postIDToDelete);
+                    });
+                });
+
+                $('#pagination').off('click', '.page-link').on('click', '.page-link', function (e) {
+                    e.preventDefault();
+                    var pageNumber = $(this).text().trim();
+                    reloadNewTable(pageNumber);
+                });
+
+                $('.confirm-btn').off('click').on('click', function () {
+                    var button = $(this);
+                    var postID = button.data('id');
+                    confirmDeXuat(postID, button);
+                });
+
+                $('.refuse-btn').off('click').on('click', function () {
+                    var button = $(this);
+                    var postID = button.data('id');
+                    refuseDeXuat(postID, button);
+                });
+            }
+                function confirmDeXuat(postID, button) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("Confirm", "ForumPheDuyet")',
+                        data: { id: postID },
+                        success: function (response) {
+                            if (response.success) {
+                                showToast('Đã phê duyệt', 'success');
+                                button.closest('tr').find('td:nth-child(4)').text('Đã duyệt');
+                                button.closest('tr').find('.confirm-btn, .refuse-btn').hide(); // Ẩn cả hai nút
+                            } else {
+                                showToast('Lỗi!!!', 'danger');
+                            }
+                        },
+                        error: function () {
+                            showToast('Lỗi!!!', 'danger');
+                        }
+                    });
+                }
+
+                function refuseDeXuat(postID, button) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("Refuse", "ForumPheDuyet")',
+                        data: { id: postID },
+                        success: function (response) {
+                            if (response.success) {
+                                showToast('Đã từ chối', 'success');
+                                button.closest('tr').find('td:nth-child(4)').text('Từ chối');
+                                button.closest('tr').find('.confirm-btn, .refuse-btn').hide(); // Ẩn cả hai nút
+                            } else {
+                                showToast('Lỗi!!!', 'danger');
+                            }
+                        },
+                        error: function () {
+                            showToast('Lỗi!!!', 'danger');
+                        }
+                    });
+                }
+
+
             function deletePost(postID) {
                 $.ajax({
                     type: 'POST',
@@ -165,8 +245,8 @@
                             $('#deleteModal').modal('hide');
                             showToast('Xóa thành công!', 'success');
                             $('tr[data-post-id="' + postID + '"]').remove();
-                           setTimeout(function () {
-                                location.reload();
+                            setTimeout(function () {
+                                reloadNewTable(currentPageNumber);
                             }, 1000);
                         } else {
                             showToast('Lỗi khi xóa!', 'danger');
@@ -178,14 +258,15 @@
                 });
             }
 
-            // Hàm hiển thị Toast thông báo và sau đó tải lại trang
             function showToast(message, type) {
                 $('#toastTitle').text(type === 'success' ? 'Thành công' : 'Lỗi');
                 $('#toastMessage').text(message);
                 var toastElement = $('#actionToast');
                 toastElement.removeClass('bg-success bg-danger bg-warning').addClass('bg-' + type);
-                toastElement.toast('show');
-             
+                toastElement.toast({
+                    autohide: true,
+                    delay: 3000
+                }).toast('show');
             }
         });
     </script>

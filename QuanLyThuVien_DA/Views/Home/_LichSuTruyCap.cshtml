@@ -2,13 +2,13 @@
 
 @if (ViewBag.AccessHistory != null && ViewBag.AccessHistory.Count > 0)
 {
-    <div class="access-history">
+    <div id="history-table" class="access-history">
         <table class="table">
             <thead>
                 <tr>
-                    <th style="width: 40%">Tên Tài Liệu</th>
-                    <th style="width: 30%">Thời Gian Truy Cập</th>
-                    <th style="width: 20%">Đường dẫn</th>
+                    <th>Tên Tài Liệu</th>
+                    <th>Thời Gian Truy Cập</th>
+                    <th>Đường dẫn</th>
                 </tr>
             </thead>
             <tbody>
@@ -26,44 +26,88 @@
                 }
             </tbody>
         </table>
-
-        @if (ViewBag.Pagination != null)
-        {
-        <div class="d-flex justify-content-center">
-            <nav aria-label="Page navigation example">
-                <ul class="pagination">
-                    @if (ViewBag.Pagination.PageNumber > 1)
-                    {
-                        <li class="page-item">
-                            <a class="page-link" href="@Url.Action("UserProfile", new { page = ViewBag.Pagination.PageNumber - 1 })" aria-label="Previous">
-                                <span aria-hidden="true">&laquo;</span>
-                            </a>
-                        </li>
-                    }
-                    @for (int i = 1; i <= ViewBag.Pagination.PageTotal; i++)
-                    {
-                        <li class="page-item @(i == ViewBag.Pagination.PageNumber ? "active" : "")">
-                            <a class="page-link" href="@Url.Action("UserProfile", new { page = i })">@i</a>
-                        </li>
-                    }
-                    @if (ViewBag.Pagination.PageNumber < ViewBag.Pagination.PageTotal)
-                    {
-                        <li class="page-item">
-                            <a class="page-link" href="@Url.Action("UserProfile", new { page = ViewBag.Pagination.PageNumber + 1 })" aria-label="Next">
-                                <span aria-hidden="true">&raquo;</span>
-                            </a>
-                        </li>
-                    }
-                </ul>
-            </nav>
+        <div class="d-flex justify-content-center" id="pagination">
+            @if (ViewBag.Pagination != null)
+            {
+                <div class="d-flex justify-content-center">
+                    <nav aria-label="Page navigation example">
+                        <ul class="pagination">
+                            @if (ViewBag.Pagination.PageNumber > 1)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="@Url.Action("UserProfile", new { page = ViewBag.Pagination.PageNumber - 1 })" aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                            }
+                            @for (int i = 1; i <= ViewBag.Pagination.PageTotal; i++)
+                            {
+                                <li class="page-item @(i == ViewBag.Pagination.PageNumber ? "active" : "")">
+                                    <a class="page-link" href="@Url.Action("UserProfile", new { page = i })">@i</a>
+                                </li>
+                            }
+                            @if (ViewBag.Pagination.PageNumber < ViewBag.Pagination.PageTotal)
+                            {
+                                <li class="page-item">
+                                    <a class="page-link" href="@Url.Action("UserProfile", new { page = ViewBag.Pagination.PageNumber + 1 })" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    </nav>
+                </div>
+            }
         </div>
-        }
     </div>
 }
 else
 {
     <p class="text-center">Không có lịch sử truy cập </p>
 }
+
+@section Scripts {
+    <script>
+         var currentPageNumber = 1; // Biến để lưu số trang hiện tại
+
+         // Function to handle initial setup and event bindings
+         function setupPage() {
+             attachEventHandlers();
+             // Initial page load
+             reloadHistoryTable(currentPageNumber);
+         }
+
+         // Call setupPage to initialize
+         setupPage();
+
+         // Function to reload category table via AJAX
+        function reloadHistoryTable(pageNumber) {
+             var url = '@Url.Action("UserProfile", "Home")'; // Adjust URL as needed
+             $.get(url, { page: pageNumber })
+                 .done(function (data) {
+                     $('#history-table tbody').html($(data).find('#history-table tbody').html());
+                     $('#pagination').html($(data).find('#pagination').html());
+                     // Reattach event handlers for edit and delete buttons
+                     attachEventHandlers();
+                 })
+                 .fail(function (xhr, status, error) {
+                     console.error("Error: " + error);
+                     showToast('Lỗi!', 'danger');
+                 });
+         }
+
+         // Function to attach event handlers for edit and delete buttons
+         function attachEventHandlers() {
+             $('#pagination').off('click', '.page-link').on('click', '.page-link', function (e) {
+                 e.preventDefault();
+                 var pageNumber = $(this).text().trim();
+                 reloadHistoryTable(pageNumber);
+             });
+         }
+    </script>
+}
+
+
 
 <style>
     .access-history {
@@ -76,8 +120,6 @@ else
     }
 
     .table th, .table td {
-        text-align: center;
-        vertical-align: middle;
         color: black; /* Chữ đen */
     }
 

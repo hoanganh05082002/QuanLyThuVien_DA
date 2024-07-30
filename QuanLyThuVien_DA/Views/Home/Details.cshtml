@@ -10,45 +10,7 @@
     var userRole = Session["UserRole"];
 }
 
-<!-- Button Profile -->
-@if (userID != null)
-{
-    <div style="position: fixed; top: 10px; right: 10px;">
-        <a class="nav-link edit-btn text-dark" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="mr-2 d-none d-lg-inline text-gray-600 small font-weight-bold">Xin chào, @userName</span>
-        </a>
-
-        <!-- Dropdown - User Information -->
-        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
-            <a class="dropdown-item edit-btn" href="~/Home/UserProfile">
-                <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                Trang cá nhân
-            </a>
-            @if (!userRole.Equals("Sinh viên") && !userRole.Equals("Giảng viên"))
-            {
-                <a class="dropdown-item" href="~/Admin/Default">
-                    <i class="fas fa-toolbox fa-sm fa-fw mr-2 text-gray-400 mt-2"></i>
-                    Trang quản trị
-                </a>
-            }
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="~/Home/Logout">
-                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                Đăng xuất
-            </a>
-        </div>
-    </div>
-}
-else
-{
-    <div style="position: fixed; top: 10px; right: 10px;">
-        <a class="nav-link" href="@Url.Action("Login", "Home")">
-            <span class="mr-2 d-none d-lg-inline text-gray-600 small text-dark font-weight-bold">Đăng nhập</span>
-        </a>
-    </div>
-}
-
-<h2 class="text-center font-weight-bold mb-4 text-primary">@Model.TenTaiLieu</h2>
+<h2 class="mt-4 text-center font-weight-bold mb-4 text-primary">@Model.TenTaiLieu</h2>
 
 <div class="container">
     <div class="row">
@@ -84,7 +46,7 @@ else
                     </a>
                     <div class="card-body mb-5">
                         <h5 class="card-title" data-toggle="tooltip" title="@relatedDocument.TenTaiLieu">
-                            <a href="@Url.Action("Details", "Home", new { id = relatedDocument.ID })" class="text-dark">@relatedDocument.TenTaiLieu</a>
+                            <a href="@Url.Action("Details", "Home", new { id = relatedDocument.ID })" class="text-black">@relatedDocument.TenTaiLieu</a>
                         </h5>
                     </div>
                 </div>
@@ -100,6 +62,31 @@ else
         display: block;
         margin: 0 auto;
     }
+    .card-img-top {
+        width: 100%; /* Đảm bảo ảnh rộng bằng 100% chiều rộng của thẻ cha */
+        height: auto; /* Đảm bảo chiều cao tự điều chỉnh để giữ tỷ lệ */
+        object-fit: cover; /* Đảm bảo ảnh không bị bóp méo, đầy đủ kích thước và căn giữa */
+        max-width: 100%; /* Giới hạn kích thước tối đa của ảnh */
+        max-height: 200px; /* Giới hạn chiều cao tối đa của ảnh để tránh quá lớn */
+    }
+
+
+    .card-fixed-size {
+        width: 300px; /* Fixed width */
+        height: 400px; /* Fixed height */
+        overflow: hidden; /* Hide overflow content */
+        border: none; /* Remove border */
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Optional: Add shadow for a subtle effect */
+    }
+
+        .card-fixed-size img {
+            width: 100%; /* Make image fit the width of the card */
+            height: auto; /* Maintain aspect ratio */
+        }
+
+        .card-fixed-size .card-body {
+            overflow-y: auto; /* Add vertical scroll if content overflows */
+        }
 
     p {
         color: black;

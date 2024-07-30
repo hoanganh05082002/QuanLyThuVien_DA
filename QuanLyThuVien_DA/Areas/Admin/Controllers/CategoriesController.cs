@@ -26,7 +26,8 @@ namespace QuanLyThuVien_DA.Areas.Admin.Controllers
                                   ID = cate.ID,
                                   TenTheLoai = cate.TenTheLoai,
                                   MoTa = cate.MoTa,
-                                  HoTen = user.HoTen
+                                  HoTen = user.HoTen,
+                                  DeXuatTheLoaiID = cate.DeXuatTheLoaiID
                               })
                               .Skip((pageNumber - 1) * pageSize)
                               .Take(pageSize)

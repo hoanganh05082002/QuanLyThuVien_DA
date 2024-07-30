@@ -20,7 +20,7 @@ namespace QuanLyThuVien_DA.Controllers
 
             var newsQuery = from user in db.FITHOU_LIB_Users
                             join nw in db.FITHOU_LIB_TinTucSuKien on user.ID equals nw.UserID
-                            orderby nw.ID
+                            orderby nw.NgayDang descending
                             select new FITHOU_LIB_TinTucSuKienView
                             {
                                 ID = nw.ID,
@@ -90,5 +90,7 @@ namespace QuanLyThuVien_DA.Controllers
 
             return View(newsQuery);
         }
+
+      
     }
 }

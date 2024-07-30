@@ -32,7 +32,7 @@ namespace QuanLyThuVien_DA.Controllers
                         TenTheLoai = dexuat.TenTheLoai,
                         LyDoDeXuat = dexuat.LyDoDeXuat,
                         NgayDeXuat = DateTime.Now,
-                        TrangThai = false
+                        TrangThai = 0
                     };
 
                     db.FITHOU_LIB_DeXuatTheLoai.Add(newDexuat);
@@ -46,6 +46,19 @@ namespace QuanLyThuVien_DA.Controllers
             }
 
             return Json(new { success = false, error = "Model state is invalid" });
+        }
+
+        [HttpGet]
+        public ActionResult GetNotifications()
+        {
+            // Lấy danh sách thông báo cho người dùng hiện tại (giả sử bạn có UserID trong session)
+            int userId = (int)Session["UserID"];
+            var notifications = db.FITHOU_LIB_ThongBao
+                                 .Where(n => n.UserID == userId)
+                                 .OrderByDescending(n => n.NgayTao)
+                                 .ToList();
+
+            return PartialView("_Notification", notifications);
         }
 
     }

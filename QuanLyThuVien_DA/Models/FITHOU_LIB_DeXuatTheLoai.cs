@@ -19,6 +19,6 @@ namespace QuanLyThuVien_DA.Models
         public string TenTheLoai { get; set; }
         public string LyDoDeXuat { get; set; }
         public Nullable<System.DateTime> NgayDeXuat { get; set; }
-        public Nullable<bool> TrangThai { get; set; }
+        public Nullable<int> TrangThai { get; set; }
     }
 }

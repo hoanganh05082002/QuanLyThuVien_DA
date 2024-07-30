@@ -1,0 +1,43 @@
+﻿@{
+    // Lấy thông tin từ Session
+    var userID = Session["UserID"];
+    var userName = Session["UserName"];
+    var userRole = Session["UserRole"];
+    bool isFirstLogin = (bool)Session["IsFirstLogin"];
+}
+
+<!-- Button Profile -->
+@if (userID != null)
+{
+        <a class="nav-link edit-btn text-white" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="fa fa-user mr-2"></i>
+            <span class="mr-2 d-none d-lg-inline small font-weight-bold text-white">Xin chào, @userName</span>
+        </a>
+        <!-- Dropdown - User Information -->
+        <div class="dropdown-menu dropdown-menu-right mr-4" aria-labelledby="userDropdown">
+            <a class="dropdown-item edit-btn" id="openProfileModal">
+                <i class="fas fa-user fa-sm fa-fw mr-2 text-black"></i>
+                Chỉnh sửa thông tin cá nhân
+            </a>
+            @if (!userRole.Equals("Sinh viên") && !userRole.Equals("Giảng viên"))
+            {
+                <a class="dropdown-item" href="~/Admin/Default/TongQuan">
+                    <i class="fas fa-toolbox fa-sm fa-fw mr-2 text-black mt-2"></i>
+                    Trang quản trị
+                </a>
+            }
+            <div class="dropdown-divider"></div>
+
+            <a class="dropdown-item" href="~/Home/Logout">
+                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-black"></i>
+                Đăng xuất
+            </a>
+
+        </div>
+}
+else
+{
+        <a class="nav-link" href="@Url.Action("Login", "Home")">
+            <span class="mr-2 d-none d-lg-inline small text-white font-weight-bold">Đăng nhập</span>
+        </a>
+}

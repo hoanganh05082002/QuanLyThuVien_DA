@@ -10,8 +10,57 @@
     <link href="~/Interface/css/sb-admin-2.min.css" rel="stylesheet">
     <!-- Bootstrap CSS -->
     <style>
+        .navbar.bg-primary {
+            background-color: #007bff; /* Màu nền xanh */
+        }
+
+        /* Đặt màu chữ cho các liên kết trong navbar */
+        .navbar .nav-link {
+            color: #ffffff; /* Màu chữ trắng */
+        }
+
+            /* Thay đổi màu chữ khi hover */
+            .navbar .nav-link:hover {
+                color: #d3d3d3; /* Màu chữ sáng hơn khi hover */
+            }
+
+        /* Đặt màu chữ cho các phần tử trong thanh điều hướng khi collapse */
+        .navbar .navbar-brand .text-white {
+            color: #ffffff; /* Màu chữ trắng cho nhãn hiệu */
+        }
+
+
+        .sidebar-brand .sidebar-brand-text img {
+            max-height: 70px;
+            height: auto;
+            width: auto;
+        }
+
+        .nav-item .nav-link {
+            font-size: 1rem; /* Kích thước chữ */
+            font-weight: bold;
+        }
+
+        .sidebar-brand-text span {
+            color: #b7b9cc; /* Màu chữ */
+            font-size: 1.5rem; /* Kích thước chữ */
+            font-weight: bold;
+        }
+
+        span {
+            color: black;
+        }
+
+        navbar {
+            position: fixed
+        }
+
+
+        .img-fluid.rounded-circle {
+            border-radius: 50%; /* Bo tròn hoàn toàn */
+        }
         .brand-text {
-            color : #b7b9cc;
+            color: #b7b9cc;
             font-weight: bold;
             font-size: 1.5rem; /* Adjust as needed */
         }
@@ -21,35 +70,86 @@
         }
 
         .content-background {
-            background-color: #f8f9fc; /* Màu nền */
+            background-color: #f8f9fc; /* Background color */
         }
+
+        .sticky-footer {
+            background-color: #343a40; /* Dark background for footer */
+            color: #ffffff;
+        }
+
+            .sticky-footer .text-white {
+                color: #ffffff;
+            }
+
+        .navbar-custom {
+            background-color: #ffffff; /* Custom background color for navbar */
+        }
+        .sticky-footer {
+            background-color: #007bff; /* Ensure background matches your theme */
+        }
+
+            .sticky-footer .container {
+                max-width: 1140px; /* Limit container width for better alignment */
+            }
+
+            .sticky-footer .text-white {
+                font-size: 0.875rem; /* Adjust text size for readability */
+                line-height: 1.5; /* Increase line height for better spacing */
+            }
+
+            .sticky-footer .row {
+                margin: 0; /* Remove default row margin */
+            }
+
+            .sticky-footer .col-md-6 {
+                padding: 0.5rem; /* Add padding to columns for spacing */
+            }
     </style>
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
-            <div class="container-fluid">
-                <a class="navbar-brand d-flex align-items-center justify-content-center" href="~/Home/Index">
-                    <div class="d-flex align-items-center mx-3">
-                        <img src="~/Image/FITHOULIB-Logo.png" alt="FITHOU LIB" class="img-fluid" style="max-height: 60px;" />
-                        <span class="brand-text text-dark">FITHOU<sup>LIB</sup></span>
-                    </div>
-                </a>
+    <div id="wrapper" class="border-wrapper">
+        <div id="content-wrapper" class="d-flex flex-column">
+            <div id="content">
+                <!-- Topbar -->
+                <nav class="navbar navbar-expand navbar-dark bg-primary py-3 topbar static-top">
+                    <!-- Sidebar - Brand -->
+                    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="~/Home/Index">
+                        <div class="sidebar-brand-text mx-3 d-flex align-items-center">
+                            <img src="~/Image/FITHOULIB-Logo.png" alt="FITHOU LIB" class="img-fluid rounded-circle mr-2" />
+                            <span class="text-white">FITHOU<sup>LIB</sup></span>
+                        </div>
+                    </a>
+                </nav>
             </div>
-        </nav>
-    </header>
-    <!-- Topbar Navbar -->
-  
+        </div>
+    </div>
 
-    <div class="container body-content content-background">
+    <div class="container body-content content-background py-4">
         @RenderBody()
     </div>
 
-    <hr />
-    <footer class="sticky-footer bg-white fixed-bottom ">
-        <div class="container my-auto">
-            <div class="copyright text-center my-auto mb-4">
-                <span>&copy; FITHOU-LIB 2024</span>
+    <footer class="sticky-footer bg-primary py-3 fixed-bottom">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 text-left">
+                    <div>
+                        <span class="text-white">
+                            Khoa Công nghệ Thông tin - Trường Đại học Mở Hà Nội<br>
+                            Địa chỉ: B101 Nguyễn Hiền - Hai Bà Trưng - Hà Nội<br>
+                            Khu giảng đường: 96 Định Công - Hà Nội
+                        </span>
+                    </div>
+                </div>
+                <div class="col-md-6 text-md-right mt-3 mt-md-0">
+                    <div>
+                        <span class="text-white">Phát triển &amp; cung cấp bởi</span>
+                        <br />
+                        <span class="text-white">Nguyễn Hoàng Anh - 2010A01</span>
+                        <br>
+                        <span class="text-white">&copy; FITHOU-LIB 2024</span>
+                    </div>
+                </div>
             </div>
         </div>
     </footer>
@@ -68,5 +168,3 @@
     @RenderSection("scripts", required: false)
 </body>
 </html>
-
-

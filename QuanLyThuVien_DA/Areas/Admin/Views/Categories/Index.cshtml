@@ -15,66 +15,74 @@
     <i class="fa fa-layer-group-plus"></i>
     <span> Thêm </span>
 </button>
-<table class="table mt-3">
-    <thead>
-        <tr>
-            <th>Tên thể loại</th>
-            <th>Mô tả </th>
-            <th>Sửa đổi lần cuối</th>
-            <th>Tác vụ</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr data-theloai-id="@item.ID">
-                <td>@Html.DisplayFor(modelItem => item.TenTheLoai)</td>
-                <td>@Html.DisplayFor(modelItem => item.MoTa)</td>
-                <td>@Html.DisplayFor(modelItem => item.HoTen)</td>
-                <td>
-                    <button class="btn btn-info btn-sm edit-btn">
-                        <i class="fa fa-edit"></i>
-                    </button> |
-                    <button class="btn btn-danger btn-sm delete-btn">
-                        <i class="fa fa-trash"></i>
-                    </button>
-                </td>
+<div>
+    <table id="categoryTable" class="table mt-3">
+        <thead>
+            <tr>
+                <th>Tên thể loại</th>
+                <th>Mô tả </th>
+                <th>Sửa đổi lần cuối</th>
+                <th>Tác vụ</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr data-theloai-id="@item.ID">
+                    <td>@Html.DisplayFor(modelItem => item.TenTheLoai)</td>
+                    <td>@Html.DisplayFor(modelItem => item.MoTa)</td>
+                    <td>@Html.DisplayFor(modelItem => item.HoTen)</td>
+                    <td>
+                        @if (item.DeXuatTheLoaiID == null)
+                        {
+                            <button class="btn btn-info btn-sm edit-btn">
+                                <i class="fa fa-edit"></i>
+                            </button>
+                            <span> | </span>
+                            <button class="btn btn-danger btn-sm delete-btn">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        }
 
-@if (ViewBag.Pagination != null)
-{
-    <div class="d-flex justify-content-center">
-        <nav aria-label="Page navigation example">
-            <ul class="pagination">
-                @if (ViewBag.Pagination.PageNumber > 1)
-                {
-                    <li class="page-item">
-                        <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.Pagination.PageNumber - 1 })" aria-label="Previous">
-                            <span aria-hidden="true">&laquo;</span>
-                        </a>
-                    </li>
-                }
-                @for (int i = 1; i <= ViewBag.Pagination.PageTotal; i++)
-                {
-                    <li class="page-item @(i == ViewBag.Pagination.PageNumber ? "active" : "")">
-                        <a class="page-link" href="@Url.Action("Index", new { page = i })">@i</a>
-                    </li>
-                }
-                @if (ViewBag.Pagination.PageNumber < ViewBag.Pagination.PageTotal)
-                {
-                    <li class="page-item">
-                        <a class="page-link" href="@Url.Action("Index", new { page = ViewBag.Pagination.PageNumber + 1 })" aria-label="Next">
-                            <span aria-hidden="true">&raquo;</span>
-                        </a>
-                    </li>
-                }
-            </ul>
-        </nav>
+                    </td>
+                </tr>
+            }
+        </tbody>
+
+    </table>
+
+    <div class="d-flex justify-content-center" id="pagination">
+        @if (ViewBag.Pagination != null)
+        {
+            <nav aria-label="Page navigation example">
+                <ul class="pagination">
+                    @if (ViewBag.Pagination.PageNumber > 1)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="#" onclick="searchDocuments(@ViewBag.Pagination.PageNumber - 1)" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    }
+                    @for (int i = 1; i <= ViewBag.Pagination.PageTotal; i++)
+                    {
+                        <li class="page-item @(i == ViewBag.Pagination.PageNumber ? "active" : "")">
+                            <a class="page-link" href="#" onclick="searchDocuments(@i)">@i</a>
+                        </li>
+                    }
+                    @if (ViewBag.Pagination.PageNumber < ViewBag.Pagination.PageTotal)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="#" onclick="searchDocuments(@ViewBag.Pagination.PageNumber + 1)" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        }
     </div>
-}
+</div>
 
 
 <!-- Modal Thêm, Sửa thường -->
@@ -128,7 +136,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                Bạn có chắc chắn muốn xóa thể loại này không? 
+                Bạn có chắc chắn muốn xóa thể loại này không?
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
@@ -153,29 +161,82 @@
     </div>
 </div>
 
-
 @section Scripts {
     <script>
         $(document).ready(function () {
+            var currentPageNumber = 1; // Biến để lưu số trang hiện tại
 
-            // Xử lý sự kiện khi nhấn nút Sửa
-            $('.edit-btn').click(function () {
-                var theloaiId = $(this).closest('tr').data('theloai-id');
-                openEditModal(theloaiId);
-            });
+            // Function to handle initial setup and event bindings
+            function setupPage() {
+                attachEventHandlers();
+                // Initial page load
+                reloadCategoryTable(currentPageNumber);
+            }
 
-            $('#createModal').on('hide.bs.modal', function () {
-                resetModal();
-            });
+            // Call setupPage to initialize
+            setupPage();
 
-            $('#createModal').on('show.bs.modal', function (event) {
-                var modal = $(this);
-                var userId = modal.data('user-id');
-                var userName = modal.data('user-name');
-                $('#HoTen').val(userName);
-                $('#UserID').val(userId);
-                $('#HoTen').prop('readonly', true);
-            });
+            // Function to reload category table via AJAX
+            function reloadCategoryTable(pageNumber) {
+                var url = '@Url.Action("Index", "Categories")'; // Adjust URL as needed
+                $.get(url, { page: pageNumber })
+                    .done(function (data) {
+                        $('#categoryTable tbody').html($(data).find('#categoryTable tbody').html());
+                        $('#pagination').html($(data).find('#pagination').html());
+                        // Reattach event handlers for edit and delete buttons
+                        attachEventHandlers();
+                    })
+                    .fail(function (xhr, status, error) {
+                        console.error("Error: " + error);
+                        showToast('Lỗi!', 'danger');
+                    });
+            }
+
+            // Function to attach event handlers for edit and delete buttons
+            function attachEventHandlers() {
+                // Edit button click handler
+                $('.edit-btn').off('click').on('click', function () {
+                    var theloaiId = $(this).closest('tr').data('theloai-id');
+                    openEditModal(theloaiId);
+                });
+
+                // Delete button click handler
+                $('.delete-btn').off('click').on('click', function () {
+                    var theloaiIdToDelete = $(this).closest('tr').data('theloai-id');
+                    $('#deleteModal').modal('show');
+                    $('#confirmDeleteBtn').off('click').on('click', function () {
+                        deleteTheLoai(theloaiIdToDelete);
+                    });
+                });
+
+                // Pagination link click handler
+                $('#pagination').off('click', '.page-link').on('click', '.page-link', function (e) {
+                    e.preventDefault();
+                    var pageNumber = $(this).text().trim();
+                    reloadCategoryTable(pageNumber);
+                });
+            }
+
+            // Function to handle delete operation
+            function deleteTheLoai(theloaiId) {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("Delete", "Categories")',
+                    data: { id: theloaiId },
+                    success: function (response) {
+                        if (response.success) {
+                            $('#deleteModal').modal('hide');
+                            showToast('Xóa thành công!', 'success');
+                            reloadCategoryTable(currentPageNumber); // Gọi lại với trang hiện tại
+                        } else {
+                            showToast(response.message, 'danger');
+                        }
+                    },
+                    error: function () {
+                        showToast('Lỗi khi xóa!', 'danger');
+                    }
+                });
+            }
 
             // Hàm mở modal chỉnh sửa thể loại
             function openEditModal(theloaiId) {
@@ -193,8 +254,8 @@
                         $('#TenTheLoai').val(response.TenTheLoai);
                         $('#MoTa').val(response.MoTa);
                         $('#HoTen').val(response.HoTen);
-                        $('#UserID').val(userId);
-
+                        $('#UserID').val(response.UserID); // Ensure to set correct user ID here
+                        $('#createModal').modal('show'); // Ensure modal is shown after data is loaded
                     },
                     error: function (xhr, status, error) {
                         console.error("Error: " + error);
@@ -202,22 +263,10 @@
                         showToast('Lỗi !!! ' + error, 'danger');
                     }
                 });
-                $('#createModal').modal('show');  // Ensure modal is shown after data is loaded
-            }
-
-            // Reset modal to default state
-            function resetModal() {
-                $('#createModalLabel').text('Thêm mới thể loại');
-                $('#saveChangesBtn').text('Create').off('click').on('click', function () {
-                    createTheLoai();
-                });
-                $('#createForm')[0].reset();
-                $('#TheLoaiId').val('');
-                $('#createForm').removeClass('was-validated');
             }
 
             // Xử lý sự kiện khi nhấn nút Lưu trong modal
-            $('#saveChangesBtn').click(function () {
+            $('#saveChangesBtn').off('click').on('click', function () {
                 var form = $('#createForm');
                 if (form[0].checkValidity() === false) {
                     form.addClass('was-validated');
@@ -248,6 +297,7 @@
                         if (response.success) {
                             $('#createModal').modal('hide');
                             showToast('Thêm thành công!', 'success');
+                            reloadCategoryTable(currentPageNumber); // Gọi lại với trang hiện tại
                         } else {
                             showToast('Lỗi!', 'danger');
                         }
@@ -279,7 +329,7 @@
                         if (response.success) {
                             $('#createModal').modal('hide');
                             showToast('Cập nhật thành công!', 'success');
-                            location.reload(); // Chuyển hướng đến trang mới
+                            reloadCategoryTable(currentPageNumber); // Gọi lại với trang hiện tại
                         } else {
                             showToast('Lỗi!', 'danger');
                         }
@@ -292,51 +342,49 @@
                 });
             }
 
-            var theloaiIdToDelete;
-
-            // Xử lý sự kiện khi nhấn nút Xóa
-            $('.delete-btn').click(function () {
-                theloaiIdToDelete = $(this).closest('tr').data('theloai-id');
-                $('#deleteModal').modal('show');
-            });
-
-            // Xử lý sự kiện khi nhấn nút Xác nhận xóa trong modal
-            $('#confirmDeleteBtn').click(function () {
-                $.ajax({
-                    type: 'POST',
-                    url: '@Url.Action("Delete", "Categories")',
-                    data: { id: theloaiIdToDelete },
-                    success: function (response) {
-                        if (response.success) {
-                            $('#deleteModal').modal('hide');
-                            showToast('Xóa thành công!', 'success');
-                            location.reload(); // Chuyển hướng đến trang mới
-                        } else {
-                            showToast(response.message, 'danger');
-                        }
-                    },
-                    error: function () {
-                        showToast('Lỗi khi xóa!', 'danger');
-                    }
+            // Function to reset modal to default state
+            function resetModal() {
+                $('#createModalLabel').text('Thêm mới thể loại');
+                $('#saveChangesBtn').text('Create').off('click').on('click', function () {
+                    createTheLoai();
                 });
-            });
-        });
+                $('#createForm')[0].reset();
+                $('#TheLoaiId').val('');
+                $('#createForm').removeClass('was-validated');
+            }
 
-        // Hiển thị Toast thông báo và sau đó chuyển hướng đến trang khác
-        function showToast(message, type) {
-            $('#toastTitle').text(type === 'success' ? 'Thành công' : 'Lỗi');
-            $('#toastMessage').text(message);
-            var toastElement = $('#actionToast');
-            toastElement.removeClass('bg-success bg-danger bg-warning').addClass('bg-' + type);
-            toastElement.toast('show');
-            // Đặt thời gian trễ trước khi ẩn toast và chuyển hướng đến trang khác
-            setTimeout(function () {
-                
-                $('#actionToast').toast('hide'); // Ẩn toast sau khi đã trễ
-            }, 2000); // Thay đổi số 2000 thành thời gian (trong miligiây) bạn muốn hiển thị toast trước khi biến mất và chuyển hướng đến trang khác
-        }
+            // Event handler when modal is hidden
+            $('#createModal').on('hide.bs.modal', function () {
+                resetModal();
+            });
+
+            // Event handler when modal is shown
+            $('#createModal').on('show.bs.modal', function (event) {
+                var modal = $(this);
+                var userId = modal.data('user-id');
+                var userName = modal.data('user-name');
+                $('#HoTen').val(userName);
+                $('#UserID').val(userId);
+                $('#HoTen').prop('readonly', true);
+            });
+
+            function showToast(message, type) {
+                $('#toastTitle').text(type === 'success' ? 'Thành công' : 'Lỗi');
+                $('#toastMessage').text(message);
+                var toastElement = $('#actionToast');
+                toastElement.removeClass('bg-success bg-danger bg-warning').addClass('bg-' + type);
+                toastElement.toast({
+                    autohide: true, // Enable auto-hide
+                    delay: 1000
+                }).toast('show');
+            }
+
+        });
     </script>
 }
+
+
+
 <style>
     /* Custom column widths */
     .table th:nth-child(1),

@@ -15,8 +15,7 @@ namespace QuanLyThuVien_DA.Models
         public string NoiDung { get; set; }
 
         public DateTime NgayTao { get; set; }
-        public int SoLuotXem { get; set; }
-        public bool TrangThai { get; set; }
+        public int TrangThai { get; set; }
 
     }
 }

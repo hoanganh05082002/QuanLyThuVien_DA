@@ -1,0 +1,298 @@
+﻿@model QuanLyThuVien_DA.Models.FITHOU_LIB_CommentPostDetails
+
+@{
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+
+@{
+    var userID = Session["UserID"];
+    var userName = Session["UserName"];
+    var userRole = Session["UserRole"];
+}
+<script src="~/Plugins/Plugins/ckeditor/ckeditor.js"></script>
+
+<!-- Modal Sửa -->
+<div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true"
+     data-user-id="@userID" data-user-name="@userName" data-user-role="@userRole" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-black" id="createModalLabel">Sửa bài đăng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createForm" class="needs-validation" novalidate>
+                    <input type="hidden" id="PostId" name="PostId">
+                    <input type="hidden" id="UserID" name="UserID" value="@userID">
+
+                    <!-- Tiêu đề -->
+                    <div class="row mb-3">
+                        <label for="TieuDe" class="col-sm-3 col-form-label text-end text-black">Tiêu đề</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="TieuDe" name="TieuDe" required>
+                        </div>
+                    </div>
+
+                    <!-- Nội dung -->
+                    <div class="row mb-3">
+                        <label for="NoiDung" class="col-sm-3 col-form-label text-end text-black">Nội dung</label>
+                        <div class="col-sm-9">
+                            <textarea class="form-control" id="NoiDung" name="NoiDung"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Người thêm -->
+                    <div class="row mb-3">
+                        <label for="HoTen" class="col-sm-3 col-form-label text-end text-black">Người thêm</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="HoTen" name="HoTen" readonly required>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" id="saveChangesBtn">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal xóa -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Bạn có chắc chắn muốn xóa bài đăng này không?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Xóa</button>
+            </div>
+        </div>
+    </div>
+</div>
+@* Toast *@
+<div aria-live="polite" aria-atomic="true" style="position: relative; z-index: 9999;">
+    <div id="toastContainer" style="position: fixed; top: 20px; right: 20px;">
+        <div class="toast" id="actionToast" role="alert" aria-live="assertive" aria-atomic="true" data-delay="1000">
+            <div class="toast-header">
+                <strong class="mr-auto" id="toastTitle">Thông báo</strong>
+                <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="toast-body text-white" id="toastMessage"></div>
+        </div>
+    </div>
+</div>
+
+@* Main *@
+<div class="container details-container mt-3">
+    <div class="row details-content">
+        <div class="col-12">
+            <div class="d-flex justify-content-end">
+                @if (userName != null && userName.Equals(Model.HoTen))
+                {
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fa fa-ellipsis-h"></i>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+                            <a class="dropdown-item editPostBtn" href="#" data-id="@Model.BaiDangID">
+                                <i class="fa fa-edit mr-2"></i> Sửa
+                            </a>
+                            <a class="dropdown-item deletePostBtn" href="#" data-id="@Model.BaiDangID">
+                                <i class="fa fa-trash mr-2"></i> Xóa
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+            <h3 class="text-center font-weight-bold text-primary">@Model.TieuDe</h3>
+            <p class="small text-black">
+                <i class="fas fa-user text-primary mr-1"></i> @Model.HoTen &nbsp;&nbsp;
+                <i class="far fa-clock text-warning mr-1"></i> @Model.NgayTao.ToString("dd/MM/yyyy HH:mm")
+            </p>
+            <div>@Html.Raw(Model.NoiDung)</div>
+        </div>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    <script>
+      $(document).ready(function () {
+        CKEDITOR.replace('NoiDung');
+
+        // Sự kiện click vào nút Edit
+        $('.editPostBtn').click(function () {
+            var postId = $(this).data('id');
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("GetPost", "Forum")',
+                data: { id: postId },
+                success: function (response) {
+                    $('#createModalLabel').text('Sửa bài đăng');
+                    $('#saveChangesBtn').text('Cập nhật').off('click').on('click', function () {
+                        editPost(postId);
+                    });
+
+                    $('#PostId').val(response.ID);
+                    $('#TieuDe').val(response.TieuDe);
+                    CKEDITOR.instances.NoiDung.setData(response.NoiDung);
+                    $('#HoTen').val(response.HoTen);
+                    $('#createModal').modal('show');
+                },
+                error: function () {
+                    showToast('Lỗi khi nạp dữ liệu bài đăng!', 'danger');
+                }
+            });
+        });
+
+        // Xử lý sự kiện khi đóng modal Sửa
+        $('#createModal').on('hide.bs.modal', function () {
+            resetModal();
+        });
+
+        // Hàm reset modal về trạng thái mặc định
+        function resetModal() {
+            $('#createForm')[0].reset();
+            $('#PostId').val('');
+            $('#createForm').removeClass('was-validated');
+
+            // Reset CKEditor
+            for (instance in CKEDITOR.instances) {
+                CKEDITOR.instances[instance].setData('');
+            }
+        }
+
+        // Hàm chỉnh sửa bài đăng
+        function editPost(postId) {
+            var form = $('#createForm')[0];
+            if (form.checkValidity() === false) {
+                form.classList.add('was-validated');
+                return;
+            }
+
+            // Cập nhật nội dung CKEditor vào textarea
+            for (instance in CKEDITOR.instances) {
+                CKEDITOR.instances[instance].updateElement();
+            }
+
+            var formData = new FormData(form);
+            formData.append("ID", postId);
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("Edit", "Forum")',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.success) {
+                        $('#createModal').modal('hide');
+                        showToast('Vui lòng chờ phê duyệt.', 'success');
+                        setTimeout(function () {
+                            location.reload();
+                        }, 1000);
+                    } else {
+                        showToast('Lỗi!', 'danger');
+                    }
+                },
+                error: function () {
+                    showToast('Lỗi!', 'danger');
+                }
+            });
+        }
+
+        // Sự kiện khi nhấn nút Xóa trong dropdown menu
+        $('.deletePostBtn').click(function (e) {
+            e.preventDefault();
+            var postId = $(this).data('id');
+            $('#deleteModal').modal('show');
+            $('#confirmDeleteBtn').off('click').on('click', function () {
+                deletePost(postId);
+            });
+        });
+
+        function deletePost(postId) {
+            $.ajax({
+                url: '@Url.Action("DeletePost", "Forum")/' + postId,
+                type: 'POST',
+                success: function (response) {
+                    showToast('Bài đăng đã được xóa thành công.', 'success');
+                    $('#deleteModal').modal('hide');
+                    $('#post-' + postId).remove(); // Remove the deleted post from the list
+                },
+                error: function (xhr, status, error) {
+                    showToast('Lỗi', 'Không thể xóa bài đăng.', 'danger');
+                }
+            });
+        }
+
+        // Hàm hiển thị thông báo Toast
+        function showToast(message, type) {
+            $('#toastTitle').text(type === 'success' ? 'Thành công' : 'Lỗi');
+            $('#toastMessage').text(message);
+            var toastElement = $('#actionToast');
+            toastElement.removeClass('bg-success bg-danger').addClass('bg-' + type);
+            toastElement.toast('show');
+        }
+      });
+    </script>
+}
+
+
+<style>
+    .dropdown .btn-primary.dropdown-toggle::after {
+        display: none; /* Hide the default caret */
+    }
+    .form-container {
+        max-width: 600px; /* Adjust the max-width as needed */
+        width: 100%;
+        margin: 0 auto; /* Center the form */
+        background-color: white; /* Nền trắng */
+        color: black; /* Chữ đen */
+        padding: 20px; /* Thêm khoảng cách xung quanh */
+        border-radius: 5px; /* Bo tròn các góc */
+        border: 1px solid #ddd; /* Thêm viền nhạt */
+    }
+
+    textarea.form-control {
+        width: 100%;
+        background-color: white; /* Nền trắng */
+        color: black; /* Chữ đen */
+    }
+
+    .details-container {
+        margin-bottom: 20px;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: white; /* Nền trắng */
+        color: black; /* Chữ đen */
+    }
+
+    .details-content {
+        margin-top: 20px;
+    }
+
+    .comment-box {
+        background-color: #f9f9f9;
+        color: black; /* Chữ đen */
+    }
+
+    .comment-info {
+        color: #999;
+    }
+
+        .comment-info i {
+            margin-right: 5px;
+        }
+</style>

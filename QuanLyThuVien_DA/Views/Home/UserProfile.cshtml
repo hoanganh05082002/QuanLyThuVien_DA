@@ -11,51 +11,12 @@
     Layout = "~/Views/Shared/_LayoutIndex.cshtml";
 }
 
-<h2 class=" text-center font-weight-bold mb-4 text-primary">Lịch sử hoạt động</h2>
+<h2 class=" text-center font-weight-bold mt-4 mb-4 text-primary">Lịch sử truy cập tài liệu</h2>
+
 
 <div>
     @Html.Partial("_LichSuTruyCap", ViewBag.AccessHistory as IEnumerable<QuanLyThuVien_DA.Models.FITHOU_LIB_HistoryView>)
 </div>
-
-
-<!-- Button Profile -->
-@if (userID != null)
-{
-    <div style="position: fixed; top: 10px; right: 10px;">
-        <a class="nav-link edit-btn text-dark" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="mr-2 d-none d-lg-inline text-gray-600 small font-weight-bold">Xin chào, @userName</span>
-        </a>
-
-        <!-- Dropdown - User Information -->
-        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
-            <a class="dropdown-item edit-btn" id="openProfileModal">
-                <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                Chỉnh sửa thông tin cá nhân
-            </a>
-            @if (!userRole.Equals("Sinh viên") && !userRole.Equals("Giảng viên"))
-            {
-                <a class="dropdown-item" href="~/Admin/Default">
-                    <i class="fas fa-toolbox fa-sm fa-fw mr-2 text-gray-400 mt-2"></i>
-                    Trang quản trị
-                </a>
-            }
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="~/Home/Logout">
-                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                Đăng xuất
-            </a>
-
-        </div>
-    </div>
-}
-else
-{
-    <div style="position: fixed; top: 10px; right: 10px;">
-        <a class="nav-link" href="@Url.Action("Login", "Home")">
-            <span class="mr-2 d-none d-lg-inline text-gray-600 small text-dark font-weight-bold">Đăng nhập</span>
-        </a>
-    </div>
-}
 
 
 <!-- Modal Sửa Profile -->
@@ -175,13 +136,13 @@ else
 @section Scripts {
     <script>
         $(document).ready(function () {
-
             @if ((bool)Session["IsFirstLogin"] == false)
             {
                 <text>
                     $('#changePasswordModel').modal('show');
                 </text>
             }
+
             // Xử lý sự kiện khi nhấn nút Profile
             $('#openProfileModal').click(function () {
                 openProfileModal();
@@ -281,87 +242,86 @@ else
         });
 
         // Xử lý sự kiện khi nhấn nút "Đổi mật khẩu"
-            $('#ChangePassword').click(function () {
-                openChangePasswordModal();
-            });
+        $('#ChangePassword').click(function () {
+            openChangePasswordModal();
+        });
 
-            // Hàm mở modal đổi mật khẩu
-            function openChangePasswordModal() {
-                $('#changePasswordModel').modal('show');
+        // Hàm mở modal đổi mật khẩu
+        function openChangePasswordModal() {
+            $('#changePasswordModel').modal('show');
+        }
+
+        // Gắn sự kiện click cho nút "Lưu thay đổi" trong modal đổi mật khẩu
+        $('#savePWChangesBtn').click(function () {
+            changePassword();
+        });
+
+        // Hàm xử lý đổi mật khẩu
+        function changePassword() {
+            var newPassword = $('#MatKhauMoi').val();
+            var confirmPassword = $('#MatKhauMoiRepeat').val();
+
+            // Check if new password is empty
+            if (!newPassword) {
+                showToast('Vui lòng nhập mật khẩu', 'danger');
+                return;
             }
 
-            // Gắn sự kiện click cho nút "Lưu thay đổi" trong modal đổi mật khẩu
-            $('#savePWChangesBtn').click(function () {
-                changePassword();
-            });
+            if (!/[A-Z]/.test(newPassword)) {
+                showToast('Mật khẩu phải có ít nhất 1 chữ in hoa.', 'danger');
+                return;
+            }
 
-            // Hàm xử lý đổi mật khẩu
-            function changePassword() {
-                var newPassword = $('#MatKhauMoi').val();
-                var confirmPassword = $('#MatKhauMoiRepeat').val();
+            // Check for at least one lowercase letter
+            if (!/[a-z]/.test(newPassword)) {
+                showToast('Mật khẩu phải có ít nhất 1 chữ thường.', 'danger');
+                return;
+            }
 
-                // Check if new password is empty
-                if (!newPassword) {
-                    showToast('Vui lòng nhập mật khẩu', 'danger');
-                    return;
-                }
+            // Check for at least one digit
+            if (!/\d/.test(newPassword)) {
+                showToast('Mật khẩu phải có ít nhất 1 số.', 'danger');
+                return;
+            }
 
-                if (!/[A-Z]/.test(newPassword)) {
-                    showToast('Mật khẩu phải có ít nhất 1 chữ in hoa.', 'danger');
-                    return;
-                }
+            // Check for at least one special character
+            if (!/[\W_]/.test(newPassword)) {
+                showToast('Mật khẩu phải có ít nhất 1 ký tự đặc biệt.', 'danger');
+                return;
+            }
 
-                // Check for at least one lowercase letter
-                if (!/[a-z]/.test(newPassword)) {
-                    showToast('Mật khẩu phải có ít nhất 1 chữ thường.', 'danger');
-                    return;
-                }
+            // Check for minimum length
+            if (newPassword.length < 7) {
+                showToast('Mật khẩu phải có ít nhất 7 ký tự.', 'danger');
+                return;
+            }
 
-                // Check for at least one digit
-                if (!/\d/.test(newPassword)) {
-                    showToast('Mật khẩu phải có ít nhất 1 số.', 'danger');
-                    return;
-                }
+            // Kiểm tra mật khẩu mới và xác nhận mật khẩu mới
+            if (newPassword !== confirmPassword) {
+                showToast('Mật khẩu mới và xác nhận mật khẩu mới không khớp.', 'danger');
+                return;
+            }
 
-                // Check for at least one special character
-                if (!/[\W_]/.test(newPassword)) {
-                    showToast('Mật khẩu phải có ít nhất 1 ký tự đặc biệt.', 'danger');
-                    return;
-                }
+            // Gửi yêu cầu đổi mật khẩu đến máy chủ
+            var userId = $('#UserId').val();
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("ChangePassword", "Home")',
+                data: { ID: userId, MatKhauHash: newPassword },
+                success: function (response) {
+                    if (response.success) {
+                        $('#changePasswordModel').modal('hide');
+                        showToast('Đổi mật khẩu thành công!', 'success');
 
-                // Check for minimum length
-                if (newPassword.length < 7) {
-                    showToast('Mật khẩu phải có ít nhất 7 ký tự.', 'danger');
-                    return;
-                }
-
-                // Kiểm tra mật khẩu mới và xác nhận mật khẩu mới
-                if (newPassword !== confirmPassword) {
-                    showToast('Mật khẩu mới và xác nhận mật khẩu mới không khớp.', 'danger');
-                    return;
-                }
-
-                // Gửi yêu cầu đổi mật khẩu đến máy chủ
-                var userId = $('#UserId').val();
-                $.ajax({
-                    type: "POST",
-                    url: '@Url.Action("ChangePassword", "Home")',
-                    data: { ID: userId, MatKhauHash: newPassword },
-                    success: function (response) {
-                        if (response.success) {
-                            $('#changePasswordModel').modal('hide');
-                            showToast('Đổi mật khẩu thành công!', 'success');
-
-                        } else {
-                            showToast('Đổi mật khẩu thất bại. Vui lòng thử lại sau.', 'danger');
-                        }
-                    },
-                    error: function () {
-                        showToast('Đã xảy ra lỗi khi đổi mật khẩu. Vui lòng thử lại sau.', 'danger');
+                    } else {
+                        showToast(response.message || 'Đổi mật khẩu thất bại. Vui lòng thử lại sau.', 'danger');
                     }
-                });
-            }
-
+                },
+                error: function () {
+                    showToast('Đã xảy ra lỗi khi đổi mật khẩu. Vui lòng thử lại sau.', 'danger');
+                }
+            });
+        }
 
         // Hiển thị Toast thông báo và sau đó tải lại trang
         function showToast(message, type) {

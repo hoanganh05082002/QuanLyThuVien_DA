@@ -14,8 +14,7 @@
           <Property Name="TieuDe" Type="nvarchar" MaxLength="255" Nullable="false" />
           <Property Name="NoiDung" Type="nvarchar(max)" Nullable="false" />
           <Property Name="NgayTao" Type="datetime" />
-          <Property Name="SoLuotXem" Type="int" />
-          <Property Name="TrangThai" Type="bit" />
+          <Property Name="TrangThai" Type="int" />
         </EntityType>
         <EntityType Name="FITHOU_LIB_BinhLuan">
           <Key>
@@ -36,7 +35,7 @@
           <Property Name="TenTheLoai" Type="nvarchar" MaxLength="500" />
           <Property Name="LyDoDeXuat" Type="nvarchar" MaxLength="2000" />
           <Property Name="NgayDeXuat" Type="datetime" />
-          <Property Name="TrangThai" Type="bit" />
+          <Property Name="TrangThai" Type="int" />
         </EntityType>
         <EntityType Name="FITHOU_LIB_LichSuTruyCap">
           <Key>
@@ -61,7 +60,7 @@
           <Property Name="TacGia" Type="nvarchar" MaxLength="500" />
           <Property Name="FileTaiLieu" Type="nvarchar" MaxLength="2000" />
           <Property Name="NgayTai" Type="datetime" />
-          <Property Name="SoLuotTruyCap" Type="int" />
+          <Property Name="SoLuotTruyCap" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="FITHOU_LIB_TinTucSuKien">
           <Key>
@@ -83,6 +82,18 @@
           <Property Name="TenTheLoai" Type="nvarchar" MaxLength="255" />
           <Property Name="MoTa" Type="nvarchar" MaxLength="4000" />
           <Property Name="DeXuatTheLoaiID" Type="int" />
+        </EntityType>
+        <EntityType Name="FITHOU_LIB_ThongBao">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="DeXuatID" Type="int" />
+          <Property Name="BaiDangID" Type="int" />
+          <Property Name="UserID" Type="int" />
+          <Property Name="NoiDung" Type="nvarchar(max)" />
+          <Property Name="TrangThai" Type="bit" />
+          <Property Name="NgayTao" Type="datetime" />
         </EntityType>
         <EntityType Name="FITHOU_LIB_Users">
           <Key>
@@ -113,6 +124,7 @@
           <EntitySet Name="FITHOU_LIB_TaiLieu" EntityType="Self.FITHOU_LIB_TaiLieu" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="FITHOU_LIB_TinTucSuKien" EntityType="Self.FITHOU_LIB_TinTucSuKien" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="FITHOU_LIB_TheLoaiTaiLieu" EntityType="Self.FITHOU_LIB_TheLoaiTaiLieu" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="FITHOU_LIB_ThongBao" EntityType="Self.FITHOU_LIB_ThongBao" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="FITHOU_LIB_Users" EntityType="Self.FITHOU_LIB_Users" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="FITHOU_LIB_VaiTro" EntityType="Self.FITHOU_LIB_VaiTro" Schema="dbo" store:Type="Tables" />
         </EntityContainer>
@@ -124,12 +136,13 @@
           <EntitySet Name="FITHOU_LIB_Users" EntityType="FITHOU_LIBModel.FITHOU_LIB_Users" />
           <EntitySet Name="FITHOU_LIB_TheLoaiTaiLieu" EntityType="FITHOU_LIBModel.FITHOU_LIB_TheLoaiTaiLieu" />
           <EntitySet Name="FITHOU_LIB_TaiLieu" EntityType="FITHOU_LIBModel.FITHOU_LIB_TaiLieu" />
-          <EntitySet Name="FITHOU_LIB_DeXuatTheLoai" EntityType="FITHOU_LIBModel.FITHOU_LIB_DeXuatTheLoai" />
           <EntitySet Name="FITHOU_LIB_VaiTro" EntityType="FITHOU_LIBModel.FITHOU_LIB_VaiTro" />
           <EntitySet Name="FITHOU_LIB_TinTucSuKien" EntityType="FITHOU_LIBModel.FITHOU_LIB_TinTucSuKien" />
-          <EntitySet Name="FITHOU_LIB_BaiDang" EntityType="FITHOU_LIBModel.FITHOU_LIB_BaiDang" />
           <EntitySet Name="FITHOU_LIB_BinhLuan" EntityType="FITHOU_LIBModel.FITHOU_LIB_BinhLuan" />
           <EntitySet Name="FITHOU_LIB_LichSuTruyCap" EntityType="FITHOU_LIBModel.FITHOU_LIB_LichSuTruyCap" />
+          <EntitySet Name="FITHOU_LIB_DeXuatTheLoai" EntityType="FITHOU_LIBModel.FITHOU_LIB_DeXuatTheLoai" />
+          <EntitySet Name="FITHOU_LIB_BaiDang" EntityType="FITHOU_LIBModel.FITHOU_LIB_BaiDang" />
+          <EntitySet Name="FITHOU_LIB_ThongBao" EntityType="FITHOU_LIBModel.FITHOU_LIB_ThongBao" />
         </EntityContainer>
         <EntityType Name="FITHOU_LIB_Users">
           <Key>
@@ -169,18 +182,7 @@
           <Property Name="TacGia" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
           <Property Name="FileTaiLieu" Type="String" MaxLength="2000" FixedLength="false" Unicode="true" />
           <Property Name="NgayTai" Type="DateTime" Precision="3" />
-          <Property Name="SoLuotTruyCap" Type="Int32" />
-        </EntityType>
-        <EntityType Name="FITHOU_LIB_DeXuatTheLoai">
-          <Key>
-            <PropertyRef Name="ID" />
-          </Key>
-          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="UserID" Type="Int32" />
-          <Property Name="TenTheLoai" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="LyDoDeXuat" Type="String" MaxLength="2000" FixedLength="false" Unicode="true" />
-          <Property Name="NgayDeXuat" Type="DateTime" Precision="3" />
-          <Property Name="TrangThai" Type="Boolean" />
+          <Property Name="SoLuotTruyCap" Type="Int32" Nullable="false" />
         </EntityType>
         <EntityType Name="FITHOU_LIB_VaiTro">
           <Key>
@@ -200,18 +202,6 @@
           <Property Name="NoiDung" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="NgayDang" Type="DateTime" Precision="3" />
         </EntityType>
-        <EntityType Name="FITHOU_LIB_BaiDang">
-          <Key>
-            <PropertyRef Name="ID" />
-          </Key>
-          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="UserID" Type="Int32" Nullable="false" />
-          <Property Name="TieuDe" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="NoiDung" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="NgayTao" Type="DateTime" Precision="3" />
-          <Property Name="SoLuotXem" Type="Int32" />
-          <Property Name="TrangThai" Type="Boolean" />
-        </EntityType>
         <EntityType Name="FITHOU_LIB_BinhLuan">
           <Key>
             <PropertyRef Name="ID" />
@@ -230,6 +220,40 @@
           <Property Name="UserID" Type="Int32" Nullable="false" />
           <Property Name="TaiLieuID" Type="Int32" Nullable="false" />
           <Property Name="ThoiGian" Type="DateTime" Nullable="false" Precision="3" />
+        </EntityType>
+        <EntityType Name="FITHOU_LIB_DeXuatTheLoai">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UserID" Type="Int32" />
+          <Property Name="TenTheLoai" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="LyDoDeXuat" Type="String" MaxLength="2000" FixedLength="false" Unicode="true" />
+          <Property Name="NgayDeXuat" Type="DateTime" Precision="3" />
+          <Property Name="TrangThai" Type="Int32" />
+        </EntityType>
+        <EntityType Name="FITHOU_LIB_BaiDang">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UserID" Type="Int32" Nullable="false" />
+          <Property Name="TieuDe" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="NoiDung" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="NgayTao" Type="DateTime" Precision="3" />
+          <Property Name="TrangThai" Type="Int32" />
+        </EntityType>
+        <EntityType Name="FITHOU_LIB_ThongBao">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="DeXuatID" Type="Int32" />
+          <Property Name="BaiDangID" Type="Int32" />
+          <Property Name="UserID" Type="Int32" />
+          <Property Name="NoiDung" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="TrangThai" Type="Boolean" />
+          <Property Name="NgayTao" Type="DateTime" Precision="3" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -280,18 +304,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="FITHOU_LIB_DeXuatTheLoai">
-            <EntityTypeMapping TypeName="FITHOU_LIBModel.FITHOU_LIB_DeXuatTheLoai">
-              <MappingFragment StoreEntitySet="FITHOU_LIB_DeXuatTheLoai">
-                <ScalarProperty Name="TrangThai" ColumnName="TrangThai" />
-                <ScalarProperty Name="NgayDeXuat" ColumnName="NgayDeXuat" />
-                <ScalarProperty Name="LyDoDeXuat" ColumnName="LyDoDeXuat" />
-                <ScalarProperty Name="TenTheLoai" ColumnName="TenTheLoai" />
-                <ScalarProperty Name="UserID" ColumnName="UserID" />
-                <ScalarProperty Name="ID" ColumnName="ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="FITHOU_LIB_VaiTro">
             <EntityTypeMapping TypeName="FITHOU_LIBModel.FITHOU_LIB_VaiTro">
               <MappingFragment StoreEntitySet="FITHOU_LIB_VaiTro">
@@ -307,19 +319,6 @@
                 <ScalarProperty Name="NoiDung" ColumnName="NoiDung" />
                 <ScalarProperty Name="TieuDe" ColumnName="TieuDe" />
                 <ScalarProperty Name="AnhNen" ColumnName="AnhNen" />
-                <ScalarProperty Name="UserID" ColumnName="UserID" />
-                <ScalarProperty Name="ID" ColumnName="ID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="FITHOU_LIB_BaiDang">
-            <EntityTypeMapping TypeName="FITHOU_LIBModel.FITHOU_LIB_BaiDang">
-              <MappingFragment StoreEntitySet="FITHOU_LIB_BaiDang">
-                <ScalarProperty Name="TrangThai" ColumnName="TrangThai" />
-                <ScalarProperty Name="SoLuotXem" ColumnName="SoLuotXem" />
-                <ScalarProperty Name="NgayTao" ColumnName="NgayTao" />
-                <ScalarProperty Name="NoiDung" ColumnName="NoiDung" />
-                <ScalarProperty Name="TieuDe" ColumnName="TieuDe" />
                 <ScalarProperty Name="UserID" ColumnName="UserID" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
@@ -342,6 +341,43 @@
                 <ScalarProperty Name="ThoiGian" ColumnName="ThoiGian" />
                 <ScalarProperty Name="TaiLieuID" ColumnName="TaiLieuID" />
                 <ScalarProperty Name="UserID" ColumnName="UserID" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="FITHOU_LIB_DeXuatTheLoai">
+            <EntityTypeMapping TypeName="FITHOU_LIBModel.FITHOU_LIB_DeXuatTheLoai">
+              <MappingFragment StoreEntitySet="FITHOU_LIB_DeXuatTheLoai">
+                <ScalarProperty Name="TrangThai" ColumnName="TrangThai" />
+                <ScalarProperty Name="NgayDeXuat" ColumnName="NgayDeXuat" />
+                <ScalarProperty Name="LyDoDeXuat" ColumnName="LyDoDeXuat" />
+                <ScalarProperty Name="TenTheLoai" ColumnName="TenTheLoai" />
+                <ScalarProperty Name="UserID" ColumnName="UserID" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="FITHOU_LIB_BaiDang">
+            <EntityTypeMapping TypeName="FITHOU_LIBModel.FITHOU_LIB_BaiDang">
+              <MappingFragment StoreEntitySet="FITHOU_LIB_BaiDang">
+                <ScalarProperty Name="TrangThai" ColumnName="TrangThai" />
+                <ScalarProperty Name="NgayTao" ColumnName="NgayTao" />
+                <ScalarProperty Name="NoiDung" ColumnName="NoiDung" />
+                <ScalarProperty Name="TieuDe" ColumnName="TieuDe" />
+                <ScalarProperty Name="UserID" ColumnName="UserID" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="FITHOU_LIB_ThongBao">
+            <EntityTypeMapping TypeName="FITHOU_LIBModel.FITHOU_LIB_ThongBao">
+              <MappingFragment StoreEntitySet="FITHOU_LIB_ThongBao">
+                <ScalarProperty Name="NgayTao" ColumnName="NgayTao" />
+                <ScalarProperty Name="TrangThai" ColumnName="TrangThai" />
+                <ScalarProperty Name="NoiDung" ColumnName="NoiDung" />
+                <ScalarProperty Name="UserID" ColumnName="UserID" />
+                <ScalarProperty Name="BaiDangID" ColumnName="BaiDangID" />
+                <ScalarProperty Name="DeXuatID" ColumnName="DeXuatID" />
                 <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
             </EntityTypeMapping>

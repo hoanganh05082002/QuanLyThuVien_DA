@@ -36,7 +36,7 @@ namespace QuanLyThuVien_DA.Areas.Admin.Controllers
             var totalCount = db.FITHOU_LIB_TinTucSuKien.Count();
             var news = (from user in db.FITHOU_LIB_Users
                         join nw in db.FITHOU_LIB_TinTucSuKien on user.ID equals nw.UserID
-                        orderby nw.ID
+                        orderby nw.NgayDang descending
                         select new FITHOU_LIB_TinTucSuKienView
                         {
                             ID = nw.ID,
