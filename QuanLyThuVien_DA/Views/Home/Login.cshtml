@@ -27,19 +27,19 @@
                                 <h1 class="h4 text-gray-900 mb-3">Đăng nhập</h1>
                             </div>
                             <form class="user" method="post" action="~/Home/Login">
-                                <div class="form-group mb-3 input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fas fa-user m-2"></i></span>
+                                    <div class="form-group mb-3 input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fas fa-user m-2"></i></span>
+                                        </div>
+                                        <input type="text" class="form-control form-control-user" id="exampleInputMaSinhVien" name="MaSinhVien" placeholder="Nhập tài khoản..." required>
                                     </div>
-                                    <input type="text" class="form-control form-control-user" id="exampleInputMaSinhVien" name="MaSinhVien" placeholder="Nhập tài khoản..." required>
-                                </div>
-                                <div class="form-group mb-3 input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fas fa-lock m-2"></i></span>
+                                    <div class="form-group mb-3 input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fas fa-lock m-2"></i></span>
+                                        </div>
+                                        <input type="password" class="form-control form-control-user" id="exampleInputPassword" name="MatKhauHash" placeholder="Nhập mật khẩu..." required>
                                     </div>
-                                    <input type="password" class="form-control form-control-user" id="exampleInputPassword" name="MatKhauHash" placeholder="Nhập mật khẩu..." required>
-                                </div>
-                               
+
                                     @if (ViewBag.ErrorMessage != null)
                                     {
                                         <div class="alert alert-danger" role="alert">
@@ -51,7 +51,7 @@
                                             Đăng nhập
                                         </button>
                                     </div>
-                            </form>
+                                </form>
                             <hr>
                             <div class="text-center">
                                 <a class="small" href="~/Home/ForgetPassword">Quên mật khẩu?</a>

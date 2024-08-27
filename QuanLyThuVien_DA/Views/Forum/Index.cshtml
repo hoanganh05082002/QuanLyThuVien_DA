@@ -56,8 +56,8 @@ else
      data-user-id="@userID" data-user-name="@userName" data-user-role="@userRole" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title text-black" id="createModalLabel">Thêm bài đăng</h5>
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="createModalLabel">Thêm bài đăng</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -66,26 +66,32 @@ else
                     <input type="hidden" id="UserID" name="UserID" value="@userID">
 
                     <!-- Tiêu đề -->
-                    <div class="row mb-3">
-                        <label for="TieuDe" class="col-sm-3 col-form-label text-end text-black">Tiêu đề</label>
+                    <div class="mb-3 row">
+                        <label for="TieuDe" class="col-sm-3 col-form-label text-end">Tiêu đề</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" id="TieuDe" name="TieuDe" required>
+                            <input type="text" class="form-control" id="TieuDe" name="TieuDe" placeholder="Nhập tiêu đề" required>
+                            <div class="invalid-feedback">
+                                Vui lòng nhập tiêu đề.
+                            </div>
                         </div>
                     </div>
 
                     <!-- Nội dung -->
-                    <div class="row mb-3">
-                        <label for="NoiDung" class="col-sm-3 col-form-label text-end text-black">Nội dung</label>
+                    <div class="mb-3 row">
+                        <label for="NoiDung" class="col-sm-3 col-form-label text-end">Nội dung</label>
                         <div class="col-sm-9">
-                            <textarea class="form-control" id="NoiDung" name="NoiDung"></textarea>
+                            <textarea class="form-control" id="NoiDung" name="NoiDung" rows="4" placeholder="Nhập nội dung"></textarea>
                         </div>
                     </div>
 
                     <!-- Người thêm -->
-                    <div class="row mb-3">
-                        <label for="HoTen" class="col-sm-3 col-form-label text-end text-black">Người thêm</label>
+                    <div class="mb-3 row">
+                        <label for="HoTen" class="col-sm-3 col-form-label text-end">Người thêm</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" id="HoTen" name="HoTen" readonly required>
+                            <input type="text" class="form-control bg-light" id="HoTen" name="HoTen" readonly required>
+                            <div class="invalid-feedback">
+
+                            </div>
                         </div>
                     </div>
                 </form>
@@ -98,6 +104,8 @@ else
     </div>
 </div>
 
+<link href="~/Interface/vendor/fontawesome-pro-6.0.0-beta3-web/fontawesome-pro-6.0.0-beta3-web/css/all.min.css" rel="stylesheet" />
+
 <h2 class="text-center font-weight-bold mb-4 text-primary">Danh sách bài đăng</h2>
 
 <!-- Button to open Create Modal -->
@@ -109,10 +117,13 @@ else
                 <button type="button" class="btn btn-primary mr-3" onclick="searchPosts()">Tìm kiếm</button>
                 @if (userID != null)
                 {
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal" id="openCreateModalBtn">
+                    <button type="button" class="btn btn-primary mr-3" data-bs-toggle="modal" data-bs-target="#createModal" id="openCreateModalBtn">
                         <span class="text-white"> Thêm </span>
                     </button>
                 }
+                <button type="button" class="btn btn-warning" onclick="resetSearch()">
+                    <i class="fa fa-arrow-rotate-right"></i>
+                </button>
             </form>
         </div>
     </div>
@@ -167,7 +178,7 @@ else
                                 </a>
                             </li>
                         }
-                        
+
                         @for (int i = 1; i <= ViewBag.Pagination.PageTotal; i++)
                         {
                             <li class="page-item @(i == ViewBag.Pagination.PageNumber ? "active" : "")">
@@ -455,10 +466,15 @@ else
                         + ('0' + (date.getMonth() + 1)).slice(-2) + '/'
                         + date.getFullYear();
                     return formattedDate;
-                }
+        }
+
+        function resetSearch() {
+            $('#searchTerm').val('');
+            searchPosts();
+        }
 
     </script>
-} 
+}
 
 
 

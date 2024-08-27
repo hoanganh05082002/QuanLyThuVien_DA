@@ -70,8 +70,6 @@ namespace QuanLyThuVien_DA.Areas.Admin.Controllers
                     {
                         return Json(new { success = false, error = "Đề xuất thể loại không tồn tại." });
                     }
-
-                    // Tạo mới đối tượng FITHOU_LIB_TheLoaiTaiLieu và gán các giá trị từ đề xuất
                     var newCate = new FITHOU_LIB_TheLoaiTaiLieu
                     {
                         UserID = cate.UserID, // Gán từ form hoặc từ dữ liệu khác

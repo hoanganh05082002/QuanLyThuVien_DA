@@ -21,7 +21,7 @@ namespace QuanLyThuVien_DA.Areas.Admin.Controllers
             var documents = (from user in db.FITHOU_LIB_Users
                              join cate in db.FITHOU_LIB_TheLoaiTaiLieu on user.ID equals cate.UserID
                              join docu in db.FITHOU_LIB_TaiLieu on cate.ID equals docu.TheLoaiTaiLieuID
-                             orderby docu.ID
+                             orderby docu.NgayTai descending
                              select new FITHOU_LIB_DocumentsView
                              {
                                  ID = docu.ID,
@@ -33,10 +33,12 @@ namespace QuanLyThuVien_DA.Areas.Admin.Controllers
                                  TacGia = docu.TacGia,
                                  FileTaiLieu = docu.FileTaiLieu,
                                  NgayTai = (DateTime)docu.NgayTai,
+                                 NamXB = (int)docu.NamXB,
+                                 TuKhoaTuDo = docu.TuKhoaTuDo,
                                  HoTen = user.HoTen
                              })
-                              .Skip((pageNumber - 1) * pageSize)
-                              .Take(pageSize).ToList();
+                             .Skip((pageNumber - 1) * pageSize)
+                             .Take(pageSize).ToList();
 
             var pagination = new PaginationViewModel
             {
@@ -48,14 +50,19 @@ namespace QuanLyThuVien_DA.Areas.Admin.Controllers
             ViewBag.Pagination = pagination;
 
             ViewBag.TheLoaiList = new SelectList(db.FITHOU_LIB_TheLoaiTaiLieu.ToList(), "ID", "TenTheLoai");
+
+            // Generate a list of years for NamXB
+            var years = Enumerable.Range(1900, DateTime.Now.Year - 1900 + 1).Reverse().ToList();
+            ViewBag.YearsList = new SelectList(years);
+
             return View(documents);
         }
-
         [HttpPost]
         public ActionResult Create(FITHOU_LIB_TaiLieu document, HttpPostedFileBase AnhNen, HttpPostedFileBase FileTaiLieu)
         {
             if (ModelState.IsValid)
             {
+                // Handle AnhNen file
                 if (AnhNen != null && AnhNen.ContentLength > 0)
                 {
                     if (AnhNen.ContentLength > 4 * 1024 * 1024) // 4MB limit
@@ -69,15 +76,24 @@ namespace QuanLyThuVien_DA.Areas.Admin.Controllers
                     document.AnhNen = anhNenFileName;
                 }
 
-                // Tương tự cho FileTaiLieu
+                // Handle FileTaiLieu file
                 if (FileTaiLieu != null && FileTaiLieu.ContentLength > 0)
                 {
+                    // Check if the document file already exists
+                    var fileTaiLieuFileName = Path.GetFileName(FileTaiLieu.FileName);
+
+                    bool isFileExist = db.FITHOU_LIB_TaiLieu.Any(tl => tl.FileTaiLieu == fileTaiLieuFileName);
+                    if (isFileExist)
+                    {
+                        return Json(new { success = false, error = "File tài liệu đã tồn tại trong hệ thống." });
+                    }
+
                     if (FileTaiLieu.ContentLength > 4 * 1024 * 1024) // 4MB limit
                     {
                         return Json(new { success = false, message = "File tài liệu không được vượt quá 4MB." });
                     }
 
-                    var fileTaiLieuFileName = Path.GetFileName(FileTaiLieu.FileName);
+                  
                     var fileTaiLieuPath = Path.Combine(Server.MapPath("~/Documents"), fileTaiLieuFileName);
                     FileTaiLieu.SaveAs(fileTaiLieuPath);
                     document.FileTaiLieu = fileTaiLieuFileName;
@@ -91,6 +107,7 @@ namespace QuanLyThuVien_DA.Areas.Admin.Controllers
             }
             return Json(new { success = false, message = "Invalid data" });
         }
+
 
         [HttpPost]
         public async Task<ActionResult> Edit(FITHOU_LIB_TaiLieu docu, HttpPostedFileBase AnhNen, HttpPostedFileBase FileTaiLieu)
@@ -122,6 +139,12 @@ namespace QuanLyThuVien_DA.Areas.Admin.Controllers
                         }
 
                         var fileTaiLieuFileName = Path.GetFileName(FileTaiLieu.FileName);
+
+                        bool isFileExist = db.FITHOU_LIB_TaiLieu.Any(tl => tl.FileTaiLieu == fileTaiLieuFileName);
+                        if (isFileExist)
+                        {
+                            return Json(new { success = false, error = "File tài liệu đã tồn tại trong hệ thống." });
+                        }
                         var fileTaiLieuPath = Path.Combine(Server.MapPath("~/Documents"), fileTaiLieuFileName);
                         FileTaiLieu.SaveAs(fileTaiLieuPath);
                         existingDocu.FileTaiLieu = fileTaiLieuFileName;
@@ -132,6 +155,8 @@ namespace QuanLyThuVien_DA.Areas.Admin.Controllers
                     existingDocu.TacGia = docu.TacGia;
                     existingDocu.MoTa = docu.MoTa;
                     existingDocu.TheLoaiTaiLieuID = docu.TheLoaiTaiLieuID;
+                    existingDocu.TuKhoaTuDo = docu.TuKhoaTuDo;
+                    existingDocu.NamXB = docu.NamXB;
                     existingDocu.UserID = docu.UserID;
 
                     await db.SaveChangesAsync();
@@ -142,10 +167,6 @@ namespace QuanLyThuVien_DA.Areas.Admin.Controllers
             return Json(new { success = false });
         }
 
-        public ActionResult Delete()
-        {
-            return View();
-        }
 
         [HttpPost]
         public async Task<ActionResult> Delete(int ID)
@@ -177,6 +198,8 @@ namespace QuanLyThuVien_DA.Areas.Admin.Controllers
                 TenTaiLieu = document.TenTaiLieu,
                 MoTa = document.MoTa,
                 TacGia = document.TacGia,
+                TuKhoaTuDo = document.TuKhoaTuDo,
+                NamXB = (int)document.NamXB,
                 AnhNen = Url.Content("~/Image/" + document.AnhNen), // Điều chỉnh đường dẫn
                 FileTaiLieu = Url.Content("~/Documents/" + document.FileTaiLieu), // Điều chỉnh đường dẫn
                 TheLoaiTaiLieuID = db.FITHOU_LIB_TheLoaiTaiLieu.Find(document.TheLoaiTaiLieuID).ID

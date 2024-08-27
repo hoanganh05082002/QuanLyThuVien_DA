@@ -9,8 +9,7 @@
     var userName = Session["UserName"];
     var userRole = Session["UserRole"];
 }
-
-
+<link href="~/Interface/vendor/fontawesome-pro-6.0.0-beta3-web/fontawesome-pro-6.0.0-beta3-web/css/all.min.css" rel="stylesheet" />
 <h2 class="font-weight-bold mb-4 text-primary">Danh sách tài liệu</h2>
 
 <div class="container">
@@ -24,8 +23,11 @@
                         <option value="@item.Value">@item.Text</option>
                     }
                 </select>
-                <input type="text" id="searchTerm" name="searchTerm" class="form-control mr-sm-2" placeholder="Tìm kiếm tài liệu">
-                <button type="button" class="btn btn-primary" onclick="searchDocuments()">Tìm kiếm</button>
+                <input type="text" id="searchTerm" name="searchTerm" class="form-control mr-sm-2" placeholder="Tìm kiếm tài liệu" value="@ViewBag.SearchTerm">
+                <button type="button" class="btn btn-primary mr-sm-2" onclick="searchDocuments()">Tìm kiếm</button>
+                <button type="button" class="btn btn-warning" onclick="resetSearch()">
+                    <i class="fa fa-arrow-rotate-right"></i>
+                </button>
             </form>
         </div>
     </div>
@@ -81,76 +83,83 @@
 
 @section Scripts {
     <script>
-    function searchDocuments(page = 1) {
-    var searchTerm = $('#searchTerm').val();
-    var categoryId = $('#TheLoaiTaiLieuID').val();
+        function searchDocuments(page = 1) {
+            var searchTerm = $('#searchTerm').val();
+            var categoryId = $('#TheLoaiTaiLieuID').val();
 
-    // If "Tất cả" is selected, set categoryId to null or empty string
-    if (categoryId === "") {
-        categoryId = null;
-    }
+            // If "Tất cả" is selected, set categoryId to null or empty string
+            if (categoryId === "") {
+                categoryId = null;
+            }
 
-    $.ajax({
-        url: '@Url.Action("GetDocumentsByCategory", "Home")',
-        type: 'GET',
-        data: {
-            TheLoaiTaiLieuID: categoryId,
-            searchTerm: searchTerm,
-            page: page
-        },
-        success: function (response) {
-            var documentList = $('#documentList');
-            documentList.empty();
-           if (response.documents.length > 0) {
-                $.each(response.documents, function (index, document) {
-                    var documentHtml = '<div class="col-md-2_4 col-sm-6 mb-4">' +
-                        '<div class="card">' +
-                        '<a href="/Home/Details/' + document.ID + '">' +
-                        '<img src="@Url.Content("~/Image/")' + document.AnhNen + '" class="card-img-top" alt="' + document.TenTaiLieu + '">' +
-                        '</a>' +
-                        '<div class="card-body">' +
-                        '<h5 class="card-title" data-toggle="tooltip" title="' + document.TenTaiLieu + '">' +
-                        '<a href="/Home/Details/' + document.ID + '" class="text-black">' + document.TenTaiLieu + '</a>' +
-                        '</h5>' +
-                        '</div>' +
-                        '</div>' +
-                        '</div>';
-                    documentList.append(documentHtml);
-                });
-            } else {
-                documentList.append('<div class="col-md-12"><p class="text-center">Không tìm thấy tài liệu phù hợp.</p></div>');
-            }
-            var pagination = $('#pagination');
-            pagination.empty();
-            var paginationHtml = '<nav aria-label="Page navigation example"><ul class="pagination">';
-            if (response.pagination.PageNumber > 1) {
-                paginationHtml += '<li class="page-item"><a class="page-link" href="#" onclick="searchDocuments(' + (response.pagination.PageNumber - 1) + ')" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>';
-            }
-            for (var i = 1; i <= response.pagination.PageTotal; i++) {
-                paginationHtml += '<li class="page-item ' + (i == response.pagination.PageNumber ? "active" : "") + '"><a class="page-link" href="#" onclick="searchDocuments(' + i + ')">' + i + '</a></li>';
-            }
-            if (response.pagination.PageNumber < response.pagination.PageTotal) {
-                paginationHtml += '<li class="page-item"><a class="page-link" href="#" onclick="searchDocuments(' + (response.pagination.PageNumber + 1) + ')" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>';
-            }
-          
-            paginationHtml += '</ul></nav>';
-            pagination.append(paginationHtml);
+            $.ajax({
+                url: '@Url.Action("GetDocumentsByCategory", "Home")',
+                type: 'GET',
+                data: {
+                    TheLoaiTaiLieuID: categoryId,
+                    searchTerm: searchTerm,
+                    page: page
+                },
+                success: function (response) {
+                    var documentList = $('#documentList');
+                    documentList.empty();
+                    if (response.documents.length > 0) {
+                        $.each(response.documents, function (index, document) {
+                            var documentHtml = '<div class="col-md-2_4 col-sm-6 mb-4">' +
+                                '<div class="card">' +
+                                '<a href="/Home/Details/' + document.ID + '">' +
+                                '<img src="@Url.Content("~/Image/")' + document.AnhNen + '" class="card-img-top" alt="' + document.TenTaiLieu + '">' +
+                                '</a>' +
+                                '<div class="card-body">' +
+                                '<h5 class="card-title" data-toggle="tooltip" title="' + document.TenTaiLieu + '">' +
+                                '<a href="/Home/Details/' + document.ID + '" class="text-black">' + document.TenTaiLieu + '</a>' +
+                                '</h5>' +
+                                '</div>' +
+                                '</div>' +
+                                '</div>';
+                            documentList.append(documentHtml);
+                        });
+                    } else {
+                        documentList.append('<div class="col-md-12"><p class="text-center">Không tìm thấy tài liệu phù hợp.</p></div>');
+                    }
+                    var pagination = $('#pagination');
+                    pagination.empty();
+                    var paginationHtml = '<nav aria-label="Page navigation example"><ul class="pagination">';
+                    if (response.pagination.PageNumber > 1) {
+                        paginationHtml += '<li class="page-item"><a class="page-link" href="#" onclick="searchDocuments(' + (response.pagination.PageNumber - 1) + ')" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>';
+                    }
+                    for (var i = 1; i <= response.pagination.PageTotal; i++) {
+                        paginationHtml += '<li class="page-item ' + (i == response.pagination.PageNumber ? "active" : "") + '"><a class="page-link" href="#" onclick="searchDocuments(' + i + ')">' + i + '</a></li>';
+                    }
+                    if (response.pagination.PageNumber < response.pagination.PageTotal) {
+                        paginationHtml += '<li class="page-item"><a class="page-link" href="#" onclick="searchDocuments(' + (response.pagination.PageNumber + 1) + ')" aria-label="Next"><span aria-hidden="true">&raquo;</span></a></li>';
+                    }
+
+                    paginationHtml += '</ul></nav>';
+                    pagination.append(paginationHtml);
+                }
+            });
         }
-    });
-}
 
-    $('#TheLoaiTaiLieuID').change(function () {
-        searchDocuments();
-    });
-
-    // Trigger search on enter key press in the search box
-    $('#searchTerm').on('keypress', function (e) {
-        if (e.which == 13) {
+        function resetSearch() {
+            $('#TheLoaiTaiLieuID').val('');
+            $('#searchTerm').val('');
             searchDocuments();
         }
-    });
+
+        $('#TheLoaiTaiLieuID').change(function () {
+            searchDocuments();
+        });
+
+        // Trigger search on enter key press in the search box
+        $('#searchTerm').on('keypress', function (e) {
+            if (e.which == 13) {
+                searchDocuments();
+            }
+        });
     </script>
 }
+
 
 
 <style>
@@ -159,6 +168,7 @@
         text-overflow: ellipsis;
         margin-bottom: 0; /* Optional: Remove default margin bottom */
     }
+
     .card-img-top {
         width: 100%; /* Đảm bảo ảnh rộng bằng 100% chiều rộng của thẻ cha */
         height: auto; /* Đảm bảo chiều cao tự điều chỉnh để giữ tỷ lệ */
@@ -167,16 +177,17 @@
         max-height: 200px; /* Giới hạn chiều cao tối đa của ảnh để tránh quá lớn */
     }
 
-        .card-title:hover {
-            width: auto; /* Thay đổi chiều rộng khi hover */
-            overflow: visible; /* Hiển thị đầy đủ nội dung */
-        }
+    .card-title:hover {
+        width: auto; /* Thay đổi chiều rộng khi hover */
+        overflow: visible; /* Hiển thị đầy đủ nội dung */
+    }
 
     h2 {
         text-align: center; /* Căn giữa nội dung của h2 */
         margin-top: 20px; /* Khoảng cách từ trên xuống */
         margin-bottom: 20px; /* Khoảng cách từ dưới lên */
     }
+
     span {
         color: black;
     }

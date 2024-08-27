@@ -7,32 +7,38 @@
     </a>
 
     <div class="dropdown-menu dropdown-menu-right mr-5" id="notification-container" aria-labelledby="notification-button">
-        @foreach (var notification in Model)
+        @if (!Model.Any())
         {
-            var cssClass = notification.TrangThai == true ? "notification-item read" : "notification-item unread";
-            <div class="notification-item unread" data-id="@notification.ID">
-                @if (notification.NoiDung.Contains("Bài đăng của bạn đã được phê duyệt"))
-                {
-                    <a class="dropdown-item" href="@Url.RouteUrl("Default", new { controller = "Forum", action = "Details", id = notification.BaiDangID })">
-                        @Html.Raw(notification.NoiDung)
-                    </a>
-                }
-                else if (notification.NoiDung.Contains("Bài đăng của bạn đã bị từ chối"))
-                {
-                    <a class="dropdown-item" href="@Url.RouteUrl("Default", new { controller = "Forum", action = "RefuseDetails", id = notification.BaiDangID })">
-                        <span>@Html.Raw(notification.NoiDung)</span>
-                    </a>
-                }
-                else
-                {
-                    <span class="dropdown-item">@Html.Raw(notification.NoiDung)</span>
-                }
-            </div>
-            <div class="dropdown-divider"></div>
+            <span class="dropdown-item">Không có thông báo nào được hiển thị</span>
+        }
+        else
+        {
+            foreach (var notification in Model)
+            {
+                var cssClass = notification.TrangThai == true ? "notification-item read" : "notification-item unread";
+                <div class="@cssClass" data-id="@notification.ID">
+                    @if (notification.NoiDung.Contains("Bài đăng của bạn đã được phê duyệt"))
+                    {
+                        <a class="dropdown-item" href="@Url.RouteUrl("Default", new { controller = "Forum", action = "Details", id = notification.BaiDangID })">
+                            @Html.Raw(notification.NoiDung)
+                        </a>
+                    }
+                    else if (notification.NoiDung.Contains("Bài đăng của bạn đã bị từ chối"))
+                    {
+                        <a class="dropdown-item" href="@Url.RouteUrl("Default", new { controller = "Forum", action = "RefuseDetails", id = notification.BaiDangID })">
+                            <span>@Html.Raw(notification.NoiDung)</span>
+                        </a>
+                    }
+                    else
+                    {
+                        <span class="dropdown-item">@Html.Raw(notification.NoiDung)</span>
+                    }
+                </div>
+                <div class="dropdown-divider"></div>
+            }
         }
     </div>
 </div>
-
 
 
 <script>

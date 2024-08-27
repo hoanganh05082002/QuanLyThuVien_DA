@@ -25,5 +25,7 @@ namespace QuanLyThuVien_DA.Models
         public string FileTaiLieu { get; set; }
         public Nullable<System.DateTime> NgayTai { get; set; }
         public int SoLuotTruyCap { get; set; }
+        public string TuKhoaTuDo { get; set; }
+        public Nullable<int> NamXB { get; set; }
     }
 }

@@ -25,7 +25,7 @@
     <div class="modal-dialog modal-lg">
         <!-- Sử dụng lớp modal-lg để làm modal rộng hơn -->
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title" id="createModalLabel">Thêm mới tin tức</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -35,48 +35,59 @@
                     <input type="hidden" id="UserID" name="UserID" value="@userId">
 
                     <!-- Tiêu đề -->
-                    <div class="row mb-3">
+                    <div class="mb-3 row">
                         <label for="TieuDe" class="col-sm-3 col-form-label text-end">Tiêu đề</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" id="TieuDe" name="TieuDe" required>
+                            <input type="text" class="form-control" id="TieuDe" name="TieuDe" placeholder="Nhập tiêu đề" required>
+                            <div class="invalid-feedback">
+                                Vui lòng nhập tiêu đề.
+                            </div>
                         </div>
                     </div>
 
                     <!-- Nội dung -->
-                    <div class="row mb-3">
+                    <div class="mb-3 row">
                         <label for="NoiDung" class="col-sm-3 col-form-label text-end">Nội dung</label>
                         <div class="col-sm-9">
-                            <textarea class="form-control" id="NoiDung" name="NoiDung"></textarea>
+                            <textarea class="form-control" id="NoiDung" name="NoiDung" rows="4" placeholder="Nhập nội dung"></textarea>
+                            <div class="invalid-feedback">
+                                Vui lòng nhập nội dung.
+                            </div>
                         </div>
                     </div>
 
                     <!-- Người thêm -->
-                    <div class="row mb-3">
+                    <div class="mb-3 row">
                         <label for="HoTen" class="col-sm-3 col-form-label text-end">Người thêm</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" id="HoTen" name="HoTen" readonly required>
+                            <input type="text" class="form-control bg-light" id="HoTen" name="HoTen" value="@userName" readonly required>
+                            <div class="invalid-feedback">
+                                Vui lòng xác nhận người thêm.
+                            </div>
                         </div>
                     </div>
 
                     <!-- Ảnh nền -->
-                    <div class="row mb-3">
+                    <div class="mb-3 row">
                         <label for="AnhNen" class="col-sm-3 col-form-label text-end">Ảnh nền</label>
                         <div class="col-sm-9">
-                            <input type="file" class="form-control mb-2" id="AnhNen" name="AnhNen" />
-                            <img id="currentAnhNen" src="#" alt="Current Image" style="display:none; width:100px; height:auto;" />
-                            <span id="AnhNenFileName" style="display:none; margin-left: 10px;"></span>
+                            <input type="file" class="form-control" id="AnhNen" name="AnhNen" accept="image/*">
+                            <div class="mt-2" id="imagePreviewContainer" style="display:none;">
+                                <img id="currentAnhNen" src="#" alt="Current Image" class="img-fluid" style="max-width: 100px; height: auto;" />
+                                <span id="AnhNenFileName" class="ms-2"></span>
+                            </div>
                         </div>
                     </div>
                 </form>
             </div>
-
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="saveChangesBtn">Save changes</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" id="saveChangesBtn">Lưu</button>
             </div>
         </div>
     </div>
 </div>
+
 
 
 <div>
@@ -319,7 +330,7 @@
                             showToast('Thêm tin tức thành công!', 'success');
                             reloadNewTable(currentPageNumber);
                         } else {
-                            showToast('Lỗi khi thêm tin tức!', 'danger');
+                            showToast(response.error || 'Lỗi khi thêm tin tức!', 'danger');
                         }
                     },
                     error: function () {
@@ -353,7 +364,7 @@
                             showToast('Cập nhật tin tức thành công!', 'success');
                             reloadNewTable(currentPageNumber);
                         } else {
-                            showToast('Lỗi khi cập nhật tin tức!', 'danger');
+                            showToast(response.error ||  'Lỗi khi cập nhật tin tức!', 'danger');
                         }
                     },
                     error: function () {

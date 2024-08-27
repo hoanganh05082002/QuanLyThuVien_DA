@@ -126,6 +126,20 @@ namespace QuanLyThuVien_DA.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
+                // Check for duplicate email
+                bool emailExists = db.FITHOU_LIB_Users.Any(u => u.Email == user.Email);
+                if (emailExists)
+                {
+                    return Json(new { success = false, message = "Email đã tồn tại." });
+                }
+
+                // Check for duplicate phone number
+                bool phoneExists = db.FITHOU_LIB_Users.Any(u => u.SoDienThoai == user.SoDienThoai);
+                if (phoneExists)
+                {
+                    return Json(new { success = false, message = "Số điện thoại đã tồn tại." });
+                }
+
                 // Hash the password before saving
                 user.MatKhauHash = BCrypt.Net.BCrypt.HashPassword(user.MatKhauHash);
                 user.TrangThai = true;
@@ -136,7 +150,6 @@ namespace QuanLyThuVien_DA.Areas.Admin.Controllers
 
             return Json(new { success = false });
         }
-
         [HttpPost]
         public async Task<ActionResult> Edit(FITHOU_LIB_Users user)
         {
@@ -146,6 +159,20 @@ namespace QuanLyThuVien_DA.Areas.Admin.Controllers
                 if (existingUser == null)
                 {
                     return HttpNotFound();
+                }
+
+                // Check for duplicate email
+                bool emailExists = await db.FITHOU_LIB_Users.AnyAsync(u => u.Email == user.Email && u.ID != user.ID);
+                if (emailExists)
+                {
+                    return Json(new { success = false, message = "Email đã tồn tại." });
+                }
+
+                // Check for duplicate phone number
+                bool phoneExists = await db.FITHOU_LIB_Users.AnyAsync(u => u.SoDienThoai == user.SoDienThoai && u.ID != user.ID);
+                if (phoneExists)
+                {
+                    return Json(new { success = false, message = "Số điện thoại đã tồn tại." });
                 }
 
                 // Update user details
@@ -169,6 +196,7 @@ namespace QuanLyThuVien_DA.Areas.Admin.Controllers
 
             return Json(new { success = false });
         }
+
 
 
         [HttpPost]

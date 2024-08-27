@@ -2833,6 +2833,7 @@
     <Content Include="Image\FITHOULIB-Logo.png" />
     <Content Include="Image\KienTrucMayTinh.png" />
     <Content Include="Image\PTTK-NguyenHoangAnh.png" />
+    <Content Include="Image\DoAnTotNgiepFull_NHA.png" />
     <Content Include="Interface\css\sb-admin-2.css" />
     <Content Include="Interface\css\sb-admin-2.min.css" />
     <Content Include="Interface\img\undraw_posting_photo.svg" />
@@ -5980,6 +5981,7 @@
     <Content Include="Content\bold-reports\bootstrap4\icons\ejicons.woff" />
     <Content Include="Content\bold-reports\bootstrap4\icons\ejicons.ttf" />
     <Content Include="Content\bold-reports\bootstrap4\icons\ejicons.eot" />
+    <Content Include="Documents\Đồ án tốt nghiệp - Nguyễn Hoàng Anh - 2010A01.pdf" />
     <None Include="Scripts\jquery-3.4.1.intellisense.js" />
     <Content Include="Scripts\CodeMirror\addon\comment\comment.js" />
     <Content Include="Scripts\CodeMirror\addon\comment\continuecomment.js" />

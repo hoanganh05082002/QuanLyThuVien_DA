@@ -33,6 +33,8 @@ namespace QuanLyThuVien_DA.Controllers
                             TacGia = docu.TacGia,
                             FileTaiLieu = docu.FileTaiLieu,
                             NgayTai = (DateTime)docu.NgayTai,
+                            NamXB = (int) docu.NamXB,
+                            TuKhoaTuDo = docu.TuKhoaTuDo
                         };
 
             // Apply filter by category
@@ -44,7 +46,7 @@ namespace QuanLyThuVien_DA.Controllers
             // Apply search term filter
             if (!string.IsNullOrEmpty(searchTerm))
             {
-                query = query.Where(x => x.TenTaiLieu.Contains(searchTerm));
+                query = query.Where(x => x.TuKhoaTuDo.Contains(searchTerm));
             }
 
             var totalCount = query.Count();
@@ -60,14 +62,73 @@ namespace QuanLyThuVien_DA.Controllers
                 PageTotal = (int)Math.Ceiling((double)totalCount / pageSize)
             };
 
-            ViewBag.TheLoaiList = new SelectList(db.FITHOU_LIB_TheLoaiTaiLieu.ToList(), "ID", "TenTheLoai");
+            // Lấy danh sách các loại tài liệu có ít nhất một tài liệu
+            var theLoaiWithDocuments = db.FITHOU_LIB_TheLoaiTaiLieu
+                .Where(tl => db.FITHOU_LIB_TaiLieu.Any(t => t.TheLoaiTaiLieuID == tl.ID))
+                .ToList();
+
+            // Gán danh sách vào ViewBag để sử dụng trong View
+            ViewBag.TheLoaiList = new SelectList(theLoaiWithDocuments, "ID", "TenTheLoai");
+
             ViewBag.Pagination = pagination;
+
             ViewBag.TheLoaiTaiLieuID = TheLoaiTaiLieuID;
+
             ViewBag.SearchTerm = searchTerm;
 
             return View(documents);
         }
 
+        public ActionResult GetDocumentsByCategory(int? TheLoaiTaiLieuID, string searchTerm, int? page)
+        {
+            int pageSize = 5;
+            int pageNumber = (page ?? 1);
+
+            var query = from cate in db.FITHOU_LIB_TheLoaiTaiLieu
+                        join docu in db.FITHOU_LIB_TaiLieu on cate.ID equals docu.TheLoaiTaiLieuID
+                        select new FITHOU_LIB_DocumentsView
+                        {
+                            ID = docu.ID,
+                            TheLoaiTaiLieuID = cate.ID,
+                            TenTheLoai = cate.TenTheLoai,
+                            TenTaiLieu = docu.TenTaiLieu,
+                            AnhNen = docu.AnhNen,
+                            TieuDe = docu.TieuDe,
+                            MoTa = docu.MoTa,
+                            TacGia = docu.TacGia,
+                            FileTaiLieu = docu.FileTaiLieu,
+                            NgayTai = (DateTime)docu.NgayTai,
+                            NamXB = (int)docu.NamXB,
+                            TuKhoaTuDo = docu.TuKhoaTuDo
+                        };
+
+            // Apply filter by category
+            if (TheLoaiTaiLieuID.HasValue)
+            {
+                query = query.Where(x => x.TheLoaiTaiLieuID == TheLoaiTaiLieuID.Value);
+            }
+
+            // Apply search term filter
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                query = query.Where(x => x.TuKhoaTuDo.Contains(searchTerm));
+            }
+
+            var totalCount = query.Count();
+            var documents = query.OrderBy(x => x.ID)
+                                 .Skip((pageNumber - 1) * pageSize)
+                                 .Take(pageSize)
+                                 .ToList();
+
+            var pagination = new PaginationViewModel
+            {
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                PageTotal = (int)Math.Ceiling((double)totalCount / pageSize)
+            };
+
+            return Json(new { documents, pagination }, JsonRequestBehavior.AllowGet);
+        }
         public async Task<ActionResult> Details(int? id)
         {
             if (id == null)
@@ -90,6 +151,8 @@ namespace QuanLyThuVien_DA.Controllers
                                       TheLoaiTaiLieuID = cate.ID,
                                       FileTaiLieu = docu.FileTaiLieu,
                                       NgayTai = (DateTime)docu.NgayTai,
+                                      NamXB = (int)docu.NamXB,
+                                      TuKhoaTuDo = docu.TuKhoaTuDo,
                                       SoLuotTruyCap = (int)docu.SoLuotTruyCap
                                   }).FirstOrDefaultAsync();
 
@@ -140,8 +203,6 @@ namespace QuanLyThuVien_DA.Controllers
 
             return View(document);
         }
-
-
         public ActionResult InforFITHOU()
         {
             return View();
@@ -167,8 +228,7 @@ namespace QuanLyThuVien_DA.Controllers
 
             if (userId == null)
             {
-                // Handle case when userId is not found in Session
-                // For example, redirect to login page or handle error
+
                 return RedirectToAction("Login", "Home");
             }
 
@@ -219,6 +279,12 @@ namespace QuanLyThuVien_DA.Controllers
             // Store access history in ViewBag or use a ViewModel
             ViewBag.AccessHistory = accessHistory;
 
+            // Check if the request is an AJAX request
+            if (Request.IsAjaxRequest())
+            {
+                return PartialView("_LichSuTruyCap", accessHistory);
+            }
+
             // Return the view with the single Users model
             return View(user);
         }
@@ -245,12 +311,12 @@ namespace QuanLyThuVien_DA.Controllers
         {
             var existingUser = db.FITHOU_LIB_Users
                 .FirstOrDefault(u => u.MaSinhVien == user.MaSinhVien && u.TrangThai == true);
+          
 
             if (existingUser != null)
             {
                 // Verify the password
                 bool isPasswordValid = BCrypt.Net.BCrypt.Verify(user.MatKhauHash, existingUser.MatKhauHash);
-
                 if (isPasswordValid)
                 {
                     // Save user information in Session
@@ -263,12 +329,7 @@ namespace QuanLyThuVien_DA.Controllers
                     // Set session timeout
                     Session.Timeout = 120; // Session timeout set to 120 minutes
 
-                    if (existingUser.TrangThai == false)
-                    {
-                        ViewBag.ErrorMessage = "Tài khoản này đã bị vô hiệu hóa";
-                        return View();
-                    }
-
+                
                     // Check if it's the user's first login
                     if (existingUser.isFirstLogin == false)
                     {
@@ -285,9 +346,17 @@ namespace QuanLyThuVien_DA.Controllers
                     }
                 }
             }
+            else if (user.TrangThai == false)
+            {
+                ViewBag.ErrorMessage = "Tài khoản này đã bị vô hiệu hóa";
+                return View();
+            }
+            else
+            {
+                ViewBag.ErrorMessage = "Tài khoản hoặc mật khẩu không đúng";
+                return View();
+            }
 
-            // Handle incorrect login information (e.g., display an error message)
-            ViewBag.ErrorMessage = "Mã sinh viên hoặc mật khẩu không đúng.";
             return View();
         }
 
@@ -443,52 +512,7 @@ namespace QuanLyThuVien_DA.Controllers
             return password;
         }
 
-        public ActionResult GetDocumentsByCategory(int? TheLoaiTaiLieuID, string searchTerm, int? page)
-        {
-            int pageSize = 5;
-            int pageNumber = (page ?? 1);
-
-            var query = from cate in db.FITHOU_LIB_TheLoaiTaiLieu
-                        join docu in db.FITHOU_LIB_TaiLieu on cate.ID equals docu.TheLoaiTaiLieuID
-                        select new FITHOU_LIB_DocumentsView
-                        {
-                            ID = docu.ID,
-                            TheLoaiTaiLieuID = cate.ID,
-                            TenTheLoai = cate.TenTheLoai,
-                            TenTaiLieu = docu.TenTaiLieu,
-                            AnhNen = docu.AnhNen,
-                            TieuDe = docu.TieuDe,
-                            MoTa = docu.MoTa,
-                            TacGia = docu.TacGia,
-                            FileTaiLieu = docu.FileTaiLieu,
-                            NgayTai = (DateTime)docu.NgayTai,
-                        };
-
-            if (TheLoaiTaiLieuID.HasValue)
-            {
-                query = query.Where(x => x.TheLoaiTaiLieuID == TheLoaiTaiLieuID.Value);
-            }
-
-            if (!string.IsNullOrEmpty(searchTerm))
-            {
-                query = query.Where(x => x.TenTaiLieu.Contains(searchTerm));
-            }
-
-            var totalCount = query.Count();
-            var documents = query.OrderBy(x => x.ID)
-                                 .Skip((pageNumber - 1) * pageSize)
-                                 .Take(pageSize)
-                                 .ToList();
-
-            var pagination = new PaginationViewModel
-            {
-                PageNumber = pageNumber,
-                PageSize = pageSize,
-                PageTotal = (int)Math.Ceiling((double)totalCount / pageSize)
-            };
-
-            return Json(new { documents, pagination }, JsonRequestBehavior.AllowGet);
-        }
+     
 
 
         [HttpGet]

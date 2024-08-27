@@ -50,8 +50,17 @@ namespace QuanLyThuVien_DA.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
+                // Kiểm tra xem tên Thể Loại đã tồn tại trong bảng Thể Loại hay chưa
+               
+
                 try
                 {
+                    bool isExist = db.FITHOU_LIB_TheLoaiTaiLieu.Any(tl => tl.TenTheLoai == cate.TenTheLoai);
+                    if (isExist)
+                    {
+                        return Json(new { success = false, error = "Tên Thể Loại đã tồn tại trong hệ thống." });
+                    }
+
                     db.FITHOU_LIB_TheLoaiTaiLieu.Add(cate);
                     db.SaveChanges();
                     return Json(new { success = true });

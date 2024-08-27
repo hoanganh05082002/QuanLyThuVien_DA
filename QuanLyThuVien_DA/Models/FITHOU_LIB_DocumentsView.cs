@@ -21,5 +21,9 @@ namespace QuanLyThuVien_DA.Models
         public DateTime NgayTai { get; set; }
         public int UserID { get; set; }
         public int TheLoaiTaiLieuID { get; set; }
+
+        public int NamXB {  get; set; }
+
+        public string TuKhoaTuDo { get; set; }
     }
 }

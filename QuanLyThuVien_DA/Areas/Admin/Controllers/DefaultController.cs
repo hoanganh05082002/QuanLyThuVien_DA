@@ -63,6 +63,18 @@ namespace QuanLyThuVien_DA.Areas.Admin.Controllers
 
         public ActionResult ExportToExcel(DateTime? startDate, DateTime? endDate)
         {
+            // If no start date is provided, use the minimum date from the database
+            if (!startDate.HasValue)
+            {
+                startDate = db.FITHOU_LIB_LichSuTruyCap.Min(ls => ls.ThoiGian);
+            }
+
+            // If no end date is provided, use the current date
+            if (!endDate.HasValue)
+            {
+                endDate = DateTime.Now;
+            }
+
             var accessDataQuery = db.FITHOU_LIB_LichSuTruyCap
                .Join(db.FITHOU_LIB_TaiLieu,
                      ls => ls.TaiLieuID,

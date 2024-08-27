@@ -61,6 +61,8 @@
           <Property Name="FileTaiLieu" Type="nvarchar" MaxLength="2000" />
           <Property Name="NgayTai" Type="datetime" />
           <Property Name="SoLuotTruyCap" Type="int" Nullable="false" />
+          <Property Name="TuKhoaTuDo" Type="nvarchar(max)" />
+          <Property Name="NamXB" Type="int" />
         </EntityType>
         <EntityType Name="FITHOU_LIB_TinTucSuKien">
           <Key>
@@ -183,6 +185,8 @@
           <Property Name="FileTaiLieu" Type="String" MaxLength="2000" FixedLength="false" Unicode="true" />
           <Property Name="NgayTai" Type="DateTime" Precision="3" />
           <Property Name="SoLuotTruyCap" Type="Int32" Nullable="false" />
+          <Property Name="TuKhoaTuDo" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="NamXB" Type="Int32" />
         </EntityType>
         <EntityType Name="FITHOU_LIB_VaiTro">
           <Key>
@@ -290,6 +294,8 @@
           <EntitySetMapping Name="FITHOU_LIB_TaiLieu">
             <EntityTypeMapping TypeName="FITHOU_LIBModel.FITHOU_LIB_TaiLieu">
               <MappingFragment StoreEntitySet="FITHOU_LIB_TaiLieu">
+                <ScalarProperty Name="NamXB" ColumnName="NamXB" />
+                <ScalarProperty Name="TuKhoaTuDo" ColumnName="TuKhoaTuDo" />
                 <ScalarProperty Name="SoLuotTruyCap" ColumnName="SoLuotTruyCap" />
                 <ScalarProperty Name="NgayTai" ColumnName="NgayTai" />
                 <ScalarProperty Name="FileTaiLieu" ColumnName="FileTaiLieu" />

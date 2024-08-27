@@ -1,6 +1,6 @@
 ﻿@model IEnumerable<QuanLyThuVien_DA.Models.FITHOU_LIB_HistoryView>
 
-@if (ViewBag.AccessHistory != null && ViewBag.AccessHistory.Count > 0)
+@if (Model != null && Model.Count() > 0)
 {
     <div id="history-table" class="access-history">
         <table class="table">
@@ -12,7 +12,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in ViewBag.AccessHistory)
+                @foreach (var item in Model)
                 {
                     <tr>
                         <td>@item.TenTaiLieu</td>
@@ -63,31 +63,30 @@
 }
 else
 {
-    <p class="text-center">Không có lịch sử truy cập </p>
+    <p class="text-center">Không có lịch sử truy cập</p>
 }
 
 @section Scripts {
     <script>
-         var currentPageNumber = 1; // Biến để lưu số trang hiện tại
+         var currentPageNumber = 1; // Variable to store the current page number
 
          // Function to handle initial setup and event bindings
          function setupPage() {
              attachEventHandlers();
-             // Initial page load
              reloadHistoryTable(currentPageNumber);
          }
 
          // Call setupPage to initialize
          setupPage();
 
-         // Function to reload category table via AJAX
+         // Function to reload history table via AJAX
         function reloadHistoryTable(pageNumber) {
              var url = '@Url.Action("UserProfile", "Home")'; // Adjust URL as needed
              $.get(url, { page: pageNumber })
                  .done(function (data) {
-                     $('#history-table tbody').html($(data).find('#history-table tbody').html());
+                     $('#history-table').html($(data).find('#history-table').html());
                      $('#pagination').html($(data).find('#pagination').html());
-                     // Reattach event handlers for edit and delete buttons
+                     // Reattach event handlers for pagination links
                      attachEventHandlers();
                  })
                  .fail(function (xhr, status, error) {
@@ -96,16 +95,17 @@ else
                  });
          }
 
-         // Function to attach event handlers for edit and delete buttons
+         // Function to attach event handlers for pagination links
          function attachEventHandlers() {
              $('#pagination').off('click', '.page-link').on('click', '.page-link', function (e) {
                  e.preventDefault();
-                 var pageNumber = $(this).text().trim();
+                 var pageNumber = $(this).attr("href").split("page=")[1];
                  reloadHistoryTable(pageNumber);
              });
          }
     </script>
 }
+
 
 
 

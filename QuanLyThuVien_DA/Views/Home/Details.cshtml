@@ -18,11 +18,27 @@
             <img src="@Url.Content("~/Image/" + Model.AnhNen)" class="img-fluid custom-img-details" alt="@Model.TenTaiLieu">
         </div>
         <div class="col-md-6">
-            <p><strong>Tên tài liệu:</strong> @Model.TenTaiLieu</p>
+            <p><strong>Tiêu đề:</strong> @Model.TieuDe</p>
             <p><strong>Thể loại:</strong> @Model.TenTheLoai</p>
             <p><strong>Tác giả:</strong> @Model.TacGia</p>
             <p><strong>Mô tả:</strong> @Model.MoTa</p>
+            <p><strong>Năm xuất bản:</strong> @Model.NamXB</p>
+            <!-- Assuming you are using Razor syntax -->
+            <p>
+                <strong>Từ khóa tự do:</strong>
+                @if (!string.IsNullOrEmpty(Model.TuKhoaTuDo))
+                {
+                    var keywords = Model.TuKhoaTuDo.Split(','); // Assuming keywords are comma-separated
+                    foreach (var keyword in keywords)
+                    {
+                        <a href="@Url.Action("Index", "Home", new { searchTerm = keyword.Trim() })" class="keyword-link">@keyword</a>
+                        <span>; </span> <!-- Add a separator between keywords -->
+                    }
+                }
+            </p>
+
             <p><strong>Ngày tải:</strong> @Model.NgayTai.ToString("dd/MM/yyyy")</p>
+
             <p><strong>Số lượt truy cập:</strong> @Model.SoLuotTruyCap</p>
             @if (userID != null)
             {

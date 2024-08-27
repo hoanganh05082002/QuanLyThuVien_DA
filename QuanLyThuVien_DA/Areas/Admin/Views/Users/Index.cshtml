@@ -16,70 +16,88 @@
     <i class="fa fa-user-plus"></i>
 </button>
 
-@* Modal Thêm, Sửa *@
+<!-- Modal Thêm, Sửa -->
 <div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title" id="createModalLabel">Thêm người dùng</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="createForm" class="needs-validation" novalidate>
                     <input type="hidden" id="UserId" name="UserId">
-                    <div class="row mb-3">
+
+                    <!-- Họ Tên -->
+                    <div class="mb-3 row">
                         <label for="HoTen" class="col-sm-3 col-form-label text-end">Họ Tên</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" id="HoTen" name="HoTen" required>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <label for="MaSinhVien" class="col-sm-3 col-form-label text-end">Tài khoản</label>
-                        <div class="col-sm-9">
-                            <input type="text" class="form-control" id="MaSinhVien" name="MaSinhVien" required>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <label for="MatKhauHash" class="col-sm-3 col-form-label text-end">Mật Khẩu</label>
-                        <div class="col-sm-9">
-                            <input type="password" class="form-control" id="MatKhauHash" name="MatKhauHash" required>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <label for="SoDienThoai" class="col-sm-3 col-form-label text-end">Số Điện Thoại</label>
-                        <div class="col-sm-9">
-                            <input type="text" class="form-control" id="SoDienThoai" name="SoDienThoai" required>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <label for="Email" class="col-sm-3 col-form-label text-end">Email</label>
-                        <div class="col-sm-9">
-                            <input type="email" class="form-control" id="Email" name="Email" required>
+                            <input type="text" class="form-control" id="HoTen" name="HoTen" placeholder="Nhập họ tên" required>
+                            <div class="invalid-feedback">Vui lòng nhập họ tên.</div>
                         </div>
                     </div>
 
-                    <div class="row mb-3">
+                    <!-- Tài khoản -->
+                    <div class="mb-3 row">
+                        <label for="MaSinhVien" class="col-sm-3 col-form-label text-end">Tài khoản</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="MaSinhVien" name="MaSinhVien" placeholder="Nhập tài khoản" required>
+                            <div class="invalid-feedback">Vui lòng nhập tài khoản.</div>
+                        </div>
+                    </div>
+
+                    <!-- Mật Khẩu -->
+                    <div class="mb-3 row">
+                        <label for="MatKhauHash" class="col-sm-3 col-form-label text-end">Mật Khẩu</label>
+                        <div class="col-sm-9">
+                            <input type="password" class="form-control" id="MatKhauHash" name="MatKhauHash" placeholder="Nhập mật khẩu" required>
+                            <div class="invalid-feedback">Vui lòng nhập mật khẩu.</div>
+                        </div>
+                    </div>
+
+                    <!-- Số Điện Thoại -->
+                    <div class="mb-3 row">
+                        <label for="SoDienThoai" class="col-sm-3 col-form-label text-end">Số Điện Thoại</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="SoDienThoai" name="SoDienThoai" placeholder="Nhập số điện thoại" required>
+                            <div class="invalid-feedback">Vui lòng nhập số điện thoại.</div>
+                        </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="mb-3 row">
+                        <label for="Email" class="col-sm-3 col-form-label text-end">Email</label>
+                        <div class="col-sm-9">
+                            <input type="email" class="form-control" id="Email" name="Email" placeholder="Nhập email" required>
+                            <div class="invalid-feedback">Vui lòng nhập email hợp lệ.</div>
+                        </div>
+                    </div>
+
+                    <!-- Vai Trò -->
+                    <div class="mb-3 row">
                         <label for="VaiTro" class="col-sm-3 col-form-label text-end">Vai Trò</label>
                         <div class="col-sm-9">
                             <select class="form-control" id="VaiTro" name="VaiTro" required>
+                                <option value="" hidden>Chọn vai trò</option>
                                 <option value="Sinh viên">Sinh viên</option>
                                 <option value="Giảng viên">Giảng viên</option>
                                 <option value="Thủ thư">Thủ thư</option>
-                                @*<option value="Admin">Admin</option>*@
                                 <option value="Trưởng khoa">Trưởng khoa</option>
                             </select>
+                            <div class="invalid-feedback">Vui lòng chọn vai trò.</div>
                         </div>
                     </div>
+
                 </form>
             </div>
-
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="saveChangesBtn">Save changes</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" id="saveChangesBtn">Lưu thay đổi</button>
             </div>
         </div>
     </div>
 </div>
+
 
 
 <div>
@@ -318,7 +336,7 @@
                             showToast('Thêm thành công!', 'success');
                             reloadUserTable(currentPageNumber);
                         } else {
-                            showToast('Lỗi!', 'danger');
+                            showToast(response.error || 'Lỗi!', 'danger');
                         }
                     },
                     error: function (xhr, status, error) {
@@ -351,7 +369,7 @@
                             showToast('Cập nhật thành công!', 'success');
                             reloadUserTable(currentPageNumber);
                         } else {
-                            showToast('Lỗi!', 'danger');
+                            showToast(response.error || 'Lỗi!', 'danger');
                         }
                     },
                     error: function (xhr, status, error) {

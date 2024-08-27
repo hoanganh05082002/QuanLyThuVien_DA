@@ -90,7 +90,7 @@
      data-user-id="@userId" data-user-name="@userName" data-user-role="@userRole" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title" id="createModalLabel">Thêm mới thể loại</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -98,34 +98,49 @@
                 <form id="createForm" class="needs-validation" novalidate>
                     <input type="hidden" id="TheLoaiId" name="TheLoaiId">
                     <input type="hidden" id="UserID" name="UserID" value="@userId">
-                    <div class="row mb-3">
+
+                    <!-- Tên thể loại -->
+                    <div class="mb-3 row">
                         <label for="TenTheLoai" class="col-sm-3 col-form-label text-end">Tên thể loại</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" id="TenTheLoai" name="TenTheLoai" required>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <label for="MoTa" class="col-sm-3 col-form-label text-end">Mô tả</label>
-                        <div class="col-sm-9">
-                            <textarea class="form-control" id="MoTa" name="MoTa" rows="3" required></textarea>
+                            <input type="text" class="form-control" id="TenTheLoai" name="TenTheLoai" placeholder="Nhập tên thể loại" required>
+                            <div class="invalid-feedback">
+                                Vui lòng nhập tên thể loại.
+                            </div>
                         </div>
                     </div>
 
-                    <div class="row mb-3">
+                    <!-- Mô tả -->
+                    <div class="mb-3 row">
+                        <label for="MoTa" class="col-sm-3 col-form-label text-end">Mô tả</label>
+                        <div class="col-sm-9">
+                            <textarea class="form-control" id="MoTa" name="MoTa" rows="3" placeholder="Nhập mô tả" required></textarea>
+                            <div class="invalid-feedback">
+                                Vui lòng nhập mô tả.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Người thêm -->
+                    <div class="mb-3 row">
                         <label for="HoTen" class="col-sm-3 col-form-label text-end">Người thêm</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" id="HoTen" name="HoTen" readonly required>
+                            <input type="text" class="form-control bg-light" id="HoTen" name="HoTen" readonly required>
+                            <div class="invalid-feedback">
+                                Vui lòng xác nhận người thêm.
+                            </div>
                         </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="saveChangesBtn">Save changes</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" id="saveChangesBtn">Lưu</button>
             </div>
         </div>
     </div>
 </div>
+
 
 <!-- Modal Xóa -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
@@ -299,7 +314,7 @@
                             showToast('Thêm thành công!', 'success');
                             reloadCategoryTable(currentPageNumber); // Gọi lại với trang hiện tại
                         } else {
-                            showToast('Lỗi!', 'danger');
+                            showToast(response.error || 'Lỗi!', 'danger');
                         }
                     },
                     error: function (xhr, status, error) {

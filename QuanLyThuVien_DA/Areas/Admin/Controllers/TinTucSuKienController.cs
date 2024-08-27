@@ -1,6 +1,7 @@
 ﻿using QuanLyThuVien_DA.Models;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Data.Entity.Validation;
 using System.IO;
 using System.Linq;
@@ -71,6 +72,13 @@ namespace QuanLyThuVien_DA.Areas.Admin.Controllers
             {
                 try
                 {
+
+                    bool TitleExists = db.FITHOU_LIB_TinTucSuKien.Any(n => n.TieuDe == news.TieuDe);
+                    if (TitleExists)
+                    {
+                        return Json(new { success = false, message = "Tiêu đề đã tồn tại." });
+                    }
+
                     if (AnhNen != null && AnhNen.ContentLength > 0)
                     {
                         if (AnhNen.ContentLength > 4 * 1024 * 1024) // 4MB limit
@@ -117,12 +125,19 @@ namespace QuanLyThuVien_DA.Areas.Admin.Controllers
             {
                 try
                 {
+
                     var existingNew = await db.FITHOU_LIB_TinTucSuKien.FindAsync(news.ID);
                     if (existingNew != null)
                     {
                         existingNew.NoiDung = news.NoiDung;
                         existingNew.TieuDe = news.TieuDe;
                         existingNew.UserID = news.UserID;
+
+                        bool TitleExists = db.FITHOU_LIB_TinTucSuKien.Any(n => n.TieuDe == news.TieuDe);
+                        if (TitleExists)
+                        {
+                            return Json(new { success = false, message = "Tiêu đề đã tồn tại." });
+                        }
 
                         if (AnhNen != null && AnhNen.ContentLength > 0)
                         {

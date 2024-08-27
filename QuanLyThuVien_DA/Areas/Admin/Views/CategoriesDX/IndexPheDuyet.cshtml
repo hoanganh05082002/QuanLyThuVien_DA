@@ -91,46 +91,65 @@
      data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title" id="createModalLabel">Thêm mới thể loại</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="createForm" class="needs-validation" novalidate>
                     <input type="hidden" id="UserID" name="UserID" value="@userId">
-                    <div class="row mb-3">
+
+                    <!-- Danh sách đề xuất -->
+                    <div class="mb-3 row">
                         <label for="DeXuatTheLoaiID" class="col-sm-3 col-form-label text-end">DS đề xuất</label>
                         <div class="col-sm-9">
-                            <select class="form-control" id="DeXuatTheLoaiID" name="DeXuatTheLoaiID" required>
+                            <select class="form-select" id="DeXuatTheLoaiID" name="DeXuatTheLoaiID" required>
                                 <option value="" hidden>Chọn tên thể loại đề xuất</option>
-                                @foreach (var item in (SelectList)ViewBag.TheLoaiList)
-                                {
-                                    <option value="@item.Value">@item.Text</option>
-                                }
+
+                                    @foreach (var item in (IEnumerable<SelectListItem>)ViewBag.TheLoaiList)
+                                    {
+                                        <option value="@item.Value">@item.Text</option>
+                                    }
+    
                             </select>
+                            <div class="invalid-feedback">
+                                Vui lòng chọn tên thể loại đề xuất.
+                            </div>
                         </div>
                     </div>
-                    <div class="row mb-3">
+
+
+                    <!-- Mô tả -->
+                    <div class="mb-3 row">
                         <label for="MoTa" class="col-sm-3 col-form-label text-end">Mô tả</label>
                         <div class="col-sm-9">
-                            <textarea class="form-control" id="MoTa" name="MoTa" rows="3" required></textarea>
+                            <textarea class="form-control" id="MoTa" name="MoTa" rows="3" placeholder="Nhập mô tả" required></textarea>
+                            <div class="invalid-feedback">
+                                Vui lòng nhập mô tả.
+                            </div>
                         </div>
                     </div>
-                    <div class="row mb-3">
+
+                    <!-- Người thêm -->
+                    <div class="mb-3 row">
                         <label for="HoTen" class="col-sm-3 col-form-label text-end">Người thêm</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" id="HoTen" name="HoTen" value="@userName" readonly required>
+                            <input type="text" class="form-control bg-light" id="HoTen" name="HoTen" value="@userName" readonly required>
+                            <div class="invalid-feedback">
+                                Vui lòng xác nhận người thêm.
+                            </div>
                         </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="saveChangesBtn">Save changes</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" id="saveChangesBtn">Lưu</button>
             </div>
         </div>
     </div>
 </div>
+
 
 <!-- Toast -->
 <div aria-live="polite" aria-atomic="true" style="position: relative; z-index: 9999;">
@@ -165,7 +184,7 @@
 
             function resetModal() {
                 $('#createModalLabel').text('Thêm mới thể loại');
-                $('#saveChangesBtn').text('Save changes').off('click').on('click', function () {
+                $('#saveChangesBtn').text('Lưu').off('click').on('click', function () {
                     createCategory();
                 });
                 $('#createForm')[0].reset();

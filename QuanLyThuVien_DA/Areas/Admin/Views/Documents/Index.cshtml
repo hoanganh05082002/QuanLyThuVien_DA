@@ -21,21 +21,25 @@
      data-user-id="@userId" data-user-name="@userName" data-user-role="@userRole" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title" id="createModalLabel">Thêm mới tài liệu</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="createForm" class="needs-validation" novalidate enctype="multipart/form-data">
                     <input type="hidden" id="UserID" name="UserID" value="@userId">
-                    <div class="row mb-3">
+
+                    <!-- Tên tài liệu -->
+                    <div class="mb-3 row">
                         <label for="TenTaiLieu" class="col-sm-3 col-form-label text-end">Tên tài liệu</label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control" id="TenTaiLieu" name="TenTaiLieu" required />
+                            <input type="text" class="form-control" id="TenTaiLieu" name="TenTaiLieu" placeholder="Nhập tên tài liệu" required>
+                            <div class="invalid-feedback">Vui lòng nhập tên tài liệu.</div>
                         </div>
                     </div>
 
-                    <div class="row mb-3">
+                    <!-- Tên thể loại -->
+                    <div class="mb-3 row">
                         <label for="TheLoaiTaiLieuID" class="col-sm-3 col-form-label text-end">Tên thể loại</label>
                         <div class="col-sm-9">
                             <select class="form-control" id="TheLoaiTaiLieuID" name="TheLoaiTaiLieuID" required>
@@ -45,48 +49,86 @@
                                     <option value="@item.Value">@item.Text</option>
                                 }
                             </select>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <label for="TieuDe" class="col-sm-3 col-form-label text-end">Tiêu đề</label>
-                        <div class="col-sm-9">
-                            <input type="text" class="form-control" id="TieuDe" name="TieuDe" required />
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <label for="MoTa" class="col-sm-3 col-form-label text-end">Mô tả</label>
-                        <div class="col-sm-9">
-                            <textarea class="form-control" id="MoTa" name="MoTa" rows="3" required></textarea>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <label for="TacGia" class="col-sm-3 col-form-label text-end">Tác giả</label>
-                        <div class="col-sm-9">
-                            <input type="text" class="form-control" id="TacGia" name="TacGia" required />
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <label for="AnhNen" class="col-sm-3 col-form-label text-end">Ảnh nền</label>
-                        <div class="col-sm-9">
-                            <input type="file" class="form-control mb-2" id="AnhNen" name="AnhNen" />
-                            <img id="currentAnhNen" src="#" alt="Current Image" style="display:none; width:100px; height:auto;" />
-                            <span id="AnhNenFileName" style="display:none; margin-left: 10px;"></span> <!-- Thêm phần tử này -->
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <label for="FileTaiLieu" class="col-sm-3 col-form-label text-end">File tài liệu</label>
-                        <div class="col-sm-9">
-                            <input type="file" class="form-control mb-2" id="FileTaiLieu" name="FileTaiLieu" accept="application/pdf">
-                            <span id="FileTaiLieuFileName" style="display:none; margin-left: 10px;"></span>
-                            <embed id="pdfViewer" style="display:none; width:100%; height:600px;" type="application/pdf">
+                            <div class="invalid-feedback">Vui lòng chọn thể loại.</div>
                         </div>
                     </div>
 
+                    <!-- Tiêu đề -->
+                    <div class="mb-3 row">
+                        <label for="TieuDe" class="col-sm-3 col-form-label text-end">Tiêu đề</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="TieuDe" name="TieuDe" placeholder="Nhập tiêu đề" required>
+                            <div class="invalid-feedback">Vui lòng nhập tiêu đề.</div>
+                        </div>
+                    </div>
+
+                    <!-- Mô tả -->
+                    <div class="mb-3 row">
+                        <label for="MoTa" class="col-sm-3 col-form-label text-end">Mô tả</label>
+                        <div class="col-sm-9">
+                            <textarea class="form-control" id="MoTa" name="MoTa" rows="3" placeholder="Nhập mô tả" required></textarea>
+                            <div class="invalid-feedback">Vui lòng nhập mô tả.</div>
+                        </div>
+                    </div>
+
+                    <!-- Tác giả -->
+                    <div class="mb-3 row">
+                        <label for="TacGia" class="col-sm-3 col-form-label text-end">Tác giả</label>
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="TacGia" name="TacGia" placeholder="Nhập tên tác giả" required>
+                            <div class="invalid-feedback">Vui lòng nhập tên tác giả.</div>
+                        </div>
+                    </div>
+
+                    <!-- Năm xuất bản -->
+                    <div class="mb-3 row">
+                        <label for="NamXB" class="col-sm-3 col-form-label text-end">Năm xuất bản</label>
+                        <div class="col-sm-9">
+                            <select class="form-control" id="NamXB" name="NamXB" required>
+                                <option value="" hidden>Chọn năm xuất bản</option>
+                                @foreach (var item in (SelectList)ViewBag.YearsList)
+                                {
+                                    <option value="@item.Value">@item.Text</option>
+                                }
+                            </select>
+                            <div class="invalid-feedback">Vui lòng chọn năm xuất bản.</div>
+                        </div>
+                    </div>
+
+                    <!-- Từ khóa tự do -->
+                    <div class="mb-3 row">
+                        <label for="TuKhoaTuDo" class="col-sm-3 col-form-label text-end">Từ khóa tự do</label>
+                        <div class="col-sm-9">
+                            <textarea class="form-control" id="TuKhoaTuDo" name="TuKhoaTuDo" rows="3" placeholder="Nhập từ khóa" required></textarea>
+                            <div class="invalid-feedback">Vui lòng nhập từ khóa tự do.</div>
+                        </div>
+                    </div>
+
+                    <!-- Ảnh nền -->
+                    <div class="mb-3 row">
+                        <label for="AnhNen" class="col-sm-3 col-form-label text-end">Ảnh nền</label>
+                        <div class="col-sm-9">
+                            <input type="file" class="form-control" id="AnhNen" name="AnhNen" accept="image/*" required>
+                            <img id="currentAnhNen" src="#" alt="Current Image" class="img-fluid mt-2" style="display:none; max-width: 100px; height: auto;" />
+                            <span id="AnhNenFileName" style="display:none; margin-left: 10px;"></span>
+                        </div>
+                    </div>
+
+                    <!-- File tài liệu -->
+                    <div class="mb-3 row">
+                        <label for="FileTaiLieu" class="col-sm-3 col-form-label text-end">File tài liệu</label>
+                        <div class="col-sm-9">
+                            <input type="file" class="form-control" id="FileTaiLieu" name="FileTaiLieu" accept="application/pdf" required>
+                            <span id="FileTaiLieuFileName" style="display:none; margin-left: 10px;"></span>
+                            <!-- Optional PDF preview can be included if needed -->
+                            @*<embed id="pdfViewer" style="display:none; width:100%; height:600px;" type="application/pdf">*@
+                        </div>
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="saveChangesBtn">Create</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" id="saveChangesBtn">Lưu</button>
             </div>
         </div>
     </div>
@@ -303,21 +345,6 @@
             // Event handler for Save Changes button in modal
             $('#saveChangesBtn').click(function () {
                 var form = $('#createForm');
-                var fileInput = $('#FileTaiLieu')[0];
-                var file = fileInput.files[0];
-
-                // Check if file is PDF
-                if (file && file.type !== 'application/pdf') {
-                    showToast('Chỉ chấp nhận tài liệu PDF!', 'danger');
-                    return;
-                }
-
-                // Check file size
-                if (file && file.size > 4 * 1024 * 1024) { // 4MB limit
-                    showToast('File tài liệu không được vượt quá 4MB!', 'danger');
-                    return;
-                }
-
                 // Validate form
                 if (form[0].checkValidity() === false) {
                     form.addClass('was-validated');
@@ -325,8 +352,8 @@
                 }
 
                 // Create or update document
-                if ($('#TheLoaiTaiLieuID').val()) {
-                    editTaiLieu($('#TheLoaiTaiLieuID').val());
+                if ($('#ID').val()) {
+                    editTaiLieu($('#ID').val());
                 } else {
                     createTaiLieu();
                 }
@@ -349,7 +376,7 @@
                             showToast('Thêm thành công!', 'success');
                             reloadDocumentTable(currentPageNumber); // Reload current page
                         } else {
-                            showToast('Lỗi!', 'danger');
+                            showToast(response.error ||  'Lỗi!', 'danger');
                         }
                     },
                     error: function (xhr, status, error) {
@@ -377,6 +404,8 @@
                     $('#MoTa').val(response.MoTa);
                     $('#TieuDe').val(response.TieuDe);
                     $('#TacGia').val(response.TacGia);
+                    $('#NamXB').val(response.NamXB);
+                    $('#TuKhoaTuDo').val(response.TuKhoaTuDo);
 
                     // Hiển thị ảnh nền (nếu có)
                     if (response.AnhNen) {
@@ -426,7 +455,7 @@
                             showToast('Chỉnh sửa thành công!', 'success');
                             reloadDocumentTable(currentPageNumber); // Reload current page
                         } else {
-                            showToast(response.message || 'Lỗi!', 'danger');
+                            showToast(response.error || 'Lỗi!', 'danger');
                         }
                     },
                     error: function (xhr, status, error) {

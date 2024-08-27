@@ -26,6 +26,13 @@ namespace QuanLyThuVien_DA.Controllers
             {
                 try
                 {
+                    // Kiểm tra xem tên Thể Loại đã tồn tại trong bảng Thể Loại hay chưa
+                    bool isExist = db.FITHOU_LIB_TheLoaiTaiLieu.Any(tl => tl.TenTheLoai == dexuat.TenTheLoai);
+                    if (isExist)
+                    {
+                        return Json(new { success = false, error = "Tên Thể Loại đã tồn tại trong hệ thống." });
+                    }
+
                     var newDexuat = new FITHOU_LIB_DeXuatTheLoai
                     {
                         UserID = dexuat.UserID,
@@ -47,6 +54,7 @@ namespace QuanLyThuVien_DA.Controllers
 
             return Json(new { success = false, error = "Model state is invalid" });
         }
+
 
         [HttpGet]
         public ActionResult GetNotifications()

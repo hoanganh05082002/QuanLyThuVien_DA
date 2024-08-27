@@ -11,6 +11,7 @@
     var userName = Session["UserName"];
     var userRole = Session["UserRole"];
 }
+<link href="~/Interface/vendor/fontawesome-pro-6.0.0-beta3-web/fontawesome-pro-6.0.0-beta3-web/css/all.min.css" rel="stylesheet" />
 
 
 <h2 class="font-weight-bold mb-4 text-primary">Danh sách tin tức</h2>
@@ -20,7 +21,10 @@
         <div class="col-md-12">
             <form class="form-inline">
                 <input type="text" id="searchTerm" name="searchTerm" class="form-control mr-sm-2" placeholder="Tìm kiếm tin tức">
-                <button type="button" class="btn btn-primary" onclick="searchNews()">Tìm kiếm</button>
+                <button type="button" class="btn btn-primary mr-3" onclick="searchNews()">Tìm kiếm</button>
+                <button type="button" class="btn btn-warning" onclick="resetSearch()">
+                    <i class="fa fa-arrow-rotate-right"></i>
+                </button>
             </form>
         </div>
     </div>
@@ -148,19 +152,23 @@
                 + date.getFullYear();
             return formattedDate;
         }
+
+        function resetSearch() {
+            $('#searchTerm').val('');
+            searchNews();
+        }
     </script>
 }
 
 <style>
     /* CSS để hiển thị mỗi tin tức theo chiều ngang */
-        .news-item img {
-          
-            max-width: 100px; /* Kích thước tối đa của hình ảnh */
-        }
+    .news-item img {
+        max-width: 100px; /* Kích thước tối đa của hình ảnh */
+    }
 
-        .news-item .card-body {
-            flex-grow: 1; /* Chỉnh độ rộng để tiêu đề chiếm phần còn lại */
-        }
+    .news-item .card-body {
+        flex-grow: 1; /* Chỉnh độ rộng để tiêu đề chiếm phần còn lại */
+    }
 
     h2 {
         text-align: center; /* Căn giữa nội dung của h2 */
